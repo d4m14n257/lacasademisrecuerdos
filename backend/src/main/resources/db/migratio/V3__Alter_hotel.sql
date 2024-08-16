@@ -1,0 +1,2 @@
+ALTER TABLE Hotel
+    ADD COLUMN url VARCHAR(128);
