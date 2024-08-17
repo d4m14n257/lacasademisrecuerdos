@@ -22,7 +22,7 @@ public class JwtTokenProvider {
         return JWT.create()
             .withSubject(username)
             .withIssuedAt(new Date())
-            .withExpiresAt(new Date(System.currentTimeMillis() + clientConfig.expireTime()))
+            .withExpiresAt(new Date(System.currentTimeMillis() + clientConfig.expirationTime()))
             .sign(Algorithm.HMAC512(clientConfig.secretKey().getBytes()));
     }
 }

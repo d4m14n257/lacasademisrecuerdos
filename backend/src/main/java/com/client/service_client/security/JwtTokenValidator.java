@@ -29,8 +29,9 @@ public class JwtTokenValidator {
             return jwt.getSubject();
         }
         catch (JWTVerificationException e) {
+            System.out.println(clientConfig);
             System.out.println(e.getMessage());
-            
+
             return null;
         }
     }

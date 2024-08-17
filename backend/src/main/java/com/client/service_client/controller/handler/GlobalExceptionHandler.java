@@ -1,4 +1,4 @@
-package com.client.service_client.controller;
+package com.client.service_client.controller.handler;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,11 +35,16 @@ public class GlobalExceptionHandler {
         Map<String, List<String>> result = new HashMap<>();
         result.put("errors", errors);
 
-    return new ResponseEntity<>(result, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(result, HttpStatus.BAD_REQUEST);
   }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ResponseEntity<?> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException e, WebRequest request) {
         return new ResponseEntity<>(new ResponseWithInfo("HTTP method not supported", e.getMessage()), HttpStatus.METHOD_NOT_ALLOWED);
     }
+
+    // @ExceptionHandler(Author.class)
+    // public ResponseEntity<?> handleCustomAuthenticationException(CustomAuthenticationException ex, WebRequest request) {
+    //     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseOnlyMessage(ex.getMessage()));
+    // }
 }   

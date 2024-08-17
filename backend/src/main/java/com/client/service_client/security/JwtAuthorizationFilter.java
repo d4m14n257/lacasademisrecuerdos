@@ -1,6 +1,7 @@
 package com.client.service_client.security;
 
 import java.io.IOException;
+import java.util.Collections;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -35,16 +36,16 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter{
         String bearerHeader = request.getHeader("Authorization");
 
         if(StringUtils.hasText(bearerHeader) && bearerHeader.startsWith("Bearer ")) {
-            String token = bearerHeader.replace("Bearer", "");
+            String token = bearerHeader.replace("Bearer ", "");
             String username = jwtTokenValidator.validateToken(token);
 
             if(username != null) {
                 UserDetails userDetails = userService.loadUserByUsername(username);
-                UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null);
+                UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                    userDetails, null, Collections.emptyList());
 
                 authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-
             }
         }
 

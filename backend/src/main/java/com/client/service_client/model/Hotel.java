@@ -54,6 +54,10 @@ public class Hotel {
         this.id = CustomIdGenerator.generate(12);
     }
 
+    public Hotel (String id) {
+        this.id = id;
+    }
+
     public String getId() {
         return id;
     }
@@ -142,5 +146,11 @@ public class Hotel {
         this.created_at = created_at;
     }
 
-    
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
 }

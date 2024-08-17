@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.client.service_client.controller.interfaces.IHotelController;
 import com.client.service_client.model.Hotel;
 import com.client.service_client.model.dto.HotelDTO;
+import com.client.service_client.model.dto.HotelUpdateDTO;
+import com.client.service_client.model.response.ResponseOnlyMessage;
 import com.client.service_client.model.response.ResponseWithData;
 import com.client.service_client.model.response.ResponseWithInfo;
 import com.client.service_client.service.HotelService;
@@ -25,14 +27,23 @@ public class HotelController implements IHotelController {
     @Override
     public ResponseEntity<?> createHotel(HotelDTO entity) {
         try {
+            System.out.println("Entre aqui");
             Hotel hotel = new Hotel();
-            hotel.setHotel_name(null);
-            hotel.setStreet_name(null);
-            hotel.setNeighborhood(null);
-            hotel.setStreet_number(null);
-            hotel.setPostal_code(null);
-            hotel.setPhone_number(null);
-            hotel.setHotel_name(null);
+
+            hotel.setHotel_name(entity.getHotel_name());
+            hotel.setStreet_name(entity.getStreet_name());
+            hotel.setNeighborhood(entity.getNeighborhood());
+            hotel.setStreet_number(entity.getStreet_number());
+            hotel.setPostal_code(entity.getPostal_code());
+            hotel.setPhone_number(entity.getPhone_number());
+            hotel.setEmail(entity.getEmail());
+            hotel.setLatitude(entity.getLatitude());
+            hotel.setLongitude(entity.getLongitude());
+            hotel.setUrl(entity.getUrl());
+
+            hotelService.save(hotel);
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseOnlyMessage("New hotel created"));
 
         }
         catch(Exception e) {
@@ -42,14 +53,40 @@ public class HotelController implements IHotelController {
 
     @Override
     public ResponseEntity<?> deleteHotel(String[] ids) {
-        // TODO Auto-generated method stub
-        return null;
+        try {
+            for (String id : ids) {
+                hotelService.deleteById(id);
+            }
+
+            return ResponseEntity.ok().body(new ResponseOnlyMessage("Hotel deleted"));
+        }
+        catch(Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseWithInfo("Internal server error", e.getMessage()));
+        } 
     }
 
     @Override
-    public ResponseEntity<?> editHotel(Hotel entity) {
-        // TODO Auto-generated method stub
-        return null;
+    public ResponseEntity<?> editHotel(HotelUpdateDTO entity) {
+        try {
+            Hotel hotel = new Hotel(entity.getId());
+            hotel.setHotel_name(entity.getId());
+            hotel.setStreet_name(entity.getStreet_name());
+            hotel.setNeighborhood(entity.getNeighborhood());
+            hotel.setStreet_number(entity.getStreet_number());
+            hotel.setPostal_code(entity.getPostal_code());
+            hotel.setPhone_number(entity.getPhone_number());
+            hotel.setEmail(entity.getEmail());
+            hotel.setLatitude(entity.getLatitude());
+            hotel.setLongitude(entity.getLongitude());
+            hotel.setUrl(entity.getUrl());
+            hotel.setCreated_at(entity.getCreated_at());
+
+            hotelService.save(hotel);
+            return ResponseEntity.ok().body(new ResponseOnlyMessage("Hotel updated"));
+        }
+        catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseWithInfo("Internal server error", e.getMessage()));
+        }
     }
 
     @Override

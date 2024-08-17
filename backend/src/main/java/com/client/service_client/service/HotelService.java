@@ -18,4 +18,12 @@ public class HotelService {
     public List<Hotel> getAllHoteles () {
         return hotelRepository.findAll();
     }
+
+    public void save (Hotel hotel) {
+        hotelRepository.save(hotel);
+    }
+
+    public void deleteById (String id) {
+        hotelRepository.deleteById(id);
+    }
 }

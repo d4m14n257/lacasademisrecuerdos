@@ -8,8 +8,10 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.client.service_client.model.Hotel;
 import com.client.service_client.model.dto.HotelDTO;
+import com.client.service_client.model.dto.HotelUpdateDTO;
+
+import jakarta.validation.Valid;
 
 @RequestMapping("/api/hotel")
 public interface IHotelController {
@@ -18,10 +20,10 @@ public interface IHotelController {
     public ResponseEntity<?> getAllLocations();
 
     @PostMapping("/admin")
-    public ResponseEntity<?> createHotel(@RequestBody HotelDTO entity);
+    public ResponseEntity<?> createHotel(@Valid @RequestBody HotelDTO entity);
 
     @PutMapping("/admin")
-    public ResponseEntity<?> editHotel(@RequestBody Hotel entity);
+    public ResponseEntity<?> editHotel(@Valid @RequestBody HotelUpdateDTO entity);
 
     @DeleteMapping("/admin")
     public ResponseEntity<?> deleteHotel(@RequestBody String[] ids);
