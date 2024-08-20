@@ -37,3 +37,6 @@ bin/
 
 ### Secret ###
 /src/main/resources/secrets.properties
+
+### Files saves ###
+/upload

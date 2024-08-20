@@ -1,14 +1,14 @@
 package com.client.service_client.model;
 
-import java.time.LocalDate;
-
 import com.client.service_client.util.CustomIdGenerator;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -29,13 +29,10 @@ public class File{
     private String mime;
 
     @Column(name = "size")
-    private Integer size;
+    private Long size;
 
     @Column(name = "main")
     private Boolean main;
-
-    @Column(name = "created_at")
-    private LocalDate created_at;
 
     @ManyToOne
     @JoinColumn(name = "room_id", nullable = true)
@@ -44,6 +41,11 @@ public class File{
     @ManyToOne
     @JoinColumn(name = "tour_id", nullable = true)
     private Tour tour;
+
+    @OneToOne
+    @JoinColumn(name = "hotel_id", nullable = true)
+    @JsonBackReference
+    private Hotel hotel;
 
     public File() {
         this.id = CustomIdGenerator.generate(12);
@@ -74,11 +76,11 @@ public class File{
     }
 
 
-    public Integer getSize() {
+    public Long getSize() {
         return size;
     }
 
-    public void setSize(Integer size) {
+    public void setSize(Long size) {
         this.size = size;
     }
 
@@ -88,14 +90,6 @@ public class File{
 
     public void setMain(Boolean main) {
         this.main = main;
-    }
-
-    public LocalDate getCreated_at() {
-        return created_at;
-    }
-
-    public void setCreated_at(LocalDate created_at) {
-        this.created_at = created_at;
     }
 
     public Room getRoom() {
@@ -120,5 +114,13 @@ public class File{
 
     public void setMime(String mime) {
         this.mime = mime;
+    }
+
+    public Hotel getHotel() {
+        return hotel;
+    }
+
+    public void setHotel(Hotel hotel) {
+        this.hotel = hotel;
     }
 }

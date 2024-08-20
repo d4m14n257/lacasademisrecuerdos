@@ -44,6 +44,7 @@ public class SecurityConfig {
             new Endpoints(HttpMethod.POST, "/api/room/admin"),
             new Endpoints(HttpMethod.POST, "/api/tour/admin"),
             new Endpoints(HttpMethod.POST, "/api/hotel/admin"),
+            new Endpoints(HttpMethod.POST, "/api/file/admin/hotel"),
             new Endpoints(HttpMethod.PUT, "/api/room/admin"),
             new Endpoints(HttpMethod.PUT, "/api/contact/admin"),
             new Endpoints(HttpMethod.PUT, "/api/hotel/admin"),
@@ -51,8 +52,9 @@ public class SecurityConfig {
             new Endpoints(HttpMethod.DELETE, "/api/room/admin"),
             new Endpoints(HttpMethod.DELETE, "/api/contact/admin"),
             new Endpoints(HttpMethod.DELETE, "/api/hotel/admin"),
-            new Endpoints(HttpMethod.DELETE, "/api/tour/admin"))
-    );
+            new Endpoints(HttpMethod.DELETE, "/api/tour/admin"),
+            new Endpoints(HttpMethod.DELETE, "/api/file/admin")
+        ));
 
     public SecurityConfig(JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint, UserService userService, JwtTokenValidator jwtTokenValidator) {
         this.jwtAuthenticationEntryPoint = jwtAuthenticationEntryPoint;

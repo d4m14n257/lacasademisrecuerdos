@@ -5,6 +5,7 @@ import org.hibernate.validator.constraints.URL;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
 public class HotelDTO {
@@ -33,9 +34,11 @@ public class HotelDTO {
         message = "The email entered is not valid")
     private String email;
 
+    @NotNull(message = "Latitude cannot be null")
     @Digits(integer = 3, fraction = 7)
     private double latitude;
 
+    @NotNull(message = "Longitude cannot be null")
     @Digits(integer = 3, fraction = 7)
     private double longitude;
 

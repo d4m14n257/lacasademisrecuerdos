@@ -4,6 +4,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.Optional;
@@ -34,6 +35,7 @@ public class UserService implements UserDetailsService{
         return null;
     }
 
+    @Transactional
     public void save (com.client.service_client.model.User user) {
         userRepository.save(user);
     }

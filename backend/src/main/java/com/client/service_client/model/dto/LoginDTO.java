@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 
 public class LoginDTO {
 
-    @NotBlank(message = "Username is Required")
+    @NotBlank(message = "Username is required")
     private String username;
 
     @NotBlank(message = "Password is required")

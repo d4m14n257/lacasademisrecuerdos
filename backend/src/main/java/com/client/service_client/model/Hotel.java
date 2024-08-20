@@ -3,10 +3,15 @@ package com.client.service_client.model;
 import java.time.LocalDate;
 
 import com.client.service_client.util.CustomIdGenerator;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.PrimaryKeyJoinColumn;
 import jakarta.persistence.Table;
 
 @Entity
@@ -49,6 +54,11 @@ public class Hotel {
 
     @Column(name = "created_at")
     private LocalDate created_at;
+
+    @OneToOne(mappedBy = "hotel", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
+    @PrimaryKeyJoinColumn
+    private File file;
 
     public Hotel() {
         this.id = CustomIdGenerator.generate(12);
@@ -152,5 +162,13 @@ public class Hotel {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public File getFile() {
+        return file;
+    }
+
+    public void setFile(File file) {
+        this.file = file;
     }
 }

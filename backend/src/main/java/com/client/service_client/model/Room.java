@@ -110,4 +110,11 @@ public class Room {
         this.files = files;
     }
 
+    public Set<Contact> getContacts() {
+        return contacts;
+    }
+
+    public void setContacts(Set<Contact> contacts) {
+        this.contacts = contacts;
+    }
 }
