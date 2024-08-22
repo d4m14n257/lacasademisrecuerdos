@@ -36,10 +36,12 @@ public class File{
 
     @ManyToOne
     @JoinColumn(name = "room_id", nullable = true)
+    @JsonBackReference
     private Room room;
 
     @ManyToOne
     @JoinColumn(name = "tour_id", nullable = true)
+    @JsonBackReference
     private Tour tour;
 
     @OneToOne

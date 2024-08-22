@@ -1,6 +1,7 @@
 package com.client.service_client.controller.interfaces;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -8,9 +9,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.multipart.MultipartFile;
 
-import com.client.service_client.model.Room;
-import com.client.service_client.model.record.RequestRoom;
+import com.client.service_client.model.dto.RoomDTO;
+import com.client.service_client.model.dto.RoomUpdateDTO;
+import com.client.service_client.model.dto.SourceDTO;
+
+import jakarta.validation.Valid;
 
 @RequestMapping("/api/room")
 public interface IRoomController {
@@ -28,11 +35,14 @@ public interface IRoomController {
     public ResponseEntity<?> getRoomByAdmin(@PathVariable String id);
 
     @PostMapping("/admin")
-    public ResponseEntity<?> createRoom(@RequestBody RequestRoom entity);
+    @Transactional
+    public ResponseEntity<?> createRoom(@Valid @RequestPart("data") RoomDTO entity, @RequestParam("file") MultipartFile file);
 
     @PutMapping("/admin") 
-    public ResponseEntity<?> editRoom(@RequestBody Room entity);
+    @Transactional
+    public ResponseEntity<?> editRoom(@Valid @RequestBody RoomUpdateDTO entity);
 
     @DeleteMapping("/admin")
-    public ResponseEntity<?> deleteRoom(@RequestBody String[] ids);
+    @Transactional
+    public ResponseEntity<?> deleteRoom(@RequestBody SourceDTO[] rooms);
 }

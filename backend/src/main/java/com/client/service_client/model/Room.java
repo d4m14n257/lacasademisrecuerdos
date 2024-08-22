@@ -3,9 +3,12 @@ package com.client.service_client.model;
 import java.util.Set;
 
 import com.client.service_client.util.CustomIdGenerator;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -36,7 +39,8 @@ public class Room {
     @Column(name = "double_price", nullable = true)
     private Double double_price;
 
-    @OneToMany(mappedBy = "room")
+    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
     Set<File> files;
 
     @OneToMany(mappedBy = "room")
@@ -44,6 +48,10 @@ public class Room {
 
     public Room() {
         this.id = CustomIdGenerator.generate(12);
+    }
+
+    public Room(String id) {
+        this.id = id;
     }
 
     public String getId() {

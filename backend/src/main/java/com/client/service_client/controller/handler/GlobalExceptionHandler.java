@@ -8,12 +8,14 @@ import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.transaction.UnexpectedRollbackException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.method.annotation.MethodArgumentConversionNotSupportedException;
 import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
@@ -61,8 +63,13 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(new ResponseWithInfo("Unsupported media type in file", e.getMessage()), HttpStatus.UNSUPPORTED_MEDIA_TYPE);
     }
 
-    // @ExceptionHandler(Author.class)
-    // public ResponseEntity<?> handleCustomAuthenticationException(CustomAuthenticationException ex, WebRequest request) {
-    //     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseOnlyMessage(ex.getMessage()));
-    // }
+    @ExceptionHandler(MethodArgumentConversionNotSupportedException.class)
+    public ResponseEntity<?> handlerArgumentConversion (MethodArgumentConversionNotSupportedException e) {
+        return new ResponseEntity<>(new ResponseWithInfo("Required conversion in data", e.getMessage()), HttpStatus.GONE);
+    }
+
+    @ExceptionHandler(UnexpectedRollbackException.class)
+    public ResponseEntity<?> handlerRollEntity (UnexpectedRollbackException e) {
+        return new ResponseEntity<>(new ResponseWithInfo("Unexpected error", e.getMessage()), HttpStatus.UNSUPPORTED_MEDIA_TYPE);
+    }
 }   

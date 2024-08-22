@@ -4,11 +4,11 @@ import java.time.LocalDate;
 
 import jakarta.validation.constraints.NotBlank;
 
-public class HotelUpdateDTO extends HotelDTO{
-    @NotBlank
+public class HotelUpdateDTO extends HotelDTO {
+    @NotBlank(message = "Id is require")
     private String id;
 
-    @NotBlank
+    @NotBlank(message = "Created at is require")
     private LocalDate created_at;
 
     public String getId() {

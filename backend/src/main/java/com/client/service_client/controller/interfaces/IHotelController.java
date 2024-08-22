@@ -1,6 +1,7 @@
 package com.client.service_client.controller.interfaces;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,11 +24,14 @@ public interface IHotelController {
     public ResponseEntity<?> getAllLocations();
 
     @PostMapping("/admin")
+    @Transactional
     public ResponseEntity<?> createHotel(@Valid @RequestPart("data") HotelDTO entity, @RequestPart("file") MultipartFile file);
 
     @PutMapping("/admin")
+    @Transactional
     public ResponseEntity<?> editHotel(@Valid @RequestBody HotelUpdateDTO entity);
 
     @DeleteMapping("/admin")
+    @Transactional
     public ResponseEntity<?> deleteHotel(@RequestBody SourceDTO[] hoteles);
 }

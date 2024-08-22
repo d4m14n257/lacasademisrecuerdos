@@ -7,42 +7,52 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 public class HotelDTO {
     
     @NotBlank(message = "Hotel name is required")
+     @Size(max = 128, message = "The name cannot be longer than 128 characters")
     private String hotel_name;
 
     @NotBlank(message = "Street name is required")
+    @Size(max = 128, message = "The street cannot be longer than 128 characters")
     private String street_name;
 
+    @Size(max = 64, message = "The neighborhood cannot be longer than 64 characters")
     private String neighborhood;
+
+    @Size(max = 10, message = "The street number cannot be longer than 10 characters")
     private String street_number;
 
     @Pattern(regexp = "^\\\\d{5}$",
             message = "The postal code is not valid.")
+    @Size(max = 10, message = "The postal code cannot be longer than 10 characters")
     private String postal_code;
 
     @Pattern(
         regexp = "^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\\s\\./0-9]*$",
         message = "The phone number is not valid")
+    @Size(max = 16, message = "The phone number cannot be longer than 16 characters")
     private String phone_number;
 
     @Email
     @Pattern(
         regexp = "(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])",
         message = "The email entered is not valid")
+    @Size(max = 64, message = "The email cannot be longer than 64 characters")
     private String email;
 
     @NotNull(message = "Latitude cannot be null")
     @Digits(integer = 3, fraction = 7)
-    private double latitude;
+    private Double latitude;
 
     @NotNull(message = "Longitude cannot be null")
     @Digits(integer = 3, fraction = 7)
-    private double longitude;
+    private Double longitude;
 
     @URL
+    @Size(max = 128, message = "The url cannot be longer than 128 characters")
     private String url;
 
     public String getHotel_name() {
@@ -105,15 +115,15 @@ public class HotelDTO {
         return latitude;
     }
 
-    public void setLatitude(double latitude) {
+    public void setLatitude(Double latitude) {
         this.latitude = latitude;
     }
 
-    public double getLongitude() {
+    public Double getLongitude() {
         return longitude;
     }
 
-    public void setLongitude(double longitude) {
+    public void setLongitude(Double longitude) {
         this.longitude = longitude;
     }
 

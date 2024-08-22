@@ -34,8 +34,8 @@ public class FileController implements IFileController{
     public ResponseEntity<?> deleteFile(@RequestBody SourceDTO[] files) {
         try {
             for(SourceDTO file : files) {
-                fileService.deleteFileById(file.getId());
                 storageService.deleteFile(file.getSource());
+                fileService.deleteFileById(file.getId());
             }
 
             return ResponseEntity.ok().body(new ResponseOnlyMessage("Files deleted"));
@@ -72,6 +72,7 @@ public class FileController implements IFileController{
             fileSave.setMime(mimeType);
             fileSave.setSize(file.getSize());
             fileSave.setMain(true);
+            fileSave.setSource(source);
 
             fileService.save(fileSave);
             fileService.saveFileHotel(hotel.getId(), fileSave.getId());
@@ -79,6 +80,10 @@ public class FileController implements IFileController{
             return ResponseEntity.ok().body(new ResponseOnlyMessage("File saved"));
         }
         catch (IllegalArgumentException e) {
+            if(source != null) {
+                storageService.deleteFile(source);
+            }
+
             return ResponseEntity.badRequest().body(new ResponseWithInfo("Invalid request", e.getMessage()));
         } 
         catch (Exception e) {

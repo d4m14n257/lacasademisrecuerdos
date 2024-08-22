@@ -81,6 +81,10 @@ public class HotelController implements IHotelController {
 
         }
         catch (IllegalArgumentException e) {
+            if(source != null) {
+                storageService.deleteFile(source);
+            }
+
             return ResponseEntity.badRequest().body(new ResponseWithInfo("Invalid request", e.getMessage()));
         } 
         catch(Exception e) {
@@ -97,7 +101,6 @@ public class HotelController implements IHotelController {
         try {
             for (SourceDTO hotel : hoteles) {
                 hotelService.deleteById(hotel.getId());
-
                 storageService.deleteFile(hotel.getSource());
             }
 
@@ -115,7 +118,7 @@ public class HotelController implements IHotelController {
     public ResponseEntity<?> editHotel(HotelUpdateDTO entity) {
         try {
             Hotel hotel = new Hotel(entity.getId());
-            hotel.setHotel_name(entity.getId());
+            hotel.setHotel_name(entity.getHotel_name());
             hotel.setStreet_name(entity.getStreet_name());
             hotel.setNeighborhood(entity.getNeighborhood());
             hotel.setStreet_number(entity.getStreet_number());
