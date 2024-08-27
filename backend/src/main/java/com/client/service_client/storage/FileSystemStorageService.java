@@ -50,7 +50,7 @@ public class FileSystemStorageService implements StorageService {
 		
 			String timestamp = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss").format(LocalDateTime.now());
 			String newFilename = originalFilename + "_" + timestamp + extension;
-		
+			
 			Path destinationDir = this.rootLocation.resolve(Paths.get(destination).getFileName()).normalize();
 			Path destinationFile = destinationDir.resolve(newFilename).normalize().toAbsolutePath();
 			
@@ -135,7 +135,9 @@ public class FileSystemStorageService implements StorageService {
 	@Override
 	public void init() {
 		try {
-			Files.createDirectories(rootLocation);
+			Path path = Paths.get(rootLocation.toString());
+			
+        	Files.createDirectories(path);
 		}
 		catch (IOException e) {
 			throw new StorageException("Could not initialize storage", e);

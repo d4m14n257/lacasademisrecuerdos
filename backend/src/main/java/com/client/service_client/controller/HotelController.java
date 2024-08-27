@@ -65,7 +65,7 @@ public class HotelController implements IHotelController {
             hotel.setUrl(entity.getUrl());
             hotel.setFile(fileSave);
 
-            fileSave.setName(file.getName());
+            fileSave.setName(file.getOriginalFilename());
             fileSave.setMime(mimeType);
             fileSave.setSize(file.getSize());
             fileSave.setMain(true);

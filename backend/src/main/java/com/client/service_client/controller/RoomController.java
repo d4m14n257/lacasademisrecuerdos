@@ -12,6 +12,7 @@ import com.client.service_client.model.dto.SourceDTO;
 import com.client.service_client.model.record.RoomClient;
 import com.client.service_client.model.record.RoomList;
 import com.client.service_client.model.record.RoomResponse;
+import com.client.service_client.model.record.RoomWithFiles;
 import com.client.service_client.model.response.ResponseOnlyMessage;
 import com.client.service_client.model.response.ResponseWithData;
 import com.client.service_client.model.response.ResponseWithInfo;
@@ -26,7 +27,6 @@ import java.util.Optional;
 
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 
@@ -48,9 +48,9 @@ public class RoomController implements IRoomController{
     @Override
     public ResponseEntity<?> getRoomById(@PathVariable String id) {
         try {
-            Optional<Room> room = roomService.findByIdWithFiles(id);
+            Optional<RoomWithFiles> room = roomService.findByIdWithFiles(id);
 
-            if(!room.isPresent()) {
+            if(room != null) {
                 return ResponseEntity.noContent().build();
             }
 
@@ -74,23 +74,19 @@ public class RoomController implements IRoomController{
             }
 
             List<RoomResponse> roomsResponse = new ArrayList<>();
+
             for(RoomClient room : rooms) {
                 Resource resource = storageService.loadAsResource(room.source());
-                String contentType = Files.probeContentType(resource.getFile().toPath());
 
-                if (contentType == null) {
-                    contentType = "application/octet-stream";
-                }
+                byte[] fileContent = Files.readAllBytes(resource.getFile().toPath());
 
                 RoomResponse roomResponse = new RoomResponse(
+                    room.id(),
                     room.name(),
                     room.summary(),
                     room.additional(),
                     room.file_name(),
-                    ResponseEntity.ok()
-                        .contentType(MediaType.parseMediaType(contentType))
-                        .body(resource));
-                        
+                    fileContent);
                 roomsResponse.add(roomResponse);
             }
 
@@ -133,7 +129,7 @@ public class RoomController implements IRoomController{
             room.setFiles(new HashSet<File>());
             room.getFiles().add(fileSave);
 
-            fileSave.setName(file.getName());
+            fileSave.setName(file.getOriginalFilename());
             fileSave.setMime(mimeType);
             fileSave.setSize(file.getSize());
             fileSave.setMain(true);
@@ -143,6 +139,8 @@ public class RoomController implements IRoomController{
             fileSave.setSource(this.source);
 
             roomService.save(room);
+            source = null;
+
             return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseOnlyMessage("New room created"));
         }
         catch (IllegalArgumentException e) {

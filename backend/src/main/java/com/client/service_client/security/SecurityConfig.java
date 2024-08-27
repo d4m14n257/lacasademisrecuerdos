@@ -44,7 +44,7 @@ public class SecurityConfig {
             new Endpoints(HttpMethod.POST, "/api/room/admin"),
             new Endpoints(HttpMethod.POST, "/api/tour/admin"),
             new Endpoints(HttpMethod.POST, "/api/hotel/admin"),
-            new Endpoints(HttpMethod.POST, "/api/file/admin/hotel"),
+            new Endpoints(HttpMethod.POST, "/api/file/admin/{name}"),
             new Endpoints(HttpMethod.PUT, "/api/room/admin"),
             new Endpoints(HttpMethod.PUT, "/api/contact/admin"),
             new Endpoints(HttpMethod.PUT, "/api/hotel/admin"),

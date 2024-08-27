@@ -20,4 +20,11 @@ public interface FileRepository extends JpaRepository<File, String>{
         "DELETE FROM File " +
         "WHERE id = :id", nativeQuery = true)
     void deleteFileById(String id);
+
+    @Modifying
+    @Query(value = 
+        "UPDATE File f " +
+        "SET f.room_id = :room " +
+        "WHERE f.id = :file", nativeQuery = true)
+    void saveFileRoom(String room, String file);
 }

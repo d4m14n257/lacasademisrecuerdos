@@ -8,7 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.client.service_client.controller.interfaces.IFileController;
 import com.client.service_client.model.File;
-import com.client.service_client.model.dto.IdDTO;
+import com.client.service_client.model.dto.FileDTO;
 import com.client.service_client.model.dto.SourceDTO;
 import com.client.service_client.model.response.ResponseOnlyMessage;
 import com.client.service_client.model.response.ResponseWithInfo;
@@ -20,7 +20,7 @@ public class FileController implements IFileController{
 
     private FileService fileService;
     private StorageService storageService;
-    private final String hotelDestination = "/hotel";
+
     private String source; 
 
     public FileController (FileService fileService, StorageService storageService) {
@@ -49,7 +49,7 @@ public class FileController implements IFileController{
     }
 
     @Override
-    public ResponseEntity<?> setFileHotel(IdDTO hotel, MultipartFile file) {
+    public ResponseEntity<?> setFile(String name, FileDTO entity, MultipartFile file) {
         try {
             if(file == null || file.isEmpty()) {
                 return ResponseEntity.badRequest().body(new ResponseOnlyMessage("File is required"));
@@ -65,18 +65,30 @@ public class FileController implements IFileController{
                 return ResponseEntity.badRequest().body(new ResponseOnlyMessage("Formated file is not correct: " + mimeType));
             }
 
-            source = storageService.store(file, hotelDestination);
+            source = storageService.store(file, "/" + name);
 
             File fileSave = new File();
             fileSave.setName(file.getName());
             fileSave.setMime(mimeType);
             fileSave.setSize(file.getSize());
-            fileSave.setMain(true);
+            fileSave.setMain(entity.isMain());
             fileSave.setSource(source);
 
             fileService.save(fileSave);
-            fileService.saveFileHotel(hotel.getId(), fileSave.getId());
 
+            switch (name) {
+                case "hotel":
+                    fileService.saveFileHotel(entity.getId(), fileSave.getId());
+                    break;
+                case "room":
+                    fileService.saveFileRoom(entity.getId(), fileSave.getId());
+                    break;
+                default:
+                    throw new IllegalArgumentException("Name is not valid");
+            }
+            fileService.saveFileHotel(entity.getId(), fileSave.getId());
+
+            source = null;
             return ResponseEntity.ok().body(new ResponseOnlyMessage("File saved"));
         }
         catch (IllegalArgumentException e) {
@@ -94,6 +106,4 @@ public class FileController implements IFileController{
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseWithInfo("Internal server error", e.getMessage()));
         }
     }
-
-    
 }

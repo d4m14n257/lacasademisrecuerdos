@@ -25,4 +25,8 @@ public class FileService {
     public void saveFileHotel (String hotel_id, String file_id) {
         fileRepository.saveFileHotel(hotel_id, file_id);
     }
+
+    public void saveFileRoom (String room_id, String file_id) {
+        fileRepository.saveFileRoom(room_id, file_id);
+    }
 }
