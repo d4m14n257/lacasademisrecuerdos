@@ -2,7 +2,7 @@ package com.client.service_client.model.dto;
 
 import jakarta.validation.constraints.NotBlank;
 
-public class RoomUpdateDTO extends RoomDTO{
+public class TourUpdateDTO extends TourDTO {
     @NotBlank(message = "Id is require")
     private String id;
 

@@ -15,6 +15,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.method.annotation.MethodArgumentConversionNotSupportedException;
 import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
@@ -71,5 +72,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UnexpectedRollbackException.class)
     public ResponseEntity<?> handlerRollEntity (UnexpectedRollbackException e) {
         return new ResponseEntity<>(new ResponseWithInfo("Unexpected error", e.getMessage()), HttpStatus.UNSUPPORTED_MEDIA_TYPE);
+    }
+
+    @ExceptionHandler(HandlerMethodValidationException.class)
+    public ResponseEntity<?> handleValidationException (HandlerMethodValidationException e) {
+        return new ResponseEntity<>(new ResponseWithInfo("Bad request", e.getMessage()), HttpStatus.BAD_REQUEST);
     }
 }   

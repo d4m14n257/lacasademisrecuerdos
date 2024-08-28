@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,6 +17,7 @@ import com.client.service_client.model.dto.RoomUpdateDTO;
 import com.client.service_client.model.dto.SourceDTO;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
 
 @RequestMapping("/api/room")
 public interface IRoomController {
@@ -36,7 +36,7 @@ public interface IRoomController {
 
     @PostMapping("/admin")
     @Transactional
-    public ResponseEntity<?> createRoom(@Valid @RequestPart("data") RoomDTO entity, @RequestParam("file") MultipartFile file);
+    public ResponseEntity<?> createRoom(@Valid @RequestPart("data") RoomDTO entity, @RequestPart("file") MultipartFile file);
 
     @PutMapping("/admin") 
     @Transactional
@@ -44,5 +44,5 @@ public interface IRoomController {
 
     @DeleteMapping("/admin")
     @Transactional
-    public ResponseEntity<?> deleteRoom(@RequestBody SourceDTO[] rooms);
+    public ResponseEntity<?> deleteRoom(@Valid @RequestBody @NotEmpty SourceDTO[] rooms);
 }

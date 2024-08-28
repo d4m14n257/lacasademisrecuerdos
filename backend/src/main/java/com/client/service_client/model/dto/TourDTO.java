@@ -1,14 +1,12 @@
 package com.client.service_client.model.dto;
 
-import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-public class RoomDTO {
-    
+public class TourDTO {
+
     @NotBlank(message = "Name is require")
-    @Size(max = 32, message = "The name cannot be longer than 32 characters")
+    @Size(max = 128, message = "The name cannot be longer than 128 characters")
     private String name;
 
     @NotBlank(message = "Description is require")
@@ -19,16 +17,9 @@ public class RoomDTO {
     @Size(max = 512, message = "The name cannot be longer than 512 characters")
     private String summary;
 
-    @NotBlank(message = "Additional is require")
+    @NotBlank(message = "Url is require")
     @Size(max = 128, message = "The name cannot be longer than 128 characters")
-    private String additional;
-
-    @NotNull(message = "Single price is require")
-    @Digits(integer = 10, fraction = 2)
-    private Double single_price;
-
-    @Digits(integer = 10, fraction = 2)
-    private Double double_price;
+    private String url;
 
     public String getName() {
         return name;
@@ -54,27 +45,11 @@ public class RoomDTO {
         this.summary = summary;
     }
 
-    public String getAdditional() {
-        return additional;
+    public String getUrl() {
+        return url;
     }
 
-    public void setAdditional(String additional) {
-        this.additional = additional;
-    }
-
-    public Double getSingle_price() {
-        return single_price;
-    }
-
-    public void setSingle_price(Double single_price) {
-        this.single_price = single_price;
-    }
-
-    public Double getDouble_price() {
-        return double_price;
-    }
-
-    public void setDouble_price(Double double_price) {
-        this.double_price = double_price;
+    public void setUrl(String url) {
+        this.url = url;
     }
 }

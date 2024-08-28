@@ -16,6 +16,7 @@ import com.client.service_client.model.dto.HotelUpdateDTO;
 import com.client.service_client.model.dto.SourceDTO;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
 
 @RequestMapping("/api/hotel")
 public interface IHotelController {
@@ -33,5 +34,5 @@ public interface IHotelController {
 
     @DeleteMapping("/admin")
     @Transactional
-    public ResponseEntity<?> deleteHotel(@RequestBody SourceDTO[] hoteles);
+    public ResponseEntity<?> deleteHotel(@Valid @RequestBody @NotEmpty SourceDTO[] hoteles);
 }

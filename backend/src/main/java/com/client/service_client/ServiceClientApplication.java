@@ -14,6 +14,8 @@ import com.client.service_client.storage.StorageService;
 @EnableConfigurationProperties({ClientConfigProperties.class, StorageProperties.class})
 public class ServiceClientApplication {
 
+	//TODO: Crear eliminacion global por endpoint, recuperar la estructura y seria api/delete/{nombre_entidad} y el body seria igual para todos, saber que servicios se usan.
+
 	public static void main(String[] args) {
 		SpringApplication.run(ServiceClientApplication.class, args);
 	}

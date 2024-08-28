@@ -18,6 +18,7 @@ import com.client.service_client.model.response.ResponseWithData;
 import com.client.service_client.model.response.ResponseWithInfo;
 import com.client.service_client.service.RoomService;
 import com.client.service_client.storage.StorageService;
+import com.client.service_client.util.FileValidator;
 
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -50,11 +51,13 @@ public class RoomController implements IRoomController{
         try {
             Optional<RoomWithFiles> room = roomService.findByIdWithFiles(id);
 
-            if(room != null) {
+            if(room == null) {
                 return ResponseEntity.noContent().build();
             }
 
-            return ResponseEntity.ok().body(new ResponseWithData<>("Request successful", room));
+            //TODO: Convertir en binarios los archivos para lectura de cliente
+
+            return ResponseEntity.ok().body(new ResponseWithData<RoomWithFiles>("Request successful", room.get()));
         }
         catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new ResponseWithInfo("Invalid request", e.getMessage()));
@@ -103,18 +106,10 @@ public class RoomController implements IRoomController{
     @Override
     public ResponseEntity<?> createRoom(RoomDTO entity, MultipartFile file) {
         try{
-            if(file == null || file.isEmpty()) {
-                return ResponseEntity.badRequest().body(new ResponseOnlyMessage("File is required"));
-            }
+            ResponseEntity<?> validationResponse = FileValidator.validateFile(file);
 
-            String mimeType = file.getContentType();
-
-            if(mimeType == null) {
-                return ResponseEntity.unprocessableEntity().body("Unexpected error");
-            }
-
-            if(mimeType.compareTo("image/jpeg") != 0 && mimeType.compareTo("image/png") != 0) {
-                return ResponseEntity.badRequest().body(new ResponseOnlyMessage("Formated file is not correct: " + mimeType));
+            if (validationResponse != null) {
+                return validationResponse;
             }
 
             Room room = new Room();
@@ -130,7 +125,7 @@ public class RoomController implements IRoomController{
             room.getFiles().add(fileSave);
 
             fileSave.setName(file.getOriginalFilename());
-            fileSave.setMime(mimeType);
+            fileSave.setMime(file.getContentType());
             fileSave.setSize(file.getSize());
             fileSave.setMain(true);
             fileSave.setRoom(room);
@@ -221,7 +216,20 @@ public class RoomController implements IRoomController{
 
     @Override
     public ResponseEntity<?> getRoomByAdmin(String id) {
-        // TODO Auto-generated method stub
-        return null;
+        try {
+            Optional<Room> room = roomService.room(id);
+
+            if(!room.isPresent()) {
+                return ResponseEntity.noContent().build();
+            }
+
+            return ResponseEntity.ok().body(new ResponseWithData<Room>("Request successful", room.get()));
+        }
+        catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new ResponseWithInfo("Invalid request", e.getMessage()));
+        } 
+        catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseWithInfo("Internal server error", e.getMessage()));
+        }  
     }
 }

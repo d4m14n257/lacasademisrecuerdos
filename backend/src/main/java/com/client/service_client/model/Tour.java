@@ -5,11 +5,14 @@ import java.util.Set;
 
 import com.client.service_client.model.enums.TourStatus;
 import com.client.service_client.util.CustomIdGenerator;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -41,11 +44,16 @@ public class Tour {
     @Column(name = "created_at")
     private LocalDate created_at;
 
-    @OneToMany(mappedBy = "tour")
+    @OneToMany(mappedBy = "tour", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
     Set<File> files;
 
     public Tour() {
         this.id = CustomIdGenerator.generate(12);
+    }
+
+    public Tour(String id) {
+        this.id = id;
     }
 
     public String getId() {

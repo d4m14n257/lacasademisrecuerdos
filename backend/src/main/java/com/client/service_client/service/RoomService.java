@@ -7,6 +7,7 @@ import com.client.service_client.model.record.RoomClient;
 import com.client.service_client.model.record.RoomList;
 import com.client.service_client.model.record.RoomWithFiles;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -53,8 +54,8 @@ public class RoomService {
         String description = (String) firstRow[2];
         String summary = (String) firstRow[3];
         String additional = (String) firstRow[4];
-        Double singlePrice = (Double) firstRow[5];
-        Double doublePrice = (Double) firstRow[6];
+        BigDecimal singlePrice = (BigDecimal) firstRow[5];
+        BigDecimal doublePrice = (BigDecimal) firstRow[6];
 
         for (Object[] row : results) {
             String source = (String) row[7];
@@ -66,7 +67,14 @@ public class RoomService {
     } 
 
     public List<RoomList> findRoomList() {
-        return roomRepository.findRoomList();
+        List<Object[]> results = roomRepository.findRoomList();
+        List<RoomList> rooms = new ArrayList<>();
+
+        for(Object[] row : results) {
+            rooms.add(new RoomList((String) row[0], (String)row[1]));
+        }
+
+        return rooms;
     }
 
     public void deleteById (String id) {
@@ -75,5 +83,9 @@ public class RoomService {
 
     public void save (Room entity) {
         roomRepository.save(entity);
+    }
+
+    public Optional<Room> room(String id) {
+        return roomRepository.findById(id);
     }
 }

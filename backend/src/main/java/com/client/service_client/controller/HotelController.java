@@ -18,6 +18,7 @@ import com.client.service_client.model.response.ResponseWithData;
 import com.client.service_client.model.response.ResponseWithInfo;
 import com.client.service_client.service.HotelService;
 import com.client.service_client.storage.StorageService;
+import com.client.service_client.util.FileValidator;
 
 @RestController
 public class HotelController implements IHotelController {
@@ -36,18 +37,10 @@ public class HotelController implements IHotelController {
     @Override
     public ResponseEntity<?> createHotel(HotelDTO entity, MultipartFile file) {
         try {
-            if(file == null || file.isEmpty()) {
-                return ResponseEntity.badRequest().body(new ResponseOnlyMessage("File is required"));
-            }
+            ResponseEntity<?> validationResponse = FileValidator.validateFile(file);
 
-            String mimeType = file.getContentType();
-
-            if(mimeType == null) {
-                return ResponseEntity.unprocessableEntity().body("Unexpected error");
-            }
-
-            if(mimeType.compareTo("image/jpeg") != 0 && mimeType.compareTo("image/png") != 0) {
-                return ResponseEntity.badRequest().body(new ResponseOnlyMessage("Formated file is not correct: " + mimeType));
+            if (validationResponse != null) {
+                return validationResponse;
             }
 
             Hotel hotel = new Hotel();
@@ -66,7 +59,7 @@ public class HotelController implements IHotelController {
             hotel.setFile(fileSave);
 
             fileSave.setName(file.getOriginalFilename());
-            fileSave.setMime(mimeType);
+            fileSave.setMime(file.getContentType());
             fileSave.setSize(file.getSize());
             fileSave.setMain(true);
             fileSave.setHotel(hotel);

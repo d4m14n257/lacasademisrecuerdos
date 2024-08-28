@@ -3,6 +3,7 @@ package com.client.service_client.model;
 import java.util.Set;
 
 import com.client.service_client.util.CustomIdGenerator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
@@ -44,6 +45,7 @@ public class Room {
     Set<File> files;
 
     @OneToMany(mappedBy = "room")
+    @JsonIgnore
     Set<Contact> contacts;
 
     public Room() {

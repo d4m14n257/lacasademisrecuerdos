@@ -1,5 +1,6 @@
 package com.client.service_client.model.record;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public record RoomWithFiles(
@@ -8,6 +9,6 @@ public record RoomWithFiles(
     String description, 
     String summary, 
     String additional, 
-    Double single_price, 
-    Double double_price,
+    BigDecimal single_price, 
+    BigDecimal double_price,
     List<FilesInfo> files) { }

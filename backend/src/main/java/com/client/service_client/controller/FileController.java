@@ -14,6 +14,7 @@ import com.client.service_client.model.response.ResponseOnlyMessage;
 import com.client.service_client.model.response.ResponseWithInfo;
 import com.client.service_client.service.FileService;
 import com.client.service_client.storage.StorageService;
+import com.client.service_client.util.FileValidator;
 
 @RestController
 public class FileController implements IFileController{
@@ -51,25 +52,17 @@ public class FileController implements IFileController{
     @Override
     public ResponseEntity<?> setFile(String name, FileDTO entity, MultipartFile file) {
         try {
-            if(file == null || file.isEmpty()) {
-                return ResponseEntity.badRequest().body(new ResponseOnlyMessage("File is required"));
-            }
+            ResponseEntity<?> validationResponse = FileValidator.validateFile(file);
 
-            String mimeType = file.getContentType();
-
-            if(mimeType == null) {
-                return ResponseEntity.unprocessableEntity().body("Unexpected error");
-            }
-
-            if(mimeType.compareTo("image/jpeg") != 0 && mimeType.compareTo("image/png") != 0) {
-                return ResponseEntity.badRequest().body(new ResponseOnlyMessage("Formated file is not correct: " + mimeType));
+            if (validationResponse != null) {
+                return validationResponse;
             }
 
             source = storageService.store(file, "/" + name);
 
             File fileSave = new File();
-            fileSave.setName(file.getName());
-            fileSave.setMime(mimeType);
+            fileSave.setName(file.getOriginalFilename());
+            fileSave.setMime(file.getContentType());
             fileSave.setSize(file.getSize());
             fileSave.setMain(entity.isMain());
             fileSave.setSource(source);
@@ -86,7 +79,6 @@ public class FileController implements IFileController{
                 default:
                     throw new IllegalArgumentException("Name is not valid");
             }
-            fileService.saveFileHotel(entity.getId(), fileSave.getId());
 
             source = null;
             return ResponseEntity.ok().body(new ResponseOnlyMessage("File saved"));

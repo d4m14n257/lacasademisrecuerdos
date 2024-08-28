@@ -1,0 +1,8 @@
+ALTER TABLE Tour
+    MODIFY COLUMN status ENUM('used', 'inactive');
+
+ALTER TABLE Tour
+    MODIFY COLUMN name VARCHAR(128) NOT NULL;
+
+ALTER TABLE Room
+    MODIFY COLUMN additional VARCHAR(128);
