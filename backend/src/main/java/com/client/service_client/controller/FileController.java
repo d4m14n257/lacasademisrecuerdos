@@ -76,6 +76,9 @@ public class FileController implements IFileController{
                 case "room":
                     fileService.saveFileRoom(entity.getId(), fileSave.getId());
                     break;
+                case "tour":
+                    fileService.saveFileTour(entity.getId(), fileSave.getId());
+                    break;
                 default:
                     throw new IllegalArgumentException("Name is not valid");
             }

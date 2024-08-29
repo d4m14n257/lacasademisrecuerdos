@@ -1,7 +1,10 @@
 package com.client.service_client.controller;
 
+import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
@@ -12,7 +15,8 @@ import com.client.service_client.model.File;
 import com.client.service_client.model.Hotel;
 import com.client.service_client.model.dto.HotelDTO;
 import com.client.service_client.model.dto.HotelUpdateDTO;
-import com.client.service_client.model.dto.SourceDTO;
+import com.client.service_client.model.record.FilesBytes;
+import com.client.service_client.model.record.HotelWithFile;
 import com.client.service_client.model.response.ResponseOnlyMessage;
 import com.client.service_client.model.response.ResponseWithData;
 import com.client.service_client.model.response.ResponseWithInfo;
@@ -31,7 +35,7 @@ public class HotelController implements IHotelController {
     public HotelController (HotelService hotelService, StorageService storageService) {
         this.hotelService = hotelService;
         this.storageService = storageService;
-        source = null;
+        this.source = null;
     }
 
     @Override
@@ -90,24 +94,6 @@ public class HotelController implements IHotelController {
     }
 
     @Override
-    public ResponseEntity<?> deleteHotel(SourceDTO[] hoteles) {
-        try {
-            for (SourceDTO hotel : hoteles) {
-                hotelService.deleteById(hotel.getId());
-                storageService.deleteFile(hotel.getSource());
-            }
-
-            return ResponseEntity.ok().body(new ResponseOnlyMessage("Hoteles deleted"));
-        }
-        catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new ResponseWithInfo("Invalid request", e.getMessage()));
-        } 
-        catch(Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseWithInfo("Internal server error", e.getMessage()));
-        } 
-    }
-
-    @Override
     public ResponseEntity<?> editHotel(HotelUpdateDTO entity) {
         try {
             Hotel hotel = new Hotel(entity.getId());
@@ -143,7 +129,30 @@ public class HotelController implements IHotelController {
                 return ResponseEntity.noContent().build();
             }
 
-            return ResponseEntity.ok().body(new ResponseWithData<List<Hotel>>("Request successful", hoteles));
+            List<HotelWithFile> hotelesWithFile = new ArrayList<>();
+
+            for(Hotel hotelWithoutFile : hoteles) {
+                Resource resource = storageService.loadAsResource(hotelWithoutFile.getFile().getSource());
+
+                byte[] fileContent = Files.readAllBytes(resource.getFile().toPath());
+                FilesBytes file = new FilesBytes(hotelWithoutFile.getFile().getName(), hotelWithoutFile.getFile().getMain(), fileContent);
+
+                hotelesWithFile.add(new HotelWithFile(
+                    hotelWithoutFile.getId(), 
+                    hotelWithoutFile.getHotel_name(), 
+                    hotelWithoutFile.getStreet_name(), 
+                    hotelWithoutFile.getNeighborhood(), 
+                    hotelWithoutFile.getStreet_number(), 
+                    hotelWithoutFile.getPostal_code(), 
+                    hotelWithoutFile.getPhone_number(), 
+                    hotelWithoutFile.getEmail(), 
+                    hotelWithoutFile.getLatitude(), 
+                    hotelWithoutFile.getLongitude(), 
+                    hotelWithoutFile.getUrl(), 
+                    file));
+            }
+
+            return ResponseEntity.ok().body(new ResponseWithData<List<HotelWithFile>>("Request successful", hotelesWithFile));
         }
         catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new ResponseWithInfo("Invalid request", e.getMessage()));

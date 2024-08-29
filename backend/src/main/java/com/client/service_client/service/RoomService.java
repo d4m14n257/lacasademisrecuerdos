@@ -60,7 +60,8 @@ public class RoomService {
         for (Object[] row : results) {
             String source = (String) row[7];
             String fileName = (String) row[8];
-            files.add(new FilesInfo(source, fileName));
+            Boolean main = (Boolean) row[9];
+            files.add(new FilesInfo(source, fileName, main));
         }
 
         return Optional.of(new RoomWithFiles(room_id, name, description, summary, additional, singlePrice, doublePrice, files));
@@ -78,7 +79,12 @@ public class RoomService {
     }
 
     public void deleteById (String id) {
-        roomRepository.deleteById(id);
+        if(roomRepository.existsRoom(id)) {
+            roomRepository.deleteById(id);
+        }
+        else {
+            throw new RuntimeException("Room not found");
+        }
     }
 
     public void save (Room entity) {

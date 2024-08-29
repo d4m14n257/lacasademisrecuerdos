@@ -1,6 +1,7 @@
 package com.client.service_client.service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -22,7 +23,12 @@ public class TourService {
     } 
 
     public void deleteById(String id) {
-        tourRepository.deleteById(id);
+        if(tourRepository.existsTour(id)) {
+            tourRepository.deleteById(id);
+        }
+        else {
+            throw new RuntimeException("Tour not found");
+        }
     }
 
     public List<TourClient> findAll() {
@@ -38,5 +44,9 @@ public class TourService {
             .collect(Collectors.toList());
 
         return tours;
+    }
+
+    public Optional<Tour> findById(String id) {
+        return tourRepository.findById(id);
     }
 }

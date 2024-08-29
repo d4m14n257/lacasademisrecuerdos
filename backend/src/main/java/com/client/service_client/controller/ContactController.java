@@ -29,12 +29,6 @@ public class ContactController implements IContactController {
     }
 
     @Override
-    public ResponseEntity<?> deleteClientContact(String[] ids) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
     public ResponseEntity<?> getContact() {
         try {
             ContactList contactList = contactService.getContact();

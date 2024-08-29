@@ -9,7 +9,7 @@ import com.client.service_client.repository.ContactRepository;
 @Service
 public class ContactService {
 
-    private ContactRepository contactRepository;
+    private final ContactRepository contactRepository;
 
     public ContactService (ContactRepository contactRepository) {
         this.contactRepository = contactRepository;

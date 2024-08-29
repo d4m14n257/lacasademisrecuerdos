@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import com.client.service_client.model.Room;
 
@@ -26,4 +27,9 @@ public interface RoomRepository extends JpaRepository<Room, String>{
         "JOIN File f ON r.id = f.room_id " +
         "WHERE r.id = :room", nativeQuery = true)
     List<Object[]> findByIdWithFiles(String room);
+
+    @Query(
+        "SELECT CASE WHEN COUNT(*) > 0 THEN TRUE ELSE FALSE END FROM Room r " + 
+        "WHERE r.id = :room")
+    Boolean existsRoom(@Param("room") String id);
 }

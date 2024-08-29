@@ -49,10 +49,7 @@ public class SecurityConfig {
             new Endpoints(HttpMethod.PUT, "/api/contact/admin"),
             new Endpoints(HttpMethod.PUT, "/api/hotel/admin"),
             new Endpoints(HttpMethod.PUT, "/api/tour/admin"),
-            new Endpoints(HttpMethod.DELETE, "/api/room/admin"),
-            new Endpoints(HttpMethod.DELETE, "/api/contact/admin"),
-            new Endpoints(HttpMethod.DELETE, "/api/hotel/admin"),
-            new Endpoints(HttpMethod.DELETE, "/api/tour/admin"),
+            new Endpoints(HttpMethod.DELETE, "/api/delete/admin/{name}"),
             new Endpoints(HttpMethod.DELETE, "/api/file/admin")
         ));
 

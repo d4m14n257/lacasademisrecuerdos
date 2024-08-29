@@ -8,11 +8,13 @@ import com.client.service_client.model.File;
 import com.client.service_client.model.Room;
 import com.client.service_client.model.dto.RoomDTO;
 import com.client.service_client.model.dto.RoomUpdateDTO;
-import com.client.service_client.model.dto.SourceDTO;
+import com.client.service_client.model.record.FilesBytes;
+import com.client.service_client.model.record.FilesInfo;
 import com.client.service_client.model.record.RoomClient;
 import com.client.service_client.model.record.RoomList;
 import com.client.service_client.model.record.RoomResponse;
 import com.client.service_client.model.record.RoomWithFiles;
+import com.client.service_client.model.record.RoomWithFilesBytes;
 import com.client.service_client.model.response.ResponseOnlyMessage;
 import com.client.service_client.model.response.ResponseWithData;
 import com.client.service_client.model.response.ResponseWithInfo;
@@ -50,14 +52,34 @@ public class RoomController implements IRoomController{
     public ResponseEntity<?> getRoomById(@PathVariable String id) {
         try {
             Optional<RoomWithFiles> room = roomService.findByIdWithFiles(id);
-
-            if(room == null) {
+            
+            if(!room.isPresent()) {
                 return ResponseEntity.noContent().build();
             }
+            
+            RoomWithFiles roomResults = room.get();
+            List<FilesBytes> files = new ArrayList<>();
 
-            //TODO: Convertir en binarios los archivos para lectura de cliente
+            for(FilesInfo fileWithoutByte : roomResults.files()) {
+                Resource resource = storageService.loadAsResource(fileWithoutByte.source());
 
-            return ResponseEntity.ok().body(new ResponseWithData<RoomWithFiles>("Request successful", room.get()));
+                byte[] fileContent = Files.readAllBytes(resource.getFile().toPath());
+
+                files.add(new FilesBytes(fileWithoutByte.file_name(), fileWithoutByte.main(), fileContent));
+            }
+
+            RoomWithFilesBytes roomFiles = new RoomWithFilesBytes(
+                roomResults.id(), 
+                roomResults.name(),
+                roomResults.description(),
+                roomResults.summary(),
+                roomResults.additional(),
+                roomResults.single_price(),
+                roomResults.double_price(),
+                files
+            );
+
+            return ResponseEntity.ok().body(new ResponseWithData<RoomWithFilesBytes>("Request successful", roomFiles));
         }
         catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new ResponseWithInfo("Invalid request", e.getMessage()));
@@ -152,25 +174,6 @@ public class RoomController implements IRoomController{
 
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseWithInfo("Internal server error", e.getMessage()));
         }
-    }
-
-    @Override
-    public ResponseEntity<?> deleteRoom(SourceDTO[] rooms) {
-        try {
-            for(SourceDTO room : rooms) {
-                roomService.deleteById(room.getId());
-
-                storageService.deleteFile(room.getSource());
-            }
-
-            return ResponseEntity.ok().body(new ResponseOnlyMessage("Rooms deleted"));
-        }
-        catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new ResponseWithInfo("Invalid request", e.getMessage()));
-        } 
-        catch(Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseWithInfo("Internal server error", e.getMessage()));
-        } 
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.client.service_client.controller;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
@@ -12,11 +13,13 @@ import org.springframework.web.multipart.MultipartFile;
 import com.client.service_client.controller.interfaces.ITourController;
 import com.client.service_client.model.File;
 import com.client.service_client.model.Tour;
-import com.client.service_client.model.dto.SourceDTO;
 import com.client.service_client.model.dto.TourDTO;
 import com.client.service_client.model.dto.TourUpdateDTO;
+import com.client.service_client.model.enums.TourStatus;
+import com.client.service_client.model.record.FilesBytes;
 import com.client.service_client.model.record.TourClient;
 import com.client.service_client.model.record.TourResponse;
+import com.client.service_client.model.record.TourWithFile;
 import com.client.service_client.model.response.ResponseOnlyMessage;
 import com.client.service_client.model.response.ResponseWithData;
 import com.client.service_client.model.response.ResponseWithInfo;
@@ -25,7 +28,6 @@ import com.client.service_client.storage.StorageService;
 import com.client.service_client.util.FileValidator;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotEmpty;
 
 public class TourController implements ITourController{
 
@@ -89,25 +91,6 @@ public class TourController implements ITourController{
     }
 
     @Override
-    public ResponseEntity<?> deleteTour(@Valid @NotEmpty SourceDTO[] tours) {
-        try {
-            for(SourceDTO tour : tours) {
-                tourService.deleteById(tour.getId());
-
-                storageService.deleteFile(tour.getSource());
-            }
-
-            return ResponseEntity.ok().body(new ResponseOnlyMessage("Tours deleted"));
-        }
-        catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new ResponseWithInfo("Invalid request", e.getMessage()));
-        } 
-        catch(Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseWithInfo("Internal server error", e.getMessage()));
-        } 
-    }
-
-    @Override
     public ResponseEntity<?> editTour(TourUpdateDTO entity) {
         try {
             Tour tour = new Tour(entity.getId());
@@ -115,6 +98,7 @@ public class TourController implements ITourController{
             tour.setDescription(entity.getDescription());
             tour.setSummary(entity.getSummary());
             tour.setUrl(entity.getUrl());
+            tour.setStatus(entity.getStatus());
 
             tourService.save(tour);
             return ResponseEntity.ok().body(new ResponseOnlyMessage("Tour updated"));
@@ -165,14 +149,63 @@ public class TourController implements ITourController{
 
     @Override
     public ResponseEntity<?> getTourByAdmin(String id) {
-        // TODO Auto-generated method stub
-        return null;
+        try {
+            Optional<Tour> tour = tourService.findById(id);
+
+            if(!tour.isPresent()) {
+                return ResponseEntity.noContent().build();
+            }
+
+            return ResponseEntity.ok().body(new ResponseWithData<Tour>("Request successful", tour.get()));
+        }
+        catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new ResponseWithInfo("Invalid request", e.getMessage()));
+        } 
+        catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseWithInfo("Internal server error", e.getMessage()));
+        }
     }
 
     @Override
     public ResponseEntity<?> getTourById(String id) {
-        // TODO Auto-generated method stub
-        return null;
+        try {
+            Optional<Tour> tourResult = tourService.findById(id);
+
+            if(!tourResult.isPresent()) {
+                return ResponseEntity.noContent().build();
+            }
+
+            Tour tour = tourResult.get();
+
+            if(tour.getStatus() == TourStatus.used) {
+                return ResponseEntity.noContent().build();
+            }
+
+            List<FilesBytes> files = new ArrayList<>();
+
+            for(File file : tour.getFiles()) {
+                Resource resource = storageService.loadAsResource(file.getSource());
+                byte[] fileContent = Files.readAllBytes(resource.getFile().toPath());
+
+                files.add(new FilesBytes(file.getName(), file.getMain(), fileContent));
+            }
+
+            return ResponseEntity.ok().body(new ResponseWithData<TourWithFile>("Request successful", 
+                new TourWithFile(
+                    tour.getId(), 
+                    tour.getName(), 
+                    tour.getDescription(), 
+                    tour.getSummary(), 
+                    tour.getUrl(), 
+                    files)
+            ));
+        }
+        catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new ResponseWithInfo("Invalid request", e.getMessage()));
+        } 
+        catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseWithInfo("Internal server error", e.getMessage()));
+        }
     }
     
 }
