@@ -28,6 +28,6 @@ public interface TourRepository extends JpaRepository<Tour, String>{
         "FROM Tour t " +
         "JOIN File f ON t.id = f.tour_id " +
         "WHERE t.status = 'used' " +
-        "AND t.id = :tour")
-    Optional<Object[]> findTourById(@Param("tour") String id);
+        "AND t.id = :id", nativeQuery = true)
+    Optional<Object[]> findTourById(String id);
 }

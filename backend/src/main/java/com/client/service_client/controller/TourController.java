@@ -8,6 +8,7 @@ import java.util.Optional;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.client.service_client.controller.interfaces.ITourController;
@@ -29,6 +30,7 @@ import com.client.service_client.util.FileValidator;
 
 import jakarta.validation.Valid;
 
+@RestController
 public class TourController implements ITourController{
 
     private TourService tourService;
@@ -119,6 +121,8 @@ public class TourController implements ITourController{
             if (tours.isEmpty()) {
                 return ResponseEntity.noContent().build();
             }
+
+            System.out.println("aqui");
 
             List<TourResponse> toursResponse = new ArrayList<>();
 
