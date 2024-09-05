@@ -1,5 +1,7 @@
 package com.client.service_client.service;
 
+import java.util.Optional;
+
 import org.springframework.stereotype.Service;
 
 import com.client.service_client.model.Contact;
@@ -21,5 +23,9 @@ public class ContactService {
 
     public ContactList getContact() {
         return new ContactList(contactRepository.getAllContactSend(), contactRepository.getAllContactError());
+    }
+
+    public Optional<Contact> findById (String id) {
+        return contactRepository.findById(id);
     }
 }

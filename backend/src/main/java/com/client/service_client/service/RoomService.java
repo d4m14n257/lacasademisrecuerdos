@@ -58,8 +58,8 @@ public class RoomService {
         BigDecimal doublePrice = (BigDecimal) firstRow[6];
 
         for (Object[] row : results) {
-            String source = (String) row[7];
-            String fileName = (String) row[8];
+            String fileName = (String) row[7];
+            String source = (String) row[8];
             Boolean main = (Boolean) row[9];
             files.add(new FilesInfo(source, fileName, main));
         }

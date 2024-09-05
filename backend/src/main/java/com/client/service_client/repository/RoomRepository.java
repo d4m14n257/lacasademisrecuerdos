@@ -22,7 +22,7 @@ public interface RoomRepository extends JpaRepository<Room, String>{
     List<Object[]> findRoomList();
 
     @Query(value = 
-        "SELECT r.id, r.name, r.description, r.summary, r.additional, r.single_price, r.double_price, f.source, f.name as file_name " + 
+        "SELECT r.id, r.name, r.description, r.summary, r.additional, r.single_price, r.double_price, f.source, f.name as file_name, f.main " + 
         "FROM Room r " + 
         "JOIN File f ON r.id = f.room_id " +
         "WHERE r.id = :room", nativeQuery = true)

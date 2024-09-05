@@ -61,6 +61,8 @@ public class RoomController implements IRoomController{
             List<FilesBytes> files = new ArrayList<>();
 
             for(FilesInfo fileWithoutByte : roomResults.files()) {
+                System.out.println(fileWithoutByte.source());
+
                 Resource resource = storageService.loadAsResource(fileWithoutByte.source());
 
                 byte[] fileContent = Files.readAllBytes(resource.getFile().toPath());

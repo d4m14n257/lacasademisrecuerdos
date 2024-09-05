@@ -1,5 +1,6 @@
 package com.client.service_client.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -60,11 +61,28 @@ public class ContactController implements IContactController {
 
     @Override
     public ResponseEntity<?> resendClientContact(@RequestBody IdDTO[] entity) {
-        try {
-            
-        }
-        catch () {
+        List<String> failedEmails = new ArrayList<>();  // Lista para almacenar correos fallidos
 
+        for(IdDTO id : entity) {
+            try {
+                Optional<Contact> contact = contactService.findById(id.getId());
+
+                if(contact.isPresent()) {
+                    CompletableFuture<Void> client = emailService.sendEmail(contact.get().getEmail(), 
+                        "Thank you for your message", 
+                        "Thank you for contacting us, we will get in touch soon.");
+                    client.get();
+                }
+            } catch (Exception e) {
+                failedEmails.add(id.getId());
+            }
+        }
+
+        if (failedEmails.isEmpty()) {
+            return ResponseEntity.ok().body(new ResponseOnlyMessage("Emails sent successfully"));
+        } 
+        else {
+            return ResponseEntity.status(HttpStatus.PARTIAL_CONTENT).body(new ResponseWithData<>("Some emails failed", failedEmails));
         }
     }
 
