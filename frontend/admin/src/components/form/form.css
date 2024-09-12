@@ -1,0 +1,23 @@
+.content { 
+    display: flex;
+    flex-direction: column;
+    gap: 18px
+}
+
+.label-field > label{
+    display: flex;
+    margin: 0;
+    align-items: start;
+    gap: 6px;
+}
+
+.label-field > label > p{
+    opacity: 0.8;
+    font-size: 15px
+}
+
+.label-field > p {
+    margin: 0;
+    margin-top: 6px;
+    font-size: 12px;
+}

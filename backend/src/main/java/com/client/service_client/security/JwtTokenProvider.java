@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.client.service_client.model.config.ClientConfigProperties;
+import com.client.service_client.config.ClientConfigProperties;
 
 @Component
 public class JwtTokenProvider {

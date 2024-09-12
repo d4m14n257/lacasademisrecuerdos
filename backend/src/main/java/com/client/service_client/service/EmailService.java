@@ -9,7 +9,7 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import com.client.service_client.model.config.MailConfigProperties;
+import com.client.service_client.config.MailConfigProperties;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;

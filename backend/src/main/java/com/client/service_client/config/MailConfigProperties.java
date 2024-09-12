@@ -1,4 +1,4 @@
-package com.client.service_client.model.config;
+package com.client.service_client.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

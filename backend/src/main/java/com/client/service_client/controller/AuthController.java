@@ -14,7 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.client.service_client.model.User;
 import com.client.service_client.model.dto.LoginDTO;
 import com.client.service_client.model.dto.UserDTO;
-import com.client.service_client.model.response.JwtResponse;
+import com.client.service_client.model.record.JwtResponse;
+import com.client.service_client.model.record.UserResponse;
 import com.client.service_client.model.response.ResponseOnlyMessage;
 import com.client.service_client.model.response.ResponseWithData;
 import com.client.service_client.model.response.ResponseWithInfo;
@@ -76,7 +77,8 @@ public class AuthController {
             String token = jwtTokenProvider.generateToken(entity.getUsername());
             User user = userService.findUserByUsername(entity.getUsername());
 
-            JwtResponse jwtResponse = new JwtResponse(user.getId(), user.getUsername(), user.getEmail(), user.getFirst_name(), user.getLast_name(), token, "Bearer");
+            UserResponse userResponse = new UserResponse(user.getId(), user.getUsername(), user.getEmail(), user.getFirst_name(), user.getLast_name());
+            JwtResponse jwtResponse = new JwtResponse(userResponse, token, "Bearer");
             return ResponseEntity.ok().body(new ResponseWithData<JwtResponse>("Request successful", jwtResponse));
         }
         catch(BadCredentialsException e) {
