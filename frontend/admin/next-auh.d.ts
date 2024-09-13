@@ -12,6 +12,7 @@ declare module "next-auth" {
         exp: number,
         uat: number,
         jti: string
+        token: string
     }
     
     interface User {

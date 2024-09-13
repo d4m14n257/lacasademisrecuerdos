@@ -1,8 +1,7 @@
 import CredentialsProvider from "next-auth/providers/credentials";
 import { AuthOptions } from "next-auth";
-import { LoginResponse } from "@/model/LoginResponse";
-import { ResponseOnlyMessage, ResponseWithData, ResponseWithInfo } from "@/model/Response";
-import { Session } from "inspector";
+import { LoginResponse } from "@/model/loginResponse";
+import { ResponseOnlyMessage, ResponseWithData, ResponseWithInfo } from "@/model/response";
 
 export const authOptions : AuthOptions = {
     providers: [
@@ -25,6 +24,7 @@ export const authOptions : AuthOptions = {
                                 password: credentials.password
                             })                        
                         })
+
                         
                         if(res.status == 401) {
                             const unauthorized : ResponseOnlyMessage = await res.json();
@@ -48,7 +48,14 @@ export const authOptions : AuthOptions = {
                     }
                 }
                 catch (error : unknown) {
-                    throw new Error("Failed to login. Please try again more later.")
+                    if(error instanceof Error) {
+                        if(error.message === 'fetch failed')
+                            throw new Error("Failed to login. Please try again more later")
+
+                        throw new Error(error.message);
+                    }
+
+                    throw new Error('Unknonw error')
                 }
             },
         }),
@@ -76,6 +83,7 @@ export const authOptions : AuthOptions = {
         },
         async session({ session, token } : { session : any, token : any }) {
             session.user = token.user;
+            session.token = token.token;
 
             return session;
         }

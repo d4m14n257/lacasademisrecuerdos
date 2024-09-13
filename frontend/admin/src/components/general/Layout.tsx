@@ -125,7 +125,7 @@ const useLayout = () => {
 }
 
 export default function Layout (
-    {children} : Readonly<{children: React.ReactNode}>
+    {children} : Readonly<{children: React.ReactElement}>
 ) {
     const { isMobile, session, status, open, openSettings, theme, handleChangeDrawn, handleChangeSetting, handleChangeRoute } = useLayout();
 

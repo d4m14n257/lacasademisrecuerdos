@@ -1,7 +1,8 @@
-export default async function HomePage () {
+export default function HomePage (props : any) {
+
     return (
         <h1>
-            Home admin
+            Home admindasdsad
         </h1>
     );
 }
