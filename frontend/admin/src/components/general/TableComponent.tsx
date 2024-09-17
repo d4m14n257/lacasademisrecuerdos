@@ -10,11 +10,7 @@ import FilterListIcon from '@mui/icons-material/FilterList';
 import CancelIcon from '@mui/icons-material/Cancel';
 
 import "./globals.css"
-
-// import { global } from '@/styles/global';
-// import { Confirm } from '@/contexts/ConfirmContext';
-// import { Message } from '@/contexts/MessageContext';
-// import { deleter } from '@/api/deleter';
+import { Confirm } from '@/contexts/ConfirmContext';
 
 type Order = 'asc' | 'desc';
 
@@ -26,8 +22,20 @@ type ActionsProps = {
 
 type Columns = {
     id: string,
-    lable: string
+    label: string
 
+}
+
+interface Props<T> {
+    title : string, 
+    columns : Columns[], 
+    rows : T[], 
+    useCheckbox : boolean, 
+    minWidth : number, 
+    Actions : React.FC<ActionsProps>, 
+    doubleClick : (id: string) => void, 
+    reloadTable : () => void, 
+    url : string
 }
 
 function stableSort<T>(array: readonly T[], comparator: (a: T, b: T) => number) {
@@ -140,50 +148,49 @@ function useTableComponent<T extends {id : string}> (props : {
     reloadTable : () => void
 }) {
     const { rows, columns, url, reloadTable } = props;
-    // const { confirm, setMessage } = useContext(Confirm);
-    // const { handleOpen, setMessage: setStatusMessage, setStatus } = useContext(Message);
     const [page, setPage] = useState<number>(0);
     const [rowsPerPage, setRowsPerPage] = useState<number>(10)
     const [checkboxAction, setCheckboxAction] = useState<boolean>(false);
     const [order, setOrder] = useState<Order>('asc');
     const [orderBy, setOrderBy] = useState(columns[0].id);
     const [selected, setSelected] = useState<readonly string[]>([]);
+    const { confirm, handleMessage } = useContext(Confirm);
 
-    // useEffect(() => {
-    //     setMessage('¿Seguro quieres eliminar todos estos datos?');
-    // }, [])
-
-    // const handleDeleteSelect = async (event) => {
-    //     try {
-    //         if(!event.shiftKey) {
-    //             await confirm()
-    //                 .catch(() => {throw {canceled: true}});
-    //         }
+    const handleDeleteSelect = async (event : any) => {
+        try {
+            if(!event.shiftKey) {
+                await confirm()
+                    .catch(() => {throw ({canceled: true})});
+            }
     
-    //         const response = await deleter({body: selected, url: url})
+            // const response = await deleter({body: selected, url: url})
     
-    //         if(response.status >= 200 && response.status <= 299) {
-    //             setStatus(response.status);
-    //             setStatusMessage('Datos eliminados con exito.');
-    //             handleOpen();
+            // if(response.status >= 200 && response.status <= 299) {
+            //     // setStatus(response.status);
+            //     // setStatusMessage('Datos eliminados con exito.');
+            //     // handleOpen();
                 
-    //             if(reloadTable)
-    //                 await reloadTable();
+            //     if(reloadTable)
+            //         await reloadTable();
     
-    //             setSelected([]);
-    //             setCheckboxAction(false);
-    //         }
-    //         else 
-    //             throw {message: 'Ha habido un error al momento de eliminar.', status: response.status}
-    //     }
-    //     catch (err) {
-    //         if(!err.canceled) {
-    //             setStatus(err.status);
-    //             setStatusMessage(err.message);
-    //             handleOpen();
-    //         }
-    //     }
-    // }
+            //     setSelected([]);
+            //     setCheckboxAction(false);
+            // }
+            // else 
+            //     throw {message: 'Ha habido un error al momento de eliminar.', status: response.status}
+
+            console.log('xd')
+        }
+        catch (err : unknown) {
+            if(err instanceof Error) {
+                // if(!err.canceled) {
+                //     // setStatus(err.status);
+                //     // setStatusMessage(err.message);
+                //     // handleOpen();
+                // }
+            }
+        }
+    }
 
     const handleChangePage = (event : unknown, newPage : number) => {
         setPage(newPage);
@@ -264,7 +271,7 @@ function useTableComponent<T extends {id : string}> (props : {
         selected,
         order,
         orderBy,
-        // handleDeleteSelect,
+        handleDeleteSelect,
         handleCheckboxShowUp,
         handleCheckboxGoAway,
         handleSelectAll,
@@ -277,22 +284,12 @@ function useTableComponent<T extends {id : string}> (props : {
     };
 }
 
-export default function TableComponent<T extends { id : string }> (props : {
-    title : string, 
-    columns : Columns[], 
-    rows : T[], 
-    useCheckbox : boolean, 
-    minWidth : number, 
-    Actions : React.FC<ActionsProps>, 
-    doubleClick : () => void, 
-    reloadTable : () => void, 
-    url : string
-}) {
+export default function TableComponent<T extends { id : string }> (props : Props<T>) {
     const { title, columns, rows, useCheckbox, minWidth, Actions, doubleClick, reloadTable, url } = props;
     const { page, rowsPerPage, checkboxAction, orderBy, selected,
             handleCheckboxShowUp, handleSelectAll, handleChangeRowsPerPage,
             handleChangePage, handleCheckboxGoAway, handleClick, visibleRows,
-            isSelected, order, createSortHandler
+            isSelected, order, createSortHandler, handleDeleteSelect
         } = useTableComponent({ rows, columns, url, reloadTable });
 
     return (
@@ -400,21 +397,13 @@ export default function TableComponent<T extends { id : string }> (props : {
                                             const key = column.id;
 
                                             if(key !== 'actions') {
-                                                const value = row[column.id];
+                                                // const value = row[column.id];
+                                                const value = column.id;
 
                                                 if (Array.isArray(value)) {
                                                     return (
                                                         <TableCell key={key}>
                                                             {value.join(' - ')}
-                                                        </TableCell>
-                                                    );
-                                                } else if (typeof value == 'object') {
-                                                    return (
-                                                        <TableCell key={key}>
-                                                            <TableCellUsers
-                                                                index={key}
-                                                                row={value}
-                                                            />
                                                         </TableCell>
                                                     );
                                                 } else {

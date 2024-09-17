@@ -11,6 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.client.service_client.config.ClientConfigProperties;
 import com.client.service_client.model.User;
 import com.client.service_client.model.dto.LoginDTO;
 import com.client.service_client.model.dto.TokenDTO;
@@ -39,13 +40,22 @@ public class AuthController {
     private JwtTokenProvider jwtTokenProvider;
     private UserService userService;
     private JwtTokenValidator jwtTokenValidator;
+    private ClientConfigProperties clientProperties;
 
-    public AuthController(AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider, UserService userService, JwtTokenValidator jwtTokenValidator) {
+    public AuthController(
+            AuthenticationManager authenticationManager, 
+            PasswordEncoder passwordEncoder, 
+            JwtTokenProvider jwtTokenProvider, 
+            UserService userService, 
+            JwtTokenValidator jwtTokenValidator,
+            ClientConfigProperties clientProperties
+        ) {
         this.authenticationManager = authenticationManager;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenProvider = jwtTokenProvider;
         this.userService = userService;
         this.jwtTokenValidator = jwtTokenValidator;
+        this.clientProperties = clientProperties;
     }
 
     @PostMapping("/register")
@@ -82,7 +92,7 @@ public class AuthController {
             User user = userService.findUserByUsername(entity.getUsername());
 
             UserResponse userResponse = new UserResponse(user.getId(), user.getUsername(), user.getEmail(), user.getFirst_name(), user.getLast_name());
-            JwtResponse jwtResponse = new JwtResponse(userResponse, token, "Bearer");
+            JwtResponse jwtResponse = new JwtResponse(userResponse, token, "Bearer", clientProperties.expirationTime());
             return ResponseEntity.ok().body(new ResponseWithData<JwtResponse>("Request successful", jwtResponse));
         }
         catch(BadCredentialsException e) {

@@ -7,23 +7,23 @@ import jakarta.validation.constraints.Size;
 
 public class RoomDTO {
     
-    @NotBlank(message = "Name is require")
+    @NotBlank(message = "Name is required")
     @Size(max = 32, message = "The name cannot be longer than 32 characters")
     private String name;
 
-    @NotBlank(message = "Description is require")
+    @NotBlank(message = "Description is required")
     @Size(max = 2048, message = "The name cannot be longer than 2048 characters")
     private String description;
 
-    @NotBlank(message = "Summary is require")
+    @NotBlank(message = "Summary is required")
     @Size(max = 512, message = "The name cannot be longer than 512 characters")
     private String summary;
 
-    @NotBlank(message = "Additional is require")
+    @NotBlank(message = "Additional is required")
     @Size(max = 128, message = "The name cannot be longer than 128 characters")
     private String additional;
 
-    @NotNull(message = "Single price is require")
+    @NotNull(message = "Single price is required")
     @Digits(integer = 10, fraction = 2)
     private Double single_price;
 

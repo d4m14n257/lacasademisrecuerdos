@@ -37,8 +37,11 @@ export const authOptions : AuthOptions = {
                         }
                         
                         const user : ResponseWithData<LoginResponse> = await res.json();
-                        if(res.ok && user) {
-                            return { ...user.data.user, token: user.data.token, tokenType: user.data.tokenType }
+
+                        if(!Array.isArray(user.data)) {
+                            if(res.ok && user) {
+                                return { ...user.data.user, token: user.data.token, tokenType: user.data.tokenType, maxAge: user.data.maxAge / 1000 }
+                            }
                         }
                         
                         return null;
@@ -77,13 +80,16 @@ export const authOptions : AuthOptions = {
                 };
                 token.token = user.token;
                 token.tokenType = user.tokenType;
+                token.maxAge = user.maxAge;
+                token.exp = Math.floor(Date.now() / 1000) + user.maxAge;
             }
 
             return token;
         },
-        async session({ session, token } : { session : any, token : any }) {
+        async session({ session, token } : {session : any, token : any}) {
             session.user = token.user;
             session.token = token.token;
+            session.expires = new Date(token.exp * 1000).toISOString();
 
             return session;
         }

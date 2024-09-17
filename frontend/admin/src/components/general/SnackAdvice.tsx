@@ -22,7 +22,7 @@ export default function SnackAdvice (props : Props) {
         >
             <Box>
                 <HandlerError>
-                    <HandlerError.When isError={!( status >= 200 && status <= 299 )}>
+                    <HandlerError.When hasError={!( status >= 200 && status <= 299 )}>
                         <Alert
                             onClose={onClose}
                             severity="success"
@@ -31,7 +31,7 @@ export default function SnackAdvice (props : Props) {
                             { message }
                         </Alert>
                     </HandlerError.When>
-                    <HandlerError.When isError={!( status >= 400 && status <= 499 )}>
+                    <HandlerError.When hasError={!( status >= 400 && status <= 499 )}>
                         <Alert
                             onClose={onClose}
                             severity="warning"

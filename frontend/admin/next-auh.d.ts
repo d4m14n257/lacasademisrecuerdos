@@ -23,5 +23,6 @@ declare module "next-auth" {
         last_name: string;
         token: string;
         tokenType: string;
+        maxAge: number
     }
 }

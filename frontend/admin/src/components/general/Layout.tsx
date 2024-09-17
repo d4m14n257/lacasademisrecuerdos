@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { 
     Avatar,
@@ -27,16 +27,17 @@ import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import MenuIcon from '@mui/icons-material/Menu';
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { useMediaQuery } from "@mui/material";
 import { routes } from "@/constants/routes";
 
 import '../globals.css'
 import CardSettings from "./CardSettings";
+import { Advice } from "@/contexts/AdviceProvider";
 
 const drawerWidth = 240;
 
-const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
+const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' && prop !== 'isMobile' })<{
     open?: boolean;
     isMobile?: boolean
 }>(({ theme, open, isMobile }) => ({
@@ -95,9 +96,28 @@ const useLayout = () => {
     const { data: session, status } = useSession();
     const [open, setOpen] = useState<boolean>(false);
     const [openSettings, setOpenSettings] = useState<boolean>(false);
+    const { handleAdvice, handleOpen } = useContext(Advice);
+    const [isMobile, setIsMobile] = useState<boolean>(false);
     const route = useRouter();
     const theme = useTheme();
-    const isMobile = useMediaQuery('(max-width:720px)');
+    
+    const matches = useMediaQuery('(max-width:720px)');
+
+    useEffect(() => {
+        setIsMobile(matches)
+    }, [matches])
+
+    useEffect(() => {
+        if(document.cookie.includes('error-message')) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; error-message=`);
+
+            const error = parts.pop()?.split(';').shift()?.replaceAll("%20", ' ');
+
+            handleAdvice({ message: error, vertical: 'bottom', horizontal: 'left', status: 500});
+            handleOpen();
+        }
+    }, [])
 
     const handleChangeDrawn : () => void = () => {
         setOpen(!open);
@@ -120,14 +140,26 @@ const useLayout = () => {
         theme,
         handleChangeDrawn,
         handleChangeSetting,
-        handleChangeRoute
+        handleChangeRoute,
+        handleAdvice,
+        handleOpen
     }
 }
 
 export default function Layout (
-    {children} : Readonly<{children: React.ReactElement}>
+    {children} : Readonly<{children: React.ReactNode}>
 ) {
-    const { isMobile, session, status, open, openSettings, theme, handleChangeDrawn, handleChangeSetting, handleChangeRoute } = useLayout();
+    const { 
+            isMobile, 
+            session, 
+            status, 
+            open, 
+            openSettings, 
+            theme, 
+            handleChangeDrawn, 
+            handleChangeSetting, 
+            handleChangeRoute
+        } = useLayout();
 
     if(status == "unauthenticated") {
         return (
@@ -209,6 +241,7 @@ export default function Layout (
                         sx={{ padding: "0 24px 0 24px" }}
                     >
                         <DrawerHeader />
+                        
                         {children}
                     </Container>
                 </Main>

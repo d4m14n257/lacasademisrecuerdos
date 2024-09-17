@@ -1,3 +1,10 @@
+export interface Data<T> {
+    message?: string;
+    data?: T[] | [];
+    err?: any;
+    status: number 
+}
+
 export type HotelWitFiles = {
     id: string;
     hotel_name: string;
@@ -12,3 +19,13 @@ export type HotelWitFiles = {
     url: string;
     filesBytes: any;
 };
+
+export type RoomCard = {
+    id: string;
+    name: string;
+    summary: string;
+    additional: string;
+    source: string;
+    file_name: string;
+    file: any;
+}

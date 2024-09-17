@@ -9,10 +9,11 @@ export function HandlerError(props : Props) {
     let error : React.ReactElement | null= null;
 
     Children.forEach(props.children, children => {
-        if(children.props.isError === undefined) {
+
+        if(children.props.hasError === undefined) {
             error = children
         }
-        else if(!when && children.props.isError === false) {
+        else if(!when && children.props.hasError === false) {
             when = children;
         }
     })
@@ -20,5 +21,5 @@ export function HandlerError(props : Props) {
     return when || error;
 }
 
-HandlerError.When = ({ isError, children } : { isError : boolean, children : React.ReactElement }) => !isError && children;
+HandlerError.When = ({ hasError, children } : { hasError : boolean, children : React.ReactElement }) => !hasError && children;
 HandlerError.Else = ({ render, children } : { render?: JSX.Element, children?: React.ReactElement }) => render || children;

@@ -9,5 +9,6 @@ type User = {
 export type LoginResponse = {
     user : User,
     token: string,
-    tokenType : string
+    tokenType : string,
+    maxAge : number
 }

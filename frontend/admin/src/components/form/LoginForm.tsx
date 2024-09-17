@@ -1,8 +1,8 @@
 "use client"
 
-import { BaseSyntheticEvent, useCallback, useContext } from "react";
+import { BaseSyntheticEvent, useCallback, useContext, useEffect } from "react";
 
-import { FormControl, FormControlLabel, FormHelperText, FormLabel, Stack, TextField, Typography } from "@mui/material";
+import { FormControl, FormControlLabel, FormHelperText, Stack, TextField, Typography } from "@mui/material";
 
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -36,14 +36,26 @@ const useLoginForm = () => {
 }
 
 export default function LoginForm () {
-    const {router, handleOpen, handleAdvice} = useLoginForm();
-    const { register, handleSubmit, formState: {errors, isSubmitting} } = useForm<Login>({
+    const { router, handleOpen, handleAdvice } = useLoginForm();
+    const { register, handleSubmit, formState: { errors, isSubmitting }} = useForm<Login>({
         defaultValues: {
             username: '',
             password: ''
         },
         resolver: zodResolver(schema)
     })
+
+    useEffect(() => {
+        if(document.cookie.includes('logout-message')) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; logout-message=`);
+
+            const error = parts.pop()?.split(';').shift()?.replaceAll("%20", ' ');
+
+            handleAdvice({ message: error, vertical: 'bottom', horizontal: 'left', status: 500});
+            handleOpen();
+        }
+    }, [])
 
     const onSubmit : SubmitHandler<Login> = useCallback(async (data, event?: BaseSyntheticEvent) => {
         event?.preventDefault();
@@ -70,7 +82,7 @@ export default function LoginForm () {
             }
             
         }
-        catch (err) {
+        catch (err : unknown) {
             console.log(err)
         }
     }, []);
@@ -94,7 +106,7 @@ export default function LoginForm () {
                             {...register("username")}
                         />}
                 />
-                { errors.username &&
+                {errors.username &&
                     <FormHelperText>
                         <ErrorMessage errors={errors} name="username"/>
                     </FormHelperText>

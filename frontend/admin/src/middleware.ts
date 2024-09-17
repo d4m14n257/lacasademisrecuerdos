@@ -9,7 +9,6 @@ export async function middleware(req: NextRequest) {
     const token = await getToken({ req });
     const loginUrl = new URL('/login', req.url);
 
-    // Para evitar redirecciones infinitas, revisa si ya tienes una redirección en curso
     const isRedirecting = req.cookies.get('is-redirecting');
 
     if (!token) {
@@ -39,12 +38,12 @@ export async function middleware(req: NextRequest) {
         }
 
         if (response.status === 401) {
-            redirection.cookies.set('is-redirecting', 'true', { maxAge: 10 });
+            if(!isRedirecting) {
+                redirection.cookies.set('is-redirecting', 'true', { maxAge: 10 });
+                redirection.cookies.set('logout-message', data.message);
 
-            redirection.cookies.set('logoutMessage', data.message);
-            
-            signOut();
-            return redirection;
+                return redirection;
+            }
         }
     } catch (err: any) {
         if (!isRedirecting) {
@@ -54,12 +53,18 @@ export async function middleware(req: NextRequest) {
             return redirection;
         }
     }
+    
+    res.cookies.delete('is-redirecting');
 
     if(!isRedirecting) {
-        res.cookies.delete('error-message');
-        res.cookies.delete('is-redirecting');
-    }
+        if(req.cookies.get('logout-message')){
+            signOut();
+        }
 
+        res.cookies.delete('error-message');
+        res.cookies.delete('logout-message');
+    }
+        
     return res;
 }
 

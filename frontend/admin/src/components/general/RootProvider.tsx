@@ -3,6 +3,7 @@
 import { SessionProvider } from "next-auth/react";
 import { Session } from "next-auth";
 import Layout from "./Layout";
+import { AdviceProvider } from "@/contexts/AdviceProvider";
 
 export default function RootProvider ({
     children,
@@ -11,9 +12,11 @@ export default function RootProvider ({
 ) {
     return (
         <SessionProvider session={session}>
-            <Layout>
-                {children}
-            </Layout>
+            <AdviceProvider>
+                <Layout>
+                    {children}
+                </Layout>
+            </AdviceProvider>
         </SessionProvider>
     );
 }

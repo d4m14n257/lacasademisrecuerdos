@@ -1,7 +1,7 @@
 "use client"
 
 import SnackAdvice from "@/components/general/SnackAdvice";
-import React, { createContext, useState, useReducer, Context } from "react";
+import React, { createContext, useState, useReducer, Context, useCallback } from "react";
 
 type AdviceContext = {
     handleOpen: () => void,
@@ -47,17 +47,17 @@ export const AdviceProvider = ({children} : {children: React.ReactNode}) => {
         horizontal: "left"
     });
 
-    const handleAdvice = (value : Action) : void => {
+    const handleAdvice = useCallback((value : Action) : void => {
         dispatchAdvice(value);
-    }
+    }, [])
 
-    const handleOpen = () : void => {
+    const handleOpen = useCallback(() : void => {
         setOpen(true);
-    }
+    }, [])
 
-    const handleClose = () : void => {
+    const handleClose = useCallback(() : void => {
         setOpen(false)
-    }
+    }, [])
 
     return (
         <>
