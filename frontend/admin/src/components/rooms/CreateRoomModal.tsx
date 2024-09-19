@@ -2,6 +2,8 @@ import { Box, Typography } from "@mui/material";
 import ModalBase from "../general/ModalBase";
 import CreateRoomForm from "../form/CreateRoomForm";
 
+import '../globals.css';
+
 type Props = {
     open: boolean,
     handleClose: () => void,
@@ -17,11 +19,12 @@ export default function CreateRoomModal (props : Props) {
             handleClose={handleClose}
             closeConfirm={closeConfirm}
         >
-            <Box>
-                <Typography>
-                    Create Room
-                </Typography>
-            </Box>
+            <Typography
+                variant="h6"
+                className="modal-title"
+            >
+                Create Room
+            </Typography>
             <CreateRoomForm 
                 handleClose={handleClose}
             />

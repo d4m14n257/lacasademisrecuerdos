@@ -7,10 +7,12 @@ import com.client.service_client.controller.interfaces.IRoomController;
 import com.client.service_client.model.File;
 import com.client.service_client.model.Room;
 import com.client.service_client.model.dto.RoomDTO;
+import com.client.service_client.model.dto.RoomStatusDTO;
 import com.client.service_client.model.dto.RoomUpdateDTO;
+import com.client.service_client.model.enums.RoomStatus;
 import com.client.service_client.model.record.FilesBytes;
 import com.client.service_client.model.record.FilesInfo;
-import com.client.service_client.model.record.RoomClient;
+import com.client.service_client.model.record.RoomCards;
 import com.client.service_client.model.record.RoomList;
 import com.client.service_client.model.record.RoomResponse;
 import com.client.service_client.model.record.RoomWithFiles;
@@ -21,6 +23,8 @@ import com.client.service_client.model.response.ResponseWithInfo;
 import com.client.service_client.service.RoomService;
 import com.client.service_client.storage.StorageService;
 import com.client.service_client.util.FileValidator;
+
+import jakarta.validation.Valid;
 
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -92,9 +96,9 @@ public class RoomController implements IRoomController{
     }
 
     @Override
-    public ResponseEntity<?> getAllRooms() {
+    public ResponseEntity<?> getAllRoomsAvailable() {
         try {
-            List<RoomClient> rooms = roomService.findAll();
+            List<RoomCards> rooms = roomService.findAllAvailable();
 
             if (rooms.isEmpty()) {
                 return ResponseEntity.noContent().build();
@@ -102,7 +106,7 @@ public class RoomController implements IRoomController{
 
             List<RoomResponse> roomsResponse = new ArrayList<>();
 
-            for(RoomClient room : rooms) {
+            for(RoomCards room : rooms) {
                 Resource resource = storageService.loadAsResource(room.source());
 
                 byte[] fileContent = Files.readAllBytes(resource.getFile().toPath());
@@ -112,6 +116,7 @@ public class RoomController implements IRoomController{
                     room.name(),
                     room.summary(),
                     room.additional(),
+                    room.status(),
                     room.file_name(),
                     fileContent);
                 roomsResponse.add(roomResponse);
@@ -236,5 +241,62 @@ public class RoomController implements IRoomController{
         catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseWithInfo("Internal server error", e.getMessage()));
         }  
+    }
+
+    @Override
+    public ResponseEntity<?> editStatus(@Valid RoomStatusDTO entity) {
+        try {
+            if(entity.getStatus() == RoomStatus.hidden) {
+                roomService.updateStatus(entity.getId(), RoomStatus.active);
+            }
+            else {
+                roomService.updateStatus(entity.getId(), RoomStatus.hidden);
+            }
+
+            return ResponseEntity.ok().body(new ResponseOnlyMessage("Request successful"));
+        }
+        catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new ResponseWithInfo("Invalid request", e.getMessage()));
+        } 
+        catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseWithInfo("Internal server error", e.getMessage()));
+        }
+    }
+
+    @Override
+    public ResponseEntity<?> getAllRooms() {
+        try {
+            List<RoomCards> rooms = roomService.findAllRooms();
+
+            if (rooms.isEmpty()) {
+                return ResponseEntity.noContent().build();
+            }
+
+            List<RoomResponse> roomsResponse = new ArrayList<>();
+
+            for(RoomCards room : rooms) {
+                Resource resource = storageService.loadAsResource(room.source());
+
+                byte[] fileContent = Files.readAllBytes(resource.getFile().toPath());
+
+                RoomResponse roomResponse = new RoomResponse(
+                    room.id(),
+                    room.name(),
+                    room.summary(),
+                    room.additional(),
+                    room.status(),
+                    room.file_name(),
+                    fileContent);
+                roomsResponse.add(roomResponse);
+            }
+
+            return ResponseEntity.ok().body(new ResponseWithData<List<RoomResponse>>("Request successful", roomsResponse));
+        }
+        catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new ResponseWithInfo("Invalid request", e.getMessage()));
+        } 
+        catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseWithInfo("Internal server error", e.getMessage()));
+        }
     }
 }

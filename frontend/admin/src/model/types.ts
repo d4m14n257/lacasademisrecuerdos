@@ -2,6 +2,7 @@ export interface Data<T> {
     message?: string;
     data?: T[] | [];
     err?: any;
+    errors?: { [key : string] : string }
     status: number 
 }
 
@@ -26,6 +27,12 @@ export type RoomCard = {
     summary: string;
     additional: string;
     source: string;
+    status: 'hidden' | 'active'
     file_name: string;
-    file: any;
+    file: string;
+}
+
+export type RoomStatus = {
+    id: string;
+    status: 'hidden' | 'active'
 }

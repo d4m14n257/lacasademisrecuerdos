@@ -3,18 +3,32 @@ package com.client.service_client.repository;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.client.service_client.model.Room;
+import com.client.service_client.model.enums.RoomStatus;
 
 public interface RoomRepository extends JpaRepository<Room, String>{ 
     @Query(value = 
-        "SELECT r.id, r.name, r.summary, r.additional, f.source, f.name as file_name " +
+        "SELECT r.id, r.name, r.summary, r.additional, r.status, f.source, f.name as file_name " +
         "FROM Room r " +
         "JOIN File f ON r.id = f.room_id " +
-        "WHERE f.main = true", nativeQuery = true)
-    List<Object[]> findAllRooms();    
+        "WHERE f.main = true " +
+        "AND r.status = 'active'", nativeQuery = true)
+    List<Object[]> findAllRoomsAvailable();    
+
+    @Query(value = 
+        "SELECT r.id, r.name, r.summary, r.additional, r.status, f.source, f.name as file_name " +
+        "FROM Room r " +
+        "JOIN File f ON r.id = f.room_id " +
+        "WHERE f.main = true " +
+        "ORDER BY CASE " +
+        "WHEN r.status = 'active' THEN 1 " +
+        "WHEN r.status = 'hidden' THEN 2 " +
+        "ELSE 3 END", nativeQuery = true)
+    List<Object[]> findAllRooms();   
 
     @Query(value = 
         "SELECT r.id, r.name " +
@@ -32,4 +46,11 @@ public interface RoomRepository extends JpaRepository<Room, String>{
         "SELECT CASE WHEN COUNT(*) > 0 THEN TRUE ELSE FALSE END FROM Room r " + 
         "WHERE r.id = :room")
     Boolean existsRoom(@Param("room") String id);
+
+    @Modifying
+    @Query(value =
+        "UPDATE Room r " +
+        "SET r.status = :status " +
+        "WHERE r.id = :id")
+    void updateStatus(String id, RoomStatus status);
 }

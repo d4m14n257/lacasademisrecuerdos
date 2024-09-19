@@ -2,8 +2,9 @@ package com.client.service_client.service;
 
 import com.client.service_client.repository.RoomRepository;
 import com.client.service_client.model.Room;
+import com.client.service_client.model.enums.RoomStatus;
 import com.client.service_client.model.record.FilesInfo;
-import com.client.service_client.model.record.RoomClient;
+import com.client.service_client.model.record.RoomCards;
 import com.client.service_client.model.record.RoomList;
 import com.client.service_client.model.record.RoomWithFiles;
 
@@ -24,16 +25,33 @@ public class RoomService {
         this.roomRepository = roomRepository;
     }
 
-    public List<RoomClient> findAll() {
-        List<Object[]> results = roomRepository.findAllRooms();
-        List<RoomClient> rooms = results.stream()
-            .map(result -> new RoomClient(
+    public List<RoomCards> findAllAvailable() {
+        List<Object[]> results = roomRepository.findAllRoomsAvailable();
+        List<RoomCards> rooms = results.stream()
+            .map(result -> new RoomCards(
                 (String) result[0],
                 (String) result[1],
                 (String) result[2],
                 (String) result[3],
-                (String) result[4],
-                (String) result[5]))
+                RoomStatus.valueOf((String) result[4]),
+                (String) result[5],
+                (String) result[6]))
+            .collect(Collectors.toList());
+        
+        return rooms;
+    }
+
+    public List<RoomCards> findAllRooms() {
+        List<Object[]> results = roomRepository.findAllRooms();
+        List<RoomCards> rooms = results.stream()
+            .map(result -> new RoomCards(
+                (String) result[0],
+                (String) result[1],
+                (String) result[2],
+                (String) result[3],
+                RoomStatus.valueOf((String) result[4]),
+                (String) result[5],
+                (String) result[6]))
             .collect(Collectors.toList());
         
         return rooms;
@@ -93,5 +111,11 @@ public class RoomService {
 
     public Optional<Room> room(String id) {
         return roomRepository.findById(id);
+    }
+
+    public void updateStatus(String id, RoomStatus status) {
+        System.out.println(id + " " + status);
+
+        roomRepository.updateStatus(id, status);
     }
 }

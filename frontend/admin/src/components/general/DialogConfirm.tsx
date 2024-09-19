@@ -28,6 +28,7 @@ export default function DialogConfirm (props : Props) {
                     <Button
                         size="small"
                         onClick={onConfirm}
+                        variant="outlined"
                     >
                         Accept
                     </Button>
@@ -35,6 +36,7 @@ export default function DialogConfirm (props : Props) {
                         color="error"
                         size="small"
                         onClick={onCancel}
+                        variant="outlined"
                     >
                         Cancel
                     </Button>

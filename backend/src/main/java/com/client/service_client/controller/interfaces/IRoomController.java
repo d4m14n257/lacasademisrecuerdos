@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.client.service_client.model.dto.RoomDTO;
+import com.client.service_client.model.dto.RoomStatusDTO;
 import com.client.service_client.model.dto.RoomUpdateDTO;
 
 import jakarta.validation.Valid;
@@ -20,7 +21,7 @@ import jakarta.validation.Valid;
 public interface IRoomController {
 
     @GetMapping
-    public ResponseEntity<?> getAllRooms(); 
+    public ResponseEntity<?> getAllRoomsAvailable(); 
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getRoomById(@PathVariable String id);
@@ -28,12 +29,19 @@ public interface IRoomController {
     @GetMapping("/list")
     public ResponseEntity<?> getListRoom();
 
+    @GetMapping("/admin")
+    public ResponseEntity<?> getAllRooms();
+
     @GetMapping("/admin/{id}")
     public ResponseEntity<?> getRoomByAdmin(@PathVariable String id);
 
     @PostMapping("/admin")
     @Transactional
     public ResponseEntity<?> createRoom(@Valid @RequestPart("data") RoomDTO entity, @RequestPart("file") MultipartFile file);
+
+    @PostMapping("/admin/status")
+    @Transactional
+    public ResponseEntity<?> editStatus(@Valid @RequestBody RoomStatusDTO entity);
 
     @PutMapping("/admin") 
     @Transactional

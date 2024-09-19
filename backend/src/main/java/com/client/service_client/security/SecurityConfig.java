@@ -38,10 +38,12 @@ public class SecurityConfig {
     );
     private final List<Endpoints> endpointsAuthenticated = new ArrayList<Endpoints>(
         Arrays.asList(
+            new Endpoints(HttpMethod.GET, "/api/room/admin"), 
             new Endpoints(HttpMethod.GET, "/api/room/admin/{id}"), 
             new Endpoints(HttpMethod.GET, "/api/contact/admin"),
             new Endpoints(HttpMethod.GET, "/api/tour/admin{id}"),
             new Endpoints(HttpMethod.POST, "/api/room/admin"),
+            new Endpoints(HttpMethod.POST, "/api/room/admin/status"),
             new Endpoints(HttpMethod.POST, "/api/tour/admin"),
             new Endpoints(HttpMethod.POST, "/api/hotel/admin"),
             new Endpoints(HttpMethod.POST, "/api/file/admin/{name}"),

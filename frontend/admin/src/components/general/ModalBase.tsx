@@ -17,7 +17,7 @@ export default function ModalBase(props : Props) {
         try {
             handleMessage({
                 title: 'Are you sure you want to close the box?', 
-                content: 'If you close the memory, nothing you have done will be saved.'
+                content: 'If you close the box, nothing you have done will be saved.'
             })
 
             await confirm()

@@ -1,3 +1,5 @@
+"use client"
+
 import DialogConfirm from "@/components/general/DialogConfirm";
 import React, { Context, createContext, useCallback, useReducer, useState } from "react";
 

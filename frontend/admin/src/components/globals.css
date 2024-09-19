@@ -39,3 +39,27 @@
     justify-content: flex-start;
     gap: 8px;
 }
+
+.text-area {
+    min-width: 250px;
+    max-width: 750px;
+    width: 500px;
+}
+
+.modal-title {
+    margin-bottom: 12px;
+}
+
+@media only screen and (max-width: 600px) {
+    .text-area {
+        width: 350px;
+        max-width: 500px;
+    }
+}
+
+@media only screen and (max-width: 480px) {
+    .text-area {
+        width: 322px;
+        max-width: 322px;
+    }
+}

@@ -1,7 +1,9 @@
 package com.client.service_client.model;
 
+import java.time.LocalDate;
 import java.util.Set;
 
+import com.client.service_client.model.enums.RoomStatus;
 import com.client.service_client.util.CustomIdGenerator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -9,6 +11,8 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
@@ -39,6 +43,13 @@ public class Room {
 
     @Column(name = "double_price", nullable = true)
     private Double double_price;
+
+    @Column(name = "created_at")
+    private LocalDate created_at;
+
+    @Column(name = "status", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private RoomStatus status;
 
     @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
@@ -126,5 +137,21 @@ public class Room {
 
     public void setContacts(Set<Contact> contacts) {
         this.contacts = contacts;
+    }
+
+    public LocalDate getCreated_at() {
+        return created_at;
+    }
+
+    public void setCreated_at(LocalDate created_at) {
+        this.created_at = created_at;
+    }
+
+    public RoomStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(RoomStatus status) {
+        this.status = status;
     }
 }

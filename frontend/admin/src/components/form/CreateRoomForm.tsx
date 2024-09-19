@@ -2,39 +2,46 @@
 
 import SendIcon from '@mui/icons-material/Send';
 import CloseIcon from '@mui/icons-material/Close';
-import { FileUpload } from "@mui/icons-material";
-import { BaseSyntheticEvent, useCallback, useState } from "react";
+import { BaseSyntheticEvent, useCallback, useContext, useState } from "react";
 import { Controller, ControllerRenderProps, SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 
 import "./form.css"
-import { FormControl, FormControlLabel, FormHelperText, Stack, TextField, Typography } from "@mui/material";
+import { Divider, FormControl, FormControlLabel, FormHelperText, Stack, TextField, Typography } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import { ErrorMessage } from '@hookform/error-message';
 import { FileUploader } from 'react-drag-drop-files';
 import TextArea from './TextArea';
+import { Confirm } from '@/contexts/ConfirmContext';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 type Props = {
     handleClose: () => void
 }
 
 const schema = z.object({
-    name: z.string({
-        required_error: "Name is required",
-    }).max(32, "The name cannot be longer than 32 characters"),
-    description: z.string({
-        required_error: "Description is required"
-    }).max(2048, "The name cannot be longer than 2048 characters"),
-    summary: z.string({
-        required_error: "Summay is required"
-    }).max(512, "The name cannot be longer than 512 characters"),
-    additional: z.string({
-        required_error: "Additional is required"
-    }).max(128, "The name cannot be longer than 128 characters"),
-    single_price: z.string({
-        required_error: "Single price is required"
-    }).regex(/^\d{1,8}(\.\d{1,2})?$/, "It must be a number with up to 10 digits and up to 2 decimals"),
-    double_price: z.string().regex(/^\d{1,8}(\.\d{1,2})?$/, "It must be a number with up to 10 digits and up to 2 decimals"),
+    name: z.string()
+    .max(32, { message: "The name cannot be longer than 32 characters"})
+    .min(1, { message: "Name is required"}),
+    description: z.string()
+    .max(2048, {message: "The name cannot be longer than 2048 characters"})
+    .min(1, { message: "Description is required" }),
+    summary: z.string()
+    .max(512, { message: "The name cannot be longer than 512 characters" })
+    .min(1, { message: "Summary is required" }),
+    additional: z.string()
+    .max(128, { message: "The name cannot be longer than 128 characters"})
+    .min(1, { message: "Additional is required"}),
+    single_price: z.number({
+        required_error: 'Single prices is required'
+    })
+    .refine((val) => { return /^\d{1,8}(\.\d{1,2})?$/.test(val.toString()) }, 
+        { message: "It must be a number with up to 8 digits and up to 2 decimals" }
+    ),
+    double_price: z.number()
+    .refine((val) => { return /^\d{1,8}(\.\d{1,2})?$/.test(val.toString()) }, 
+        { message: "It must be a number with up to 8 digits and up to 2 decimals" }
+    ),
     file: z.boolean({
         required_error: "File is required"
     })
@@ -43,22 +50,25 @@ const schema = z.object({
 type Room = z.infer<typeof schema>
 
 const useCreateRoomForm = () => {
+    const { confirm, handleMessage } = useContext(Confirm);
     const [ file, setFile ] = useState<File | null>(null);
     const fileTypes = ['png', 'jpg', 'jpeg'];
 
     const handleLoadFile : (file : File, field : ControllerRenderProps<Room>) => void = (file, field) => {
-        console.log(File)
+        console.log(file, field)
     }
 
     return {
+        confirm,
         fileTypes, 
-        handleLoadFile
+        handleLoadFile,
+        handleMessage
     };
 }
 
 export default function CreateRoomForm (props : Props) {
     const { handleClose } = props;
-    const { fileTypes, handleLoadFile } = useCreateRoomForm();
+    const { confirm, fileTypes, handleLoadFile, handleMessage } = useCreateRoomForm();
 
     const { control, register, handleSubmit, formState: { errors, isSubmitting }} = useForm<Room>({
         defaultValues: {
@@ -66,28 +76,42 @@ export default function CreateRoomForm (props : Props) {
             description: "",
             summary: "",
             additional: "",
-            single_price: "",
-            double_price: "",
-            file: false
-        }
+            single_price: undefined,
+            double_price: undefined,
+            file: undefined
+        },
+        resolver: zodResolver(schema)
     })
 
     const onSubmit : SubmitHandler<Room> = useCallback(async (data, event?: BaseSyntheticEvent) => {
         event?.preventDefault();
 
         try {
+            handleMessage({
+                title: "Are you sure you want to save this room?",
+                content: 'Once the room is created, it has to be activated so that it can be displayed on the main page'
+            })
+
+            await confirm()
+                .catch(() => {throw {canceled: true}})
+
             console.log(data)
         }
         catch (err : unknown) {
+            if(err instanceof Error) {
+                
+            }
 
+            return;
         }
     }, [])
-    
+
     return (
         <form className="content">
+            <Divider />
             <FormControl
                 fullWidth
-                error={Boolean(errors)}
+                error={Boolean(errors.name)}
                 className='label-field'
             >
                 <FormControlLabel 
@@ -107,14 +131,16 @@ export default function CreateRoomForm (props : Props) {
                     <FormHelperText>
                         <ErrorMessage errors={errors} name="name"/>
                     </FormHelperText> :
-                    <FormHelperText>
+                    <FormHelperText
+                        error={Boolean(errors.name)}
+                    >
                         The name that the room will have
                     </FormHelperText>
                 }
             </FormControl>
             <FormControl
                 fullWidth
-                error={Boolean(errors)}
+                error={Boolean(errors.description)}
                 className='label-field'
             >
                 <FormControlLabel 
@@ -124,7 +150,8 @@ export default function CreateRoomForm (props : Props) {
                         <TextArea 
                             disabled={isSubmitting}
                             error={Boolean(errors.description)}
-                            placeholder='Azul'
+                            placeholder='This beautiful room is located on the second floor of the house...'
+                            minRows={4}
                             {...register('description')}
                         />
                     }
@@ -140,7 +167,7 @@ export default function CreateRoomForm (props : Props) {
             </FormControl>
             <FormControl
                 fullWidth
-                error={Boolean(errors)}
+                error={Boolean(errors.additional)}
                 className='label-field'
             >
                 <FormControlLabel 
@@ -150,7 +177,8 @@ export default function CreateRoomForm (props : Props) {
                         <TextArea 
                             disabled={isSubmitting}
                             error={Boolean(errors.additional)}
-                            placeholder='Azul'
+                            placeholder='1 king-sized bed or 2 single beds. Private Bath.'
+                            minRows={4}
                             {...register('additional')}
                         />
                     }
@@ -166,7 +194,7 @@ export default function CreateRoomForm (props : Props) {
             </FormControl>
             <FormControl
                 fullWidth
-                error={Boolean(errors)}
+                error={Boolean(errors.summary)}
                 className='label-field'
             >
                 <FormControlLabel 
@@ -176,7 +204,8 @@ export default function CreateRoomForm (props : Props) {
                         <TextArea 
                             disabled={isSubmitting}
                             error={Boolean(errors.summary)}
-                            placeholder='Azul'
+                            placeholder='Located on the second floor of the house, this room has...'
+                            minRows={4}
                             {...register('summary')}
                         />
                     }
@@ -192,7 +221,7 @@ export default function CreateRoomForm (props : Props) {
             </FormControl>
             <FormControl
                 fullWidth
-                error={Boolean(errors)}
+                error={Boolean(errors.single_price)}
                 className='label-field'
             >
                 <FormControlLabel 
@@ -204,6 +233,7 @@ export default function CreateRoomForm (props : Props) {
                             disabled={isSubmitting}
                             error={Boolean(errors.single_price)}
                             placeholder='9999.99'
+                            type='number'
                             {...register('single_price')}
                         />
                     }
@@ -219,11 +249,11 @@ export default function CreateRoomForm (props : Props) {
             </FormControl>
             <FormControl
                 fullWidth
-                error={Boolean(errors)}
+                error={Boolean(errors.double_price)}
                 className='label-field'
             >
                 <FormControlLabel 
-                    label={<Typography color={Boolean(errors.double_price) ? "error" : "info"}>Single price</Typography>}
+                    label={<Typography color={Boolean(errors.double_price) ? "error" : "info"}>Double price</Typography>}
                     labelPlacement='top'
                     control={
                         <TextField 
@@ -231,6 +261,7 @@ export default function CreateRoomForm (props : Props) {
                             disabled={isSubmitting}
                             error={Boolean(errors.double_price)}
                             placeholder='9999.99'
+                            type='number'
                             {...register('double_price')}
                         />
                     }
@@ -245,21 +276,31 @@ export default function CreateRoomForm (props : Props) {
                 }
             </FormControl>
             <Controller
+                name='file'
                 control={ control }
                 render={({ field }) => 
-                    <FormControl>
+                    <FormControl
+                        error={Boolean(errors.file)}
+                        className='label-field'
+                    >
                         <FileUploader 
                             multiple={false}
                             type={fileTypes}
-                            handleChage={(file : File) => handleLoadFile(file, field)}
+                            handleChange={(file : File) => 
+                                handleLoadFile(file, field)}
                         />
+                        {errors.file ?
+                            <FormHelperText>
+                                <ErrorMessage errors={errors} name="file"/>
+                            </FormHelperText> :
+                            <FormHelperText>
+                                You must upload an image of the room that will be shown
+                            </FormHelperText>
+                        }
                     </FormControl>
                 }
-                {...register("file")}
             />
-            <FileUpload 
-
-            />
+            <Divider />
             <Stack direction="row-reverse" justifyContent='flex-start' spacing={2}>
                 <LoadingButton
                     loading={isSubmitting}
