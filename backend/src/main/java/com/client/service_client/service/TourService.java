@@ -49,4 +49,8 @@ public class TourService {
     public Optional<Tour> findById(String id) {
         return tourRepository.findById(id);
     }
+
+    public List<String> getAllFilesTour(String id) {
+        return tourRepository.getAllFilesTour(id);
+    }
 }

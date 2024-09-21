@@ -1,5 +1,7 @@
 package com.client.service_client.repository;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,4 +14,10 @@ public interface HotelRepository extends JpaRepository<Hotel, String>{
         "WHERE h.id = :hotel")
     Boolean existsHotel(@Param("hotel") String id);
 
+    @Query(value = 
+        "SELECT f.source " +
+        "FROM Hotel h " +
+        "JOIN File f ON h.id = f.hotel_id " +
+        "WHERE h.id = :id", nativeQuery = true)
+    List<String> getAllFilesHotel(String id);
 }

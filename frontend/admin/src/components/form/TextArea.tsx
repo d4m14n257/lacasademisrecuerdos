@@ -3,23 +3,41 @@ import { TextareaAutosize as BaseTextareaAutosize } from '@mui/base/TextareaAuto
 import { styled, useTheme } from '@mui/system';
 
 import '../globals.css'
+import { ChangeHandler } from 'react-hook-form';
+
+type Props = {
+    required?: boolean;
+    placeholder: string;
+    minRows: number;
+    error: boolean;
+    name: string;
+    disabled: boolean;
+    onBlur: ChangeHandler
+    onChange: ChangeHandler
+}
 
 const TextArea = React.forwardRef(
     function (
-        { minRows, error, placeholder }: { minRows?: number, error: boolean, placeholder: string },
+        props : Props,
         ref: React.Ref<HTMLTextAreaElement>
     ) 
-{
+{   
+    const { required, placeholder, minRows, error, name, disabled, onBlur, onChange } = props;
     const theme = useTheme();
     return (
         <TextareaAutosize
             ref={ref}
             className='text-area'
             aria-label="empty textarea"
+            required={required}
             placeholder={placeholder}
-            theme={theme}
             minRows={minRows}
             {...(error ? { 'data-error': error } : {})}
+            name={name}
+            disabled={disabled}
+            onBlur={onBlur}
+            onChange={onChange}
+            theme={theme}
         />
     );
 });

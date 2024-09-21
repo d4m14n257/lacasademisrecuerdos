@@ -23,7 +23,7 @@ public interface IRoomController {
     @GetMapping
     public ResponseEntity<?> getAllRoomsAvailable(); 
 
-    @GetMapping("/{id}")
+    @GetMapping("/client/{id}")
     public ResponseEntity<?> getRoomById(@PathVariable String id);
 
     @GetMapping("/list")

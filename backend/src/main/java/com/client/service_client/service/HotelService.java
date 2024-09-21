@@ -31,4 +31,8 @@ public class HotelService {
             throw new RuntimeException("Hotel not found");
         }
     }
+
+    public List<String> getAllFilesHotel(String id) {
+        return hotelRepository.getAllFilesHotel(id);
+    }
 }

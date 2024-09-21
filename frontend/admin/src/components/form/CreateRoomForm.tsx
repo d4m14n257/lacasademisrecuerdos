@@ -1,22 +1,26 @@
 "use client"
 
+import { z } from "zod";
 import SendIcon from '@mui/icons-material/Send';
 import CloseIcon from '@mui/icons-material/Close';
-import { BaseSyntheticEvent, useCallback, useContext, useState } from "react";
+import { BaseSyntheticEvent, useCallback, useContext, useRef, useState } from "react";
 import { Controller, ControllerRenderProps, SubmitHandler, useForm } from "react-hook-form";
-import { z } from "zod";
-
-import "./form.css"
-import { Divider, FormControl, FormControlLabel, FormHelperText, Stack, TextField, Typography } from "@mui/material";
+import { Divider, FormControl, FormControlLabel, FormHelperText, InputAdornment, InputLabel, OutlinedInput, Stack, TextField, Typography } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import { ErrorMessage } from '@hookform/error-message';
 import { FileUploader } from 'react-drag-drop-files';
 import TextArea from './TextArea';
 import { Confirm } from '@/contexts/ConfirmContext';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { setData } from '@/api/setData';
+import { useSession } from 'next-auth/react';
+import { Advice } from '@/contexts/AdviceProvider';
+
+import "./form.css"
 
 type Props = {
-    handleClose: () => void
+    handleClose: () => void,
+    reloadAction: () => Promise<void>
 }
 
 const schema = z.object({
@@ -35,11 +39,15 @@ const schema = z.object({
     single_price: z.number({
         required_error: 'Single prices is required'
     })
-    .refine((val) => { return /^\d{1,8}(\.\d{1,2})?$/.test(val.toString()) }, 
+    .refine((val) => { 
+            return val >= 0 && val < 100000000 && Number(val.toFixed(2)) === val;
+        }, 
         { message: "It must be a number with up to 8 digits and up to 2 decimals" }
     ),
     double_price: z.number()
-    .refine((val) => { return /^\d{1,8}(\.\d{1,2})?$/.test(val.toString()) }, 
+    .refine((val) => { 
+            return val >= 0 && val < 100000000 && Number(val.toFixed(2)) === val;
+        }, 
         { message: "It must be a number with up to 8 digits and up to 2 decimals" }
     ),
     file: z.boolean({
@@ -50,32 +58,45 @@ const schema = z.object({
 type Room = z.infer<typeof schema>
 
 const useCreateRoomForm = () => {
+    const { data: session } = useSession();
     const { confirm, handleMessage } = useContext(Confirm);
-    const [ file, setFile ] = useState<File | null>(null);
+    const { handleOpen, handleAdvice } = useContext(Advice);
+    const file = useRef<File | null>();
     const fileTypes = ['png', 'jpg', 'jpeg'];
 
-    const handleLoadFile : (file : File, field : ControllerRenderProps<Room>) => void = (file, field) => {
-        console.log(file, field)
+    const handleLoadFile : (file : File, field : ControllerRenderProps<Room>) => void = (fileAdd, field) => {
+        if(fileAdd) {
+            file.current = fileAdd;
+            field.onChange(true);
+        }
+        else {
+            file.current = null;
+            field.onChange(false);
+        }
     }
 
     return {
+        file,
+        token: session?.token,
         confirm,
         fileTypes, 
         handleLoadFile,
-        handleMessage
+        handleMessage,
+        handleOpen,
+        handleAdvice
     };
 }
 
 export default function CreateRoomForm (props : Props) {
-    const { handleClose } = props;
-    const { confirm, fileTypes, handleLoadFile, handleMessage } = useCreateRoomForm();
+    const { handleClose, reloadAction } = props;
+    const { file, token, confirm, fileTypes, handleLoadFile, handleMessage, handleOpen, handleAdvice } = useCreateRoomForm();
 
     const { control, register, handleSubmit, formState: { errors, isSubmitting }} = useForm<Room>({
         defaultValues: {
-            name: "",
-            description: "",
-            summary: "",
-            additional: "",
+            name: undefined,
+            description: undefined,
+            summary: undefined,
+            additional: undefined,
             single_price: undefined,
             double_price: undefined,
             file: undefined
@@ -85,8 +106,17 @@ export default function CreateRoomForm (props : Props) {
 
     const onSubmit : SubmitHandler<Room> = useCallback(async (data, event?: BaseSyntheticEvent) => {
         event?.preventDefault();
-
         try {
+            if(!token) {
+                handleAdvice({
+                    message: 'Invalid session, restart the session',
+                    status: 401
+                })
+
+                handleOpen();
+                return;
+            }
+
             handleMessage({
                 title: "Are you sure you want to save this room?",
                 content: 'Once the room is created, it has to be activated so that it can be displayed on the main page'
@@ -95,11 +125,57 @@ export default function CreateRoomForm (props : Props) {
             await confirm()
                 .catch(() => {throw {canceled: true}})
 
-            console.log(data)
+            if(data.file && file.current) {
+                const formData = new FormData();
+                const jsonData = JSON.stringify({
+                    ...data,
+                    file: undefined
+                })
+                formData.append('file', file.current);
+
+                const blob = new Blob([jsonData], { type: 'application/json' });
+                formData.append('data', blob);
+
+                const res = await setData<FormData>('room/admin', token, formData);
+
+                if(res.status >= 200 && res.status <= 299) {
+                    await reloadAction();
+
+                    handleAdvice({
+                        message: res.message,
+                        status: res.status
+                    })
+
+                    handleOpen();
+                    handleClose();
+                }
+                else {
+                    if(res.errors) {
+                        console.log('no se que hacer aqui xd');
+                    }
+                    else {
+                        handleAdvice({
+                            message: res.message,
+                            status: res.status
+                        })
+
+                        handleOpen();
+                    }
+                }
+            }
+            else {
+                handleAdvice({
+                    message: 'File not found',
+                    status: 400
+                })
+            }
         }
         catch (err : unknown) {
             if(err instanceof Error) {
-                
+                handleAdvice({
+                    message: err.message.charAt(0).toUpperCase() + err.message.slice(1),
+                    status: 503
+                })
             }
 
             return;
@@ -228,13 +304,16 @@ export default function CreateRoomForm (props : Props) {
                     label={<Typography color={Boolean(errors.single_price) ? "error" : "info"}>Single price</Typography>}
                     labelPlacement='top'
                     control={
-                        <TextField 
+                        <OutlinedInput
+                            id="single-price"
                             fullWidth
                             disabled={isSubmitting}
-                            error={Boolean(errors.single_price)}
-                            placeholder='9999.99'
                             type='number'
-                            {...register('single_price')}
+                            placeholder='9999.99'
+                            startAdornment={<InputAdornment position="start">$</InputAdornment>}
+                            {...register('single_price', {
+                                setValueAs: (value) => value === "" ? undefined : parseFloat(value)
+                            })}
                         />
                     }
                 />
@@ -256,13 +335,16 @@ export default function CreateRoomForm (props : Props) {
                     label={<Typography color={Boolean(errors.double_price) ? "error" : "info"}>Double price</Typography>}
                     labelPlacement='top'
                     control={
-                        <TextField 
+                        <OutlinedInput
+                            id="single-price"
                             fullWidth
                             disabled={isSubmitting}
-                            error={Boolean(errors.double_price)}
-                            placeholder='9999.99'
                             type='number'
-                            {...register('double_price')}
+                            placeholder='9999.99'
+                            startAdornment={<InputAdornment position="start">$</InputAdornment>}
+                            {...register('double_price', {
+                                setValueAs: (value) => value === "" ? undefined : parseFloat(value) 
+                            })}
                         />
                     }
                 />
@@ -285,7 +367,7 @@ export default function CreateRoomForm (props : Props) {
                     >
                         <FileUploader 
                             multiple={false}
-                            type={fileTypes}
+                            types={fileTypes}
                             handleChange={(file : File) => 
                                 handleLoadFile(file, field)}
                         />

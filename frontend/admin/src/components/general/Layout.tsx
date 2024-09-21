@@ -27,13 +27,13 @@ import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import MenuIcon from '@mui/icons-material/Menu';
-import { signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { useMediaQuery } from "@mui/material";
 import { routes } from "@/constants/routes";
-
-import '../globals.css'
 import CardSettings from "./CardSettings";
 import { Advice } from "@/contexts/AdviceProvider";
+
+import '../globals.css'
 
 const drawerWidth = 240;
 
@@ -150,16 +150,16 @@ export default function Layout (
     {children} : Readonly<{children: React.ReactNode}>
 ) {
     const { 
-            isMobile, 
-            session, 
-            status, 
-            open, 
-            openSettings, 
-            theme, 
-            handleChangeDrawn, 
-            handleChangeSetting, 
-            handleChangeRoute
-        } = useLayout();
+        isMobile, 
+        session, 
+        status, 
+        open, 
+        openSettings, 
+        theme, 
+        handleChangeDrawn, 
+        handleChangeSetting, 
+        handleChangeRoute
+    } = useLayout();
 
     if(status == "unauthenticated") {
         return (

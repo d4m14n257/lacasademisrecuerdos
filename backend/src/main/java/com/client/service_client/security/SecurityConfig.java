@@ -30,7 +30,7 @@ public class SecurityConfig {
         Arrays.asList(
             new Endpoints(HttpMethod.GET, "/api/room"), 
             new Endpoints(HttpMethod.GET, "/api/room/list"),
-            new Endpoints(HttpMethod.GET, "/api/room/{id}"),
+            new Endpoints(HttpMethod.GET, "/api/room/client/{id}"),
             new Endpoints(HttpMethod.GET, "/api/hotel"),
             new Endpoints(HttpMethod.GET, "/api/tour"),
             new Endpoints(HttpMethod.GET, "/api/tour/{id}"),

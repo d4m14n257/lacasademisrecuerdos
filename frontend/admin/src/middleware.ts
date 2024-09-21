@@ -1,7 +1,6 @@
 import { getToken } from "next-auth/jwt";
 import { NextRequest, NextResponse } from "next/server";
 import { ResponseOnlyMessage } from "./model/response";
-import { signOut } from "next-auth/react";
 
 export { default } from "next-auth/middleware";
 
@@ -10,9 +9,11 @@ export async function middleware(req: NextRequest) {
     const loginUrl = new URL('/login', req.url);
 
     const isRedirecting = req.cookies.get('is-redirecting');
-
     if (!token) {
-        return NextResponse.redirect(loginUrl);
+        const res = NextResponse.redirect(loginUrl);
+        res.cookies.delete('logout-message');
+        
+        return res;
     }
 
     const res = NextResponse.next();
@@ -55,16 +56,12 @@ export async function middleware(req: NextRequest) {
     }
     
     res.cookies.delete('is-redirecting');
-
+    
     if(!isRedirecting) {
-        if(req.cookies.get('logout-message')){
-            signOut();
-        }
-
         res.cookies.delete('error-message');
         res.cookies.delete('logout-message');
     }
-        
+
     return res;
 }
 

@@ -61,10 +61,12 @@ public class Room {
 
     public Room() {
         this.id = CustomIdGenerator.generate(12);
+        this.status = RoomStatus.hidden;
     }
 
     public Room(String id) {
         this.id = id;
+        this.status = RoomStatus.hidden;
     }
 
     public String getId() {

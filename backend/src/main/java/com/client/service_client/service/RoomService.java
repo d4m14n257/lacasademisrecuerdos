@@ -114,8 +114,10 @@ public class RoomService {
     }
 
     public void updateStatus(String id, RoomStatus status) {
-        System.out.println(id + " " + status);
-
         roomRepository.updateStatus(id, status);
+    }
+
+    public List<String> getAllFilesRoom(String id) {
+        return roomRepository.getAllFilesRoom(id);
     }
 }

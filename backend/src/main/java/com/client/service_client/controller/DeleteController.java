@@ -1,15 +1,17 @@
 package com.client.service_client.controller;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.client.service_client.model.dto.SourceDTO;
+import com.client.service_client.model.dto.IdDTO;
 import com.client.service_client.model.response.ResponseOnlyMessage;
 import com.client.service_client.model.response.ResponseWithInfo;
 import com.client.service_client.service.HotelService;
@@ -37,28 +39,39 @@ public class DeleteController {
     }
 
     @DeleteMapping("/{name}")
-    public ResponseEntity<?> deleteEntity(@Validated @RequestBody @NotEmpty SourceDTO[] entity, @RequestParam("name") String name) {
+    public ResponseEntity<?> deleteEntity(@Validated @RequestBody @NotEmpty IdDTO[] entity, @PathVariable("name") String name) {
         try {
             switch (name) {
                 case "hotel":
-                    for (SourceDTO hotel : entity) {
+                    for (IdDTO hotel : entity) {
+                        List<String> files = hotelService.getAllFilesHotel(hotel.getId());
                         hotelService.deleteById(hotel.getId());
-                        storageService.deleteFile(hotel.getSource());
+                        
+                        for(String source : files) {
+                            storageService.deleteFile(source);
+                        }
                     }
 
                     return ResponseEntity.ok().body(new ResponseOnlyMessage("Hoteles deleted"));
                 case "room":
-                    for(SourceDTO room : entity) {
+                    for(IdDTO room : entity) {
+                        List<String> files = roomService.getAllFilesRoom(room.getId());
                         roomService.deleteById(room.getId());
-        
-                        storageService.deleteFile(room.getSource());
+
+                        for(String source : files) {
+                            storageService.deleteFile(source);
+                        }
                     }
         
                     return ResponseEntity.ok().body(new ResponseOnlyMessage("Rooms deleted"));
                 case "tour":
-                    for(SourceDTO tour : entity) {
+                    for(IdDTO tour : entity) {
+                        List<String> files = tourService.getAllFilesTour(tour.getId());
                         tourService.deleteById(tour.getId());
-                        storageService.deleteFile(tour.getSource());
+
+                        for(String source : files) {
+                            storageService.deleteFile(source);
+                        }
                     }
         
                     return ResponseEntity.ok().body(new ResponseOnlyMessage("Tours deleted"));

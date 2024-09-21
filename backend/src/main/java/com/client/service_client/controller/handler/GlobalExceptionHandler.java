@@ -1,5 +1,6 @@
 package com.client.service_client.controller.handler;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -60,22 +61,27 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
-    public ResponseEntity<?> handlerNotSupport (HttpMediaTypeNotSupportedException e) {
+    public ResponseEntity<?> handleNotSupport (HttpMediaTypeNotSupportedException e) {
         return new ResponseEntity<>(new ResponseWithInfo("Unsupported media type in file", e.getMessage()), HttpStatus.UNSUPPORTED_MEDIA_TYPE);
     }
 
     @ExceptionHandler(MethodArgumentConversionNotSupportedException.class)
-    public ResponseEntity<?> handlerArgumentConversion (MethodArgumentConversionNotSupportedException e) {
+    public ResponseEntity<?> handleArgumentConversion (MethodArgumentConversionNotSupportedException e) {
         return new ResponseEntity<>(new ResponseWithInfo("Required conversion in data", e.getMessage()), HttpStatus.GONE);
     }
 
     @ExceptionHandler(UnexpectedRollbackException.class)
-    public ResponseEntity<?> handlerRollEntity (UnexpectedRollbackException e) {
+    public ResponseEntity<?> handleRollEntity (UnexpectedRollbackException e) {
         return new ResponseEntity<>(new ResponseWithInfo("Unexpected error", e.getMessage()), HttpStatus.UNSUPPORTED_MEDIA_TYPE);
     }
 
     @ExceptionHandler(HandlerMethodValidationException.class)
     public ResponseEntity<?> handleValidationException (HandlerMethodValidationException e) {
         return new ResponseEntity<>(new ResponseWithInfo("Bad request", e.getMessage()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(SQLException.class)
+    public ResponseEntity<?> handleSqlException(SQLException e) {
+        return new ResponseEntity<>(new ResponseWithInfo("Error when the transaction was made", e.getMessage()), HttpStatus.BAD_GATEWAY);
     }
 }   

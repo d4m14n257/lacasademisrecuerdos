@@ -1,4 +1,4 @@
-import { Box, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
 import ModalBase from "../general/ModalBase";
 import CreateRoomForm from "../form/CreateRoomForm";
 
@@ -7,11 +7,12 @@ import '../globals.css';
 type Props = {
     open: boolean,
     handleClose: () => void,
-    closeConfirm?: boolean
+    closeConfirm: boolean
+    reloadAction: () => Promise<void>
 }
 
 export default function CreateRoomModal (props : Props) {
-    const { open, handleClose, closeConfirm = false } = props;
+    const { open, handleClose, closeConfirm, reloadAction } = props;
 
     return (
         <ModalBase
@@ -27,6 +28,7 @@ export default function CreateRoomModal (props : Props) {
             </Typography>
             <CreateRoomForm 
                 handleClose={handleClose}
+                reloadAction={reloadAction}
             />
         </ModalBase>
     ); 

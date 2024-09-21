@@ -39,7 +39,8 @@ public interface RoomRepository extends JpaRepository<Room, String>{
         "SELECT r.id, r.name, r.description, r.summary, r.additional, r.single_price, r.double_price, f.source, f.name as file_name, f.main " + 
         "FROM Room r " + 
         "JOIN File f ON r.id = f.room_id " +
-        "WHERE r.id = :room", nativeQuery = true)
+        "WHERE r.id = :room " + 
+        "AND r.status = 'active'", nativeQuery = true)
     List<Object[]> findByIdWithFiles(String room);
 
     @Query(
@@ -53,4 +54,11 @@ public interface RoomRepository extends JpaRepository<Room, String>{
         "SET r.status = :status " +
         "WHERE r.id = :id")
     void updateStatus(String id, RoomStatus status);
+
+    @Query(value = 
+        "SELECT f.source " +
+        "FROM Room r " +
+        "JOIN File f ON r.id = f.room_id " +
+        "WHERE r.id = :id", nativeQuery = true)
+    List<String> getAllFilesRoom(String id);
 }

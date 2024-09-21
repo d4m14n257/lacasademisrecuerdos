@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.client.service_client.model.dto.FileDTO;
@@ -20,7 +20,7 @@ public interface IFileController {
 
     @PostMapping("/admin/{name}")
     @Transactional
-    public ResponseEntity<?> setFile (@Valid @PathVariable String name, @RequestPart("data") FileDTO entity, @RequestPart("file") MultipartFile file);
+    public ResponseEntity<?> setFile (@Valid @PathVariable String name, @RequestParam("data") FileDTO entity, @RequestParam("file") MultipartFile file);
 
     @DeleteMapping("/admin")
     @Transactional

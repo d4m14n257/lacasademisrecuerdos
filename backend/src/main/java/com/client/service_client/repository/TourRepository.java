@@ -30,4 +30,11 @@ public interface TourRepository extends JpaRepository<Tour, String>{
         "WHERE t.status = 'used' " +
         "AND t.id = :id", nativeQuery = true)
     Optional<Object[]> findTourById(String id);
+
+    @Query(value = 
+        "SELECT f.source " +
+        "FROM Tour t " +
+        "JOIN File f ON t.id = f.hotel_id " +
+        "WHERE t.id = :id", nativeQuery = true)
+    List<String> getAllFilesTour(String id);
 }

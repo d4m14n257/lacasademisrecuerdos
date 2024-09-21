@@ -20,6 +20,7 @@ import com.client.service_client.model.record.RoomWithFilesBytes;
 import com.client.service_client.model.response.ResponseOnlyMessage;
 import com.client.service_client.model.response.ResponseWithData;
 import com.client.service_client.model.response.ResponseWithInfo;
+import com.client.service_client.service.ImageService;
 import com.client.service_client.service.RoomService;
 import com.client.service_client.storage.StorageService;
 import com.client.service_client.util.FileValidator;
@@ -35,25 +36,26 @@ import java.util.Optional;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
 
 @RestController
 public class RoomController implements IRoomController{
 
     private RoomService roomService;
     private StorageService storageService;
+    private ImageService imageService;
     private final String destination = "/room";
     private String source;
     
-    public RoomController(RoomService roomService, StorageService storageService) {
+    public RoomController(RoomService roomService, StorageService storageService, ImageService imageService) {
         this.roomService = roomService;
         this.storageService = storageService;
+        this.imageService = imageService;
 
         source = null;
     }
 
     @Override
-    public ResponseEntity<?> getRoomById(@PathVariable String id) {
+    public ResponseEntity<?> getRoomById(String id) {
         try {
             Optional<RoomWithFiles> room = roomService.findByIdWithFiles(id);
             
@@ -65,8 +67,6 @@ public class RoomController implements IRoomController{
             List<FilesBytes> files = new ArrayList<>();
 
             for(FilesInfo fileWithoutByte : roomResults.files()) {
-                System.out.println(fileWithoutByte.source());
-
                 Resource resource = storageService.loadAsResource(fileWithoutByte.source());
 
                 byte[] fileContent = Files.readAllBytes(resource.getFile().toPath());
@@ -136,6 +136,7 @@ public class RoomController implements IRoomController{
     public ResponseEntity<?> createRoom(RoomDTO entity, MultipartFile file) {
         try{
             ResponseEntity<?> validationResponse = FileValidator.validateFile(file);
+            MultipartFile fileWepb = imageService.convertImageToWebp(file);
 
             if (validationResponse != null) {
                 return validationResponse;
@@ -153,13 +154,13 @@ public class RoomController implements IRoomController{
             room.setFiles(new HashSet<File>());
             room.getFiles().add(fileSave);
 
-            fileSave.setName(file.getOriginalFilename());
-            fileSave.setMime(file.getContentType());
-            fileSave.setSize(file.getSize());
+            fileSave.setName(fileWepb.getOriginalFilename());
+            fileSave.setMime(fileWepb.getContentType());
+            fileSave.setSize(fileWepb.getSize());
             fileSave.setMain(true);
             fileSave.setRoom(room);
 
-            this.source = storageService.store(file, this.destination);
+            this.source = storageService.store(fileWepb, this.destination);
             fileSave.setSource(this.source);
 
             roomService.save(room);
@@ -175,6 +176,8 @@ public class RoomController implements IRoomController{
             return ResponseEntity.badRequest().body(new ResponseWithInfo("Invalid request", e.getMessage()));
         } 
         catch (Exception e) {
+            System.out.println(source);
+
             if(source != null) {
                 storageService.deleteFile(source);
             }

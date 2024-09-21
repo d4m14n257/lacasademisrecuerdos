@@ -2,12 +2,14 @@ import { ResponseWithData, ResponseWithInfo } from "@/model/response";
 import { Data } from "@/model/types";
 
 export async function getData<T>(endpoint: string, hasFiles: boolean, token?: string) : Promise<Data<T>> {
+    console.log(`${process.env.NEXT_PUBLIC_SERVER_HOST}/${endpoint}`)
+
     try {
         const options = {
             method: 'GET',
             headers: {
                 'Content-Type': hasFiles ? 'application/octet-stream' : 'application/json',
-                'Autjorization': token ? `Bearer ${token}` : ''
+                'Authorization': token ? `Bearer ${token}` : ''
             }
         }
 
@@ -49,8 +51,7 @@ export async function getData<T>(endpoint: string, hasFiles: boolean, token?: st
         }
 
         return {
-            message: "Unexpected error",
-            err: String(err),
+            err: "Unexpected error",
             status: 500
         };
     }

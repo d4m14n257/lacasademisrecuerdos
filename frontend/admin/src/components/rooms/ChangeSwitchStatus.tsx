@@ -53,7 +53,7 @@ const useChangeSwitchStatus = ({ id, status } : RoomStatus) => {
                 handleAdvice({
                     message: err.message,
                     vertical: 'bottom',
-                    horizontal: 'right',
+                    horizontal: 'left',
                     status: err.message == 'Session is not valid' ? 401 : 500
                 })
             }

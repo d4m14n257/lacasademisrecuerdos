@@ -122,8 +122,6 @@ public class TourController implements ITourController{
                 return ResponseEntity.noContent().build();
             }
 
-            System.out.println("aqui");
-
             List<TourResponse> toursResponse = new ArrayList<>();
 
             for(TourClient tour : tours) {
