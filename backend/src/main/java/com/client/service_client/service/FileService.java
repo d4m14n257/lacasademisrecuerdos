@@ -1,5 +1,7 @@
 package com.client.service_client.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import com.client.service_client.model.File;
@@ -7,7 +9,6 @@ import com.client.service_client.repository.FileRepository;
 import com.client.service_client.repository.HotelRepository;
 import com.client.service_client.repository.RoomRepository;
 import com.client.service_client.repository.TourRepository;
-
 
 @Service
 public class FileService {
@@ -29,6 +30,35 @@ public class FileService {
 
     public void save(File file) {
         fileRepository.save(file);
+    }
+
+    public void saveAllFiles(List<File> files, String name, String id) {
+        for(File file : files) {
+            if(name.equals("room")) {
+                fileRepository.saveFilesRoom(file.getId(), file.getName(), file.getSource(), file.getMime(), file.getSize(), file.getMain(), id);
+            }
+            else if(name.equals("tour")) {
+                fileRepository.saveFilesTour(file.getId(), file.getName(), file.getSource(), file.getMime(), file.getSize(), file.getMain(), id);
+            }
+            else {
+                throw new RuntimeException("Name is not valid or incorrent");
+            }
+        }
+    }
+
+    public void changeMain(String name, String id) {
+        if(name.equals("room")) {
+            fileRepository.changeMainRoom(id);
+        }
+        else if(name.equals("tour")) {
+            fileRepository.changeMainTour(id);
+        }
+        else
+            throw new RuntimeException("Name is not valid or incorrent");
+    }
+
+    public void setMain(String id) {
+        fileRepository.setMain(id);
     }
 
     public void saveFileHotel(String hotel_id, String file_id) {

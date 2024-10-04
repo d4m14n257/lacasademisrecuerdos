@@ -25,22 +25,29 @@ const useChangeSwitchStatus = ({ id, status } : RoomStatus) => {
                 })
 
                 await confirm()
-                    .catch(() => { return });
+                    .catch(() => { throw { canceled: true } });
 
 
                 const res = await setData<RoomStatus>('room/admin/status', session?.token, 
-                    { id, status: isActive ? 'active' : 'hidden' }
+                    { id, status: isActive ? 'active' : 'hidden' }, "PUT"
                 );
 
-                handleAdvice({
-                    message: res.message,
-                    status: res.status
-                })
-
-                handleOpen();
-
                 if(res.status >= 200 && res.status <= 299) {
+                    handleAdvice({
+                        message: res.message,
+                        status: res.status
+                    })
+    
+                    handleOpen();
                     setIsActive(!isActive);
+                }
+                else {
+                    handleAdvice({
+                        message: res.err,
+                        status: res.status
+                    })
+    
+                    handleOpen();
                 }
             }
             else {
@@ -56,6 +63,9 @@ const useChangeSwitchStatus = ({ id, status } : RoomStatus) => {
                     horizontal: 'left',
                     status: err.message == 'Session is not valid' ? 401 : 500
                 })
+            }
+            if(typeof err === 'object' && err !== null && 'canceled' in err) {
+                return;
             }
             else {
                 handleAdvice({
@@ -86,6 +96,7 @@ export default function ChangeSwitchStatus(props : RoomStatus) {
                 size='small'
                 onChange={handleChangeStatus}
                 value='off'
+                aria-hidden={false}
             />
             <Typography variant="caption">Active</Typography>
         </Stack>

@@ -10,21 +10,25 @@ import com.client.service_client.model.dto.RoomDTO;
 import com.client.service_client.model.dto.RoomStatusDTO;
 import com.client.service_client.model.dto.RoomUpdateDTO;
 import com.client.service_client.model.enums.RoomStatus;
+import com.client.service_client.model.record.FileAdminBytes;
 import com.client.service_client.model.record.FilesBytes;
 import com.client.service_client.model.record.FilesInfo;
 import com.client.service_client.model.record.RoomCards;
 import com.client.service_client.model.record.RoomList;
 import com.client.service_client.model.record.RoomResponse;
 import com.client.service_client.model.record.RoomWithFiles;
+import com.client.service_client.model.record.RoomWithFilesAdmin;
 import com.client.service_client.model.record.RoomWithFilesBytes;
 import com.client.service_client.model.response.ResponseOnlyMessage;
 import com.client.service_client.model.response.ResponseWithData;
 import com.client.service_client.model.response.ResponseWithInfo;
-import com.client.service_client.service.ImageService;
 import com.client.service_client.service.RoomService;
 import com.client.service_client.storage.StorageService;
+import com.client.service_client.util.Constants;
 import com.client.service_client.util.FileValidator;
+import com.client.service_client.util.ImageResize;
 
+import io.github.mojtabaJ.cwebp.WebpConverter;
 import jakarta.validation.Valid;
 
 import java.nio.file.Files;
@@ -42,14 +46,12 @@ public class RoomController implements IRoomController{
 
     private RoomService roomService;
     private StorageService storageService;
-    private ImageService imageService;
     private final String destination = "/room";
     private String source;
     
-    public RoomController(RoomService roomService, StorageService storageService, ImageService imageService) {
+    public RoomController(RoomService roomService, StorageService storageService) {
         this.roomService = roomService;
         this.storageService = storageService;
-        this.imageService = imageService;
 
         source = null;
     }
@@ -136,7 +138,6 @@ public class RoomController implements IRoomController{
     public ResponseEntity<?> createRoom(RoomDTO entity, MultipartFile file) {
         try{
             ResponseEntity<?> validationResponse = FileValidator.validateFile(file);
-            MultipartFile fileWepb = imageService.convertImageToWebp(file);
 
             if (validationResponse != null) {
                 return validationResponse;
@@ -152,15 +153,15 @@ public class RoomController implements IRoomController{
             room.setSingle_price(entity.getSingle_price());
             room.setDouble_price(entity.getDouble_price());
             room.setFiles(new HashSet<File>());
-            room.getFiles().add(fileSave);
 
-            fileSave.setName(fileWepb.getOriginalFilename());
-            fileSave.setMime(fileWepb.getContentType());
-            fileSave.setSize(fileWepb.getSize());
+            this.source = storageService.store(file, this.destination);
+            
+            room.getFiles().add(fileSave);
+            fileSave.setName(file.getOriginalFilename());
+            fileSave.setMime(file.getContentType());
+            fileSave.setSize(file.getSize());
             fileSave.setMain(true);
             fileSave.setRoom(room);
-
-            this.source = storageService.store(fileWepb, this.destination);
             fileSave.setSource(this.source);
 
             roomService.save(room);
@@ -171,6 +172,8 @@ public class RoomController implements IRoomController{
         catch (IllegalArgumentException e) {
             if(source != null) {
                 storageService.deleteFile(source);
+
+                source = null;
             }
 
             return ResponseEntity.badRequest().body(new ResponseWithInfo("Invalid request", e.getMessage()));
@@ -180,6 +183,8 @@ public class RoomController implements IRoomController{
 
             if(source != null) {
                 storageService.deleteFile(source);
+
+                source = null;
             }
 
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseWithInfo("Internal server error", e.getMessage()));
@@ -189,21 +194,14 @@ public class RoomController implements IRoomController{
     @Override
     public ResponseEntity<?> editRoom(RoomUpdateDTO entity) {
         try {
-            Room room = new Room(entity.getId());
-            room.setName(entity.getName());
-            room.setDescription(entity.getDescription());
-            room.setSummary(entity.getSummary());
-            room.setAdditional(entity.getAdditional());
-            room.setSingle_price(entity.getSingle_price());
-            room.setDouble_price(entity.getDouble_price());
-
-            roomService.save(room);
+            roomService.edit(entity);
             return ResponseEntity.ok().body(new ResponseOnlyMessage("Room updated"));
         }
         catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new ResponseWithInfo("Invalid request", e.getMessage()));
         } 
         catch (Exception e) {
+            System.out.println(e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseWithInfo("Internal server error", e.getMessage()));
         }     
     }
@@ -236,7 +234,23 @@ public class RoomController implements IRoomController{
                 return ResponseEntity.noContent().build();
             }
 
-            return ResponseEntity.ok().body(new ResponseWithData<Room>("Request successful", room.get()));
+            List<FileAdminBytes> files = new ArrayList<>();
+
+            for(File fileBytes : room.get().getFiles()) {
+
+                byte[] fileContent = WebpConverter.imageByteToWebpByte(ImageResize.resizeImageToBytes(fileBytes.getSource(), Constants.thumbnails), Constants.qualityThumbnails);
+                files.add(new FileAdminBytes(fileBytes.getId(), fileBytes.getName(), fileBytes.getSource(), fileBytes.getMime(), fileBytes.getMain(), fileContent));
+            }
+
+            Room getRoom = room.get();
+
+            return ResponseEntity.ok().body(new ResponseWithData<RoomWithFilesAdmin>(
+                "Request successful", 
+                new RoomWithFilesAdmin(
+                    getRoom.getId(), getRoom.getName(), getRoom.getDescription(), getRoom.getSummary(),
+                    getRoom.getAdditional(), getRoom.getSingle_price(), getRoom.getDouble_price(),
+                    getRoom.getCreated_at(), getRoom.getStatus(), files)
+            ));
         }
         catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new ResponseWithInfo("Invalid request", e.getMessage()));
@@ -278,9 +292,8 @@ public class RoomController implements IRoomController{
             List<RoomResponse> roomsResponse = new ArrayList<>();
 
             for(RoomCards room : rooms) {
-                Resource resource = storageService.loadAsResource(room.source());
 
-                byte[] fileContent = Files.readAllBytes(resource.getFile().toPath());
+                byte[] fileContent = WebpConverter.imageByteToWebpByte(ImageResize.resizeImageToBytes(room.source(), Constants.thumbnailsGeneral), Constants.quality);
 
                 RoomResponse roomResponse = new RoomResponse(
                     room.id(),
@@ -299,6 +312,7 @@ public class RoomController implements IRoomController{
             return ResponseEntity.badRequest().body(new ResponseWithInfo("Invalid request", e.getMessage()));
         } 
         catch (Exception e) {
+            System.out.println(e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseWithInfo("Internal server error", e.getMessage()));
         }
     }

@@ -27,7 +27,7 @@ import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import MenuIcon from '@mui/icons-material/Menu';
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { useMediaQuery } from "@mui/material";
 import { routes } from "@/constants/routes";
 import CardSettings from "./CardSettings";
@@ -101,23 +101,17 @@ const useLayout = () => {
     const route = useRouter();
     const theme = useTheme();
     
-    const matches = useMediaQuery('(max-width:720px)');
+    const matches = useMediaQuery('(max-width:900px)');
 
     useEffect(() => {
         setIsMobile(matches)
     }, [matches])
 
     useEffect(() => {
-        if(document.cookie.includes('error-message')) {
-            const value = `; ${document.cookie}`;
-            const parts = value.split(`; error-message=`);
-
-            const error = parts.pop()?.split(';').shift()?.replaceAll("%20", ' ');
-
-            handleAdvice({ message: error, vertical: 'bottom', horizontal: 'left', status: 500});
-            handleOpen();
+        if(session?.error === "AccessTokenError") {
+            signOut();
         }
-    }, [])
+    }, [session])
 
     const handleChangeDrawn : () => void = () => {
         setOpen(!open);

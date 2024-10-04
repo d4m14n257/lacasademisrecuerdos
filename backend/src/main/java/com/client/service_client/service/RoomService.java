@@ -2,6 +2,7 @@ package com.client.service_client.service;
 
 import com.client.service_client.repository.RoomRepository;
 import com.client.service_client.model.Room;
+import com.client.service_client.model.dto.RoomUpdateDTO;
 import com.client.service_client.model.enums.RoomStatus;
 import com.client.service_client.model.record.FilesInfo;
 import com.client.service_client.model.record.RoomCards;
@@ -107,6 +108,10 @@ public class RoomService {
 
     public void save (Room entity) {
         roomRepository.save(entity);
+    }
+
+    public void edit(RoomUpdateDTO entity) {
+        roomRepository.edit(entity.getId(), entity.getName(), entity.getDescription(), entity.getSummary(), entity.getAdditional(), entity.getDouble_price(), entity.getSingle_price());
     }
 
     public Optional<Room> room(String id) {

@@ -1,6 +1,6 @@
 package com.client.service_client.model;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Set;
 
 import com.client.service_client.model.enums.RoomStatus;
@@ -45,7 +45,7 @@ public class Room {
     private Double double_price;
 
     @Column(name = "created_at")
-    private LocalDate created_at;
+    private LocalDateTime created_at;
 
     @Column(name = "status", nullable = false)
     @Enumerated(EnumType.STRING)
@@ -62,6 +62,7 @@ public class Room {
     public Room() {
         this.id = CustomIdGenerator.generate(12);
         this.status = RoomStatus.hidden;
+        this.created_at = LocalDateTime.now();
     }
 
     public Room(String id) {
@@ -141,11 +142,11 @@ public class Room {
         this.contacts = contacts;
     }
 
-    public LocalDate getCreated_at() {
+    public LocalDateTime getCreated_at() {
         return created_at;
     }
 
-    public void setCreated_at(LocalDate created_at) {
+    public void setCreated_at(LocalDateTime created_at) {
         this.created_at = created_at;
     }
 

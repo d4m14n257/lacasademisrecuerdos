@@ -1,18 +1,20 @@
 import { Typography } from "@mui/material";
-import ModalBase from "../general/ModalBase";
-import CreateRoomForm from "../form/CreateRoomForm";
+import ModalBase from "../../general/ModalBase";
+import CreateRoomForm from "../../form/CreateRoomForm";
 
-import '../globals.css';
+import '../../globals.css';
+import { Room } from "@/model/types";
 
 type Props = {
     open: boolean,
     handleClose: () => void,
     closeConfirm: boolean
     reloadAction: () => Promise<void>
+    room?: Omit<Room, 'files' | 'created_at' | 'status'> | null
 }
 
 export default function CreateRoomModal (props : Props) {
-    const { open, handleClose, closeConfirm, reloadAction } = props;
+    const { open, room, handleClose, closeConfirm, reloadAction } = props;
 
     return (
         <ModalBase
@@ -24,11 +26,12 @@ export default function CreateRoomModal (props : Props) {
                 variant="h6"
                 className="modal-title"
             >
-                Create Room
+                {room ? "Create Room" : "Edit room"}
             </Typography>
             <CreateRoomForm 
                 handleClose={handleClose}
                 reloadAction={reloadAction}
+                room={room}
             />
         </ModalBase>
     ); 

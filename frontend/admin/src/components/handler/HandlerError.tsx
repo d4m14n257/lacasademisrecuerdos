@@ -1,7 +1,38 @@
 import React, { Children } from "react"
+import { Box, Divider, Typography } from "@mui/material";
+
+import '../globals.css'
 
 type Props = {
     children: React.JSX.Element[]
+}
+
+type PropsMessage = {
+    status: number;
+    message?: string;
+}
+
+export function HandlerMessageError (props : PropsMessage) {
+    const { message, status } = props;
+
+    return (
+        <Box className="handler-message">
+            <Typography
+                variant="h5"
+            >
+                {status}
+            </Typography>
+            <Divider 
+                flexItem 
+                orientation="vertical"
+            />
+            <Typography
+                variant="subtitle2"
+            >
+                {message}
+            </Typography>
+        </Box>
+    );
 }
 
 export function HandlerError(props : Props) {

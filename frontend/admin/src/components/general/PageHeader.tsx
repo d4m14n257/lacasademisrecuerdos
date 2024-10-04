@@ -2,7 +2,7 @@ import { Button, Stack, Typography } from "@mui/material";
 
 type  Props = {
     title: string;
-    buttonCreate: string;
+    buttonCreate?: string;
     handleOpen: () => void;
 }
 

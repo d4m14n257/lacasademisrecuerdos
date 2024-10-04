@@ -39,7 +39,7 @@ public interface IRoomController {
     @Transactional
     public ResponseEntity<?> createRoom(@Valid @RequestPart("data") RoomDTO entity, @RequestPart("file") MultipartFile file);
 
-    @PostMapping("/admin/status")
+    @PutMapping("/admin/status")
     @Transactional
     public ResponseEntity<?> editStatus(@Valid @RequestBody RoomStatusDTO entity);
 

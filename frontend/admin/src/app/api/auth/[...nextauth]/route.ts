@@ -3,4 +3,4 @@ import { authOptions } from "@/lib/authOptions";
 
 const handler = NextAuth(authOptions);
 
-export { handler as GET, handler as POST, handler as PUT, handler as DELETER };
+export { handler as GET, handler as POST, handler as PUT, handler as DELETE };

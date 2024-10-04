@@ -2,25 +2,26 @@
 
 import { z } from "zod";
 import SendIcon from '@mui/icons-material/Send';
-import CloseIcon from '@mui/icons-material/Close';
+import TextArea from './TextArea';
 import { BaseSyntheticEvent, useCallback, useContext, useRef, useState } from "react";
 import { Controller, ControllerRenderProps, SubmitHandler, useForm } from "react-hook-form";
 import { Divider, FormControl, FormControlLabel, FormHelperText, InputAdornment, InputLabel, OutlinedInput, Stack, TextField, Typography } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import { ErrorMessage } from '@hookform/error-message';
 import { FileUploader } from 'react-drag-drop-files';
-import TextArea from './TextArea';
 import { Confirm } from '@/contexts/ConfirmContext';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { setData } from '@/api/setData';
 import { useSession } from 'next-auth/react';
 import { Advice } from '@/contexts/AdviceProvider';
+import { Room as RoomType } from "@/model/types";
 
 import "./form.css"
 
 type Props = {
     handleClose: () => void,
     reloadAction: () => Promise<void>
+    room: Omit<RoomType, 'files' | 'created_at' | 'status'> | null | undefined
 }
 
 const schema = z.object({
@@ -88,18 +89,18 @@ const useCreateRoomForm = () => {
 }
 
 export default function CreateRoomForm (props : Props) {
-    const { handleClose, reloadAction } = props;
+    const { room, handleClose, reloadAction } = props;
     const { file, token, confirm, fileTypes, handleLoadFile, handleMessage, handleOpen, handleAdvice } = useCreateRoomForm();
 
     const { control, register, handleSubmit, formState: { errors, isSubmitting }} = useForm<Room>({
         defaultValues: {
-            name: undefined,
-            description: undefined,
-            summary: undefined,
-            additional: undefined,
-            single_price: undefined,
-            double_price: undefined,
-            file: undefined
+            name: room?.name || undefined,
+            description: room?.description || undefined,
+            summary: room?.summary || undefined,
+            additional: room?.additional || undefined,
+            single_price: room?.single_price || undefined,
+            double_price: room?.double_price || undefined,
+            file: room ? true : undefined 
         },
         resolver: zodResolver(schema)
     })
@@ -117,13 +118,38 @@ export default function CreateRoomForm (props : Props) {
                 return;
             }
 
+            if(room) {
+                const areEqual = room.name === data.name &&
+                    room.description === data.description &&
+                    room.summary === data.summary &&
+                    room.additional === data.additional &&
+                    room.single_price === data.single_price &&
+                    room.double_price === data.double_price;
+
+                if(areEqual) {
+                    handleAdvice({
+                        message: "There were no changes in the fields",
+                        status: 400
+                    })
+
+                    handleOpen();
+
+                    return;
+                }
+            }
+
             handleMessage({
-                title: "Are you sure you want to save this room?",
-                content: 'Once the room is created, it has to be activated so that it can be displayed on the main page'
+                title: room ? 
+                    "Are you sure you want to edit this room?" : 
+                    "Are you sure you want to save this room?",
+                content: room ? 
+                    'Once the room is edited, all changes will be immediately reflected on the main page if it is activated' :
+                    'Once the room is created, it has to be activated so that it can be displayed on the main page'
             })
 
+            
             await confirm()
-                .catch(() => {throw {canceled: true}})
+            .catch(() => {throw {canceled: true}})
 
             if(data.file && file.current) {
                 const formData = new FormData();
@@ -136,7 +162,7 @@ export default function CreateRoomForm (props : Props) {
                 const blob = new Blob([jsonData], { type: 'application/json' });
                 formData.append('data', blob);
 
-                const res = await setData<FormData>('room/admin', token, formData);
+                const res = await setData<FormData>('room/admin', token, formData, "POST");
 
                 if(res.status >= 200 && res.status <= 299) {
                     await reloadAction();
@@ -151,24 +177,61 @@ export default function CreateRoomForm (props : Props) {
                 }
                 else {
                     if(res.errors) {
-                        console.log('no se que hacer aqui xd');
+                        console.log('Whats happened?!');
                     }
                     else {
                         handleAdvice({
-                            message: res.message,
+                            message: res.err,
                             status: res.status
                         })
 
                         handleOpen();
                     }
                 }
+
+                return;
             }
-            else {
-                handleAdvice({
-                    message: 'File not found',
-                    status: 400
-                })
+            if(data.file && room) {
+                const res = await setData<Omit<RoomType, 'files' | 'created_at' | 'status'>>('room/admin', token, {
+                    id: room.id, ...data
+                }, "PUT");
+
+
+                if(res.status >= 200 && res.status <= 299) {
+                    await reloadAction();
+
+                    handleAdvice({
+                        message: res.message,
+                        status: res.status
+                    })
+
+                    handleOpen();
+                    handleClose();
+                }
+                else {
+                    if(res.errors) {
+                        console.log('Whats happened?!');
+                    }
+                    else {
+
+                        handleAdvice({
+                            message: res.err,
+                            status: res.status
+                        })
+
+                        handleOpen();
+                    }
+                }
+
+                return;
             }
+
+            handleAdvice({
+                message: 'File not found',
+                status: 400
+            })
+
+            handleOpen();
         }
         catch (err : unknown) {
             if(err instanceof Error) {
@@ -176,6 +239,8 @@ export default function CreateRoomForm (props : Props) {
                     message: err.message.charAt(0).toUpperCase() + err.message.slice(1),
                     status: 503
                 })
+
+                handleOpen();
             }
 
             return;
@@ -305,7 +370,6 @@ export default function CreateRoomForm (props : Props) {
                     labelPlacement='top'
                     control={
                         <OutlinedInput
-                            id="single-price"
                             fullWidth
                             disabled={isSubmitting}
                             type='number'
@@ -336,7 +400,6 @@ export default function CreateRoomForm (props : Props) {
                     labelPlacement='top'
                     control={
                         <OutlinedInput
-                            id="single-price"
                             fullWidth
                             disabled={isSubmitting}
                             type='number'
@@ -357,31 +420,33 @@ export default function CreateRoomForm (props : Props) {
                     </FormHelperText>
                 }
             </FormControl>
-            <Controller
-                name='file'
-                control={ control }
-                render={({ field }) => 
-                    <FormControl
-                        error={Boolean(errors.file)}
-                        className='label-field'
-                    >
-                        <FileUploader 
-                            multiple={false}
-                            types={fileTypes}
-                            handleChange={(file : File) => 
-                                handleLoadFile(file, field)}
-                        />
-                        {errors.file ?
-                            <FormHelperText>
-                                <ErrorMessage errors={errors} name="file"/>
-                            </FormHelperText> :
-                            <FormHelperText>
-                                You must upload an image of the room that will be shown
-                            </FormHelperText>
-                        }
-                    </FormControl>
-                }
-            />
+            {!Boolean(room) &&
+                <Controller
+                    name='file'
+                    control={ control }
+                    render={({ field }) => 
+                        <FormControl
+                            error={Boolean(errors.file)}
+                            className='label-field'
+                        >
+                            <FileUploader 
+                                multiple={false}
+                                types={fileTypes}
+                                handleChange={(file : File) => 
+                                    handleLoadFile(file, field)}
+                            />
+                            {errors.file ?
+                                <FormHelperText>
+                                    <ErrorMessage errors={errors} name="file"/>
+                                </FormHelperText> :
+                                <FormHelperText>
+                                    You must upload an image of the room that will be shown
+                                </FormHelperText>
+                            }
+                        </FormControl>
+                    }
+                />
+            }
             <Divider />
             <Stack direction="row-reverse" justifyContent='flex-start' spacing={2}>
                 <LoadingButton
@@ -393,14 +458,6 @@ export default function CreateRoomForm (props : Props) {
                     color='success'
                 >
                     Submit
-                </LoadingButton>
-                <LoadingButton 
-                    loading={isSubmitting}
-                    variant='contained'
-                    onClick={handleClose}
-                    endIcon={<CloseIcon />}
-                >
-                    Close
                 </LoadingButton>
             </Stack>
         </form>

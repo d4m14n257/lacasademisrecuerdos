@@ -11,24 +11,3 @@
     flex-direction: column;
     gap: 24px
 }
-
-.action-card {
-    display: flex;
-    flex-direction: row-reverse;
-    justify-content: space-between;
-}
-
-.card-room {
-    display: flex;
-    flex-direction: column;
-    gap:16px
-}
-
-.card-content-room {
-    display: inline-flex;
-    flex-direction: column;
-    justify-content: space-between;
-    padding: 16px;
-    border-radius: 4px;
-    height: 100%
-}

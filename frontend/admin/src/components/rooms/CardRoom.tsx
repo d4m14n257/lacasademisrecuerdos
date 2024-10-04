@@ -7,30 +7,33 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ChangeSwitchStatus from "@/components/rooms/ChangeSwitchStatus";
 import { RoomCard } from "@/model/types";
-import { useCallback, useContext, useState } from "react";
+import { Fragment, useCallback, useContext, useState } from "react";
 import { getData } from "@/api/getData";
 import { Advice } from "@/contexts/AdviceProvider";
 
-import '../../app/additional.css'
 import { Confirm } from "@/contexts/ConfirmContext";
 import { deleteData } from "@/api/deleteData";
+import useModal from "@/hooks/useModal";
+import { useRouter } from "next/navigation";
+
+import '../globals.css'
 
 type Props = {
     session: Session | null;
-    res : RoomCard[] | undefined;
+    res : RoomCard[];
 }
 
-export default function CardRoom (props : Props) {
-    const { res, session } = props;
-    const [ rooms, setRooms ] = useState<RoomCard[] | undefined>(res);
+function useCardRoom ({ res, session } : {res : RoomCard[], session: Session | null}) {
+    const [ rooms, setRooms ] = useState<RoomCard[]>(res);
     const { handleOpen, handleAdvice } = useContext(Advice);
     const { handleMessage, confirm } = useContext(Confirm);
+    const router = useRouter();
 
     const handleReload = useCallback(async () => {
         const res = await getData<RoomCard>('room/admin', true, session?.token); 
 
         if(res.data) {
-            setRooms(res.data);
+            setRooms(res.data as RoomCard[]);
         }
         else {
             handleAdvice({
@@ -69,7 +72,7 @@ export default function CardRoom (props : Props) {
                 }
                 else {
                     handleAdvice({
-                        message: res.message,
+                        message: res.err,
                         status: res.status
                     })
 
@@ -91,19 +94,45 @@ export default function CardRoom (props : Props) {
                     message: err.message.charAt(0).toUpperCase() + err.message.slice(1),
                     status: 503
                 })
+
+                handleOpen();
             }
 
             return;
         }
     }, [])
 
+    const handleEdit = useCallback((id : string) => {
+        router.push(`/rooms/${id}`)
+    }, [])
+
+    return {
+        rooms,
+        confirm,
+        handleOpen,
+        handleAdvice,
+        handleMessage,
+        handleReload,
+        handleDelete,
+        handleEdit
+    };
+}
+
+export default function CardRoom (props : Props) {
+    const { res, session } = props;
+    const { rooms, handleReload, handleDelete, handleEdit } = useCardRoom({ res, session });
+    const { open, handleOpen, handleClose } = useModal<RoomCard>();
+
     return (
-        <>
-        <PageHeaderRoom 
-            title='Rooms'
-            buttonCreate="New room"
-            reloadAction={handleReload}
-        />
+        <Fragment>
+            <PageHeaderRoom 
+                title='Rooms'
+                buttonCreate="New room"
+                reloadAction={handleReload}
+                handleClose={handleClose}
+                handleOpen={handleOpen}
+                open={open}
+            />
             {rooms !== undefined && rooms.length > 0 ? 
                 <Grid container spacing={2}>  
                     {rooms.map((room) => (
@@ -115,17 +144,15 @@ export default function CardRoom (props : Props) {
                                 lg={4}
                             >
                                 <Card
-                                    className="card-content-room"
+                                    className="card-content"
                                 >
                                     <CardHeader
                                         title={room.name}
                                     />
                                     <img 
-                                        src={`data:image/png;base64,${room.file}`}
+                                        src={`data:image/webp;base64,${room.file}`}
                                         alt={room.file_name}
-                                        style={{
-                                            width: '100%'
-                                        }}
+                                        className="card-img-room"
                                     />
                                     <CardContent
                                         className="card-room"
@@ -148,6 +175,7 @@ export default function CardRoom (props : Props) {
                                                 variant="contained"
                                                 endIcon={<EditIcon />}
                                                 size="small"
+                                                onClick={() => handleEdit(room.id)}
                                             >
                                                 Edit
                                             </Button>
@@ -173,6 +201,6 @@ export default function CardRoom (props : Props) {
                 </Grid> : 
                 <Typography variant="h2" className="advice-center">No content</Typography>
             }
-        </>
+        </Fragment>
     );
 }

@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotNull;
 
 public class FileDTO extends IdDTO {
     @NotNull(message = "Main cannot be null")
-    boolean main;
+    private boolean main;
 
     public boolean isMain() {
         return main;

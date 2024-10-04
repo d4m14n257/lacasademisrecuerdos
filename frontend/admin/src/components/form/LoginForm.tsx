@@ -45,17 +45,17 @@ export default function LoginForm () {
         resolver: zodResolver(schema)
     })
 
-    useEffect(() => {
-        if(document.cookie.includes('logout-message')) {
-            const value = `; ${document.cookie}`;
-            const parts = value.split(`; logout-message=`);
+//     useEffect(() => {
+//         if(document.cookie.includes('logout-message')) {
+//             const value = `; ${document.cookie}`;
+//             const parts = value.split(`; logout-message=`);
 
-            const error = parts.pop()?.split(';').shift()?.replaceAll("%20", ' ');
-
-            handleAdvice({ message: error, vertical: 'bottom', horizontal: 'left', status: 500});
-            handleOpen();
-        }
-    }, [])
+//             const error = parts.pop()?.split(';').shift()?.replaceAll("%20", ' ');
+// z
+//             handleAdvice({ message: error, vertical: 'bottom', horizontal: 'left', status: 500});
+//             handleOpen();
+//         }
+//     }, [])
 
     const onSubmit : SubmitHandler<Login> = useCallback(async (data, event?: BaseSyntheticEvent) => {
         event?.preventDefault();
@@ -67,8 +67,6 @@ export default function LoginForm () {
             });
             
             if(response?.error) {
-                console.log(response);
-
                 const value = {
                     message: response.error,
                     status: response.status
@@ -80,7 +78,6 @@ export default function LoginForm () {
             else {
                 router.push('/')
             }
-            
         }
         catch (err : unknown) {
             console.log(err)

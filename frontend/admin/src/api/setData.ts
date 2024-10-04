@@ -1,25 +1,25 @@
 import { ResponseErrorLabel, ResponseOnlyMessage, ResponseWithInfo } from "@/model/response";
 import { Data } from "@/model/types";
 
-export async function setData<T>(endpoint: string, token: string, data: T) : Promise<Data<T>> {
+export async function setData<T>(endpoint: string, token: string, data: T, type : "POST" | "PUT") : Promise<Data<T>> {
     try {
         let res;
 
         if(data instanceof FormData) {
             res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_HOST}/${endpoint}`, {
-                method: "POST",
+                method: type,
                 headers: {
-                    "Authorization": `Bearer ${token}`,
+                    'Authorization': `Bearer ${token}`,
                 },
                 body: data
             });
         }
         else {
             res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_HOST}/${endpoint}`, {
-                method: "POST",
+                method: type,
                 headers: {
                     "Authorization": `Bearer ${token}`,
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(data)
             });

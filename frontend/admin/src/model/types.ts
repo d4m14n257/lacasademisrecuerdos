@@ -1,6 +1,6 @@
 export interface Data<T> {
     message?: string;
-    data?: T[] | [];
+    data?: T[] | T | [];
     err?: any;
     errors?: { [key : string] : string }
     status: number 
@@ -35,4 +35,46 @@ export type RoomCard = {
 export type RoomStatus = {
     id: string;
     status: 'hidden' | 'active'
+}
+
+export type Room = {
+    id: string;
+    name: string;
+    description: string;
+    summary: string;
+    additional: string;
+    single_price: number;
+    double_price: number| null;
+    created_at: Date;
+    status: 'hidden' | 'active';
+    files: FilesAdminBytes[]
+}
+
+export type FilesAdminBytes = {
+    id: string;
+    name: string;
+    source: string;
+    mime: string;
+    main: boolean;
+    file: string
+}
+
+export type Source = {
+    id: string;
+    source: string;
+    main: boolean;
+}
+
+export type FileId = {
+    id: string;
+    file_id: string;
+}
+
+type File = {
+    id: string;
+    name: string;
+    source: string;
+    mime: string;
+    size: number;
+    main: boolean;
 }

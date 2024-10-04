@@ -12,7 +12,7 @@ export interface ResponseWithInfo extends Message {
 }
 
 export interface ResponseWithData<T> extends Message {
-    data : T | T[]
+    data: T | T[]
 }
 
 export interface ResponseErrorLabel extends ResponseWithInfo {

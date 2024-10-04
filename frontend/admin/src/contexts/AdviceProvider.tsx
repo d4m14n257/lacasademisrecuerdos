@@ -1,7 +1,7 @@
 "use client"
 
 import SnackAdvice from "@/components/general/SnackAdvice";
-import React, { createContext, useState, useReducer, Context, useCallback } from "react";
+import { createContext, useState, useReducer, Context, useCallback, ReactNode, Fragment } from "react";
 
 type AdviceContext = {
     handleOpen: () => void,
@@ -26,9 +26,9 @@ function reducer (state : ReducerAdvice, action : Action) : ReducerAdvice {
     const { message, status, vertical, horizontal } = action;
 
     return {
-        message: message ? message : state.message,
-        vertical: vertical ? vertical : state.vertical,
-        horizontal: horizontal ? horizontal : state.horizontal,
+        message: message || state.message,
+        vertical: vertical || state.vertical,
+        horizontal: horizontal || state.horizontal,
         status: status
     }
 }
@@ -38,7 +38,7 @@ export const Advice : Context<AdviceContext> = createContext({
     handleAdvice: (value) => {}
 });
 
-export const AdviceProvider = ({children} : {children: React.ReactNode}) => {
+export const AdviceProvider = ({children} : {children: ReactNode}) => {
     const [open, setOpen] = useState<boolean>(false);
     const [advice, dispatchAdvice] = useReducer(reducer, {
         message: "",
@@ -60,7 +60,7 @@ export const AdviceProvider = ({children} : {children: React.ReactNode}) => {
     }, [])
 
     return (
-        <>
+        <Fragment>
             <Advice.Provider value={{ handleOpen, handleAdvice }}>
                 {children}
             </Advice.Provider>
@@ -72,6 +72,6 @@ export const AdviceProvider = ({children} : {children: React.ReactNode}) => {
                 vertical={advice.vertical}
                 horizontal={advice.horizontal}
             />
-        </>
+        </Fragment>
     );
 }

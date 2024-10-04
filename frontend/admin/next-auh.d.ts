@@ -9,10 +9,8 @@ declare module "next-auth" {
             first_name: string;
             last_name: string;
         };
-        exp: number,
-        uat: number,
-        jti: string
-        token: string
+        token: string,
+        error: string
     }
     
     interface User {

@@ -1,38 +1,27 @@
 "use client"
 
-import { useCallback, useState } from "react";
 import PageHeader from "../general/PageHeader";
-import CreateRoomModal from "./CreateRoomModal";
+import CreateRoomModal from "./modals/CreateRoomModal";
+import { RoomCard } from "@/model/types";
 
 type Props = {
     title: string;
     buttonCreate: string;
     reloadAction: () => Promise<void>;
+    handleOpen: (room?: RoomCard) => void;
+    handleClose: () => void;
+    open: boolean;
 }
 
 export default function PageHeaderRoom (props : Props) {
-    const { reloadAction } = props;
-    const [ open, setOpen ] = useState<boolean>(false);
-
-    const handleOpen = useCallback(() => {
-        setOpen(true)
-    }, []);
-
-    const handleClose = useCallback(() => {
-        setOpen(false)
-    }, []);
-
     return (
         <>
             <PageHeader 
                 {...props}
-                handleOpen={handleOpen}
             />
             <CreateRoomModal 
                 closeConfirm
-                open={open}
-                handleClose={handleClose}
-                reloadAction={reloadAction}
+                {...props}
             />
         </>
     );

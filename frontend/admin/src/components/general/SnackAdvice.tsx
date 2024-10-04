@@ -6,8 +6,8 @@ type Props = {
     status: number,
     open: boolean,
     onClose: () => void,
-    vertical?: 'top' | 'bottom'
-    horizontal?: 'right' | 'left'
+    vertical: 'top' | 'bottom'
+    horizontal: 'right' | 'left'
 }
 
 export default function SnackAdvice (props : Props) {
@@ -15,7 +15,7 @@ export default function SnackAdvice (props : Props) {
 
     return (
         <Snackbar
-            anchorOrigin={{ vertical: vertical ? vertical : 'bottom', horizontal: horizontal ? horizontal : 'right' }}
+            anchorOrigin={{ vertical: vertical, horizontal: horizontal }}
             open={open}
             autoHideDuration={5000}
             onClose={onClose}

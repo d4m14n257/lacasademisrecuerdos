@@ -38,7 +38,7 @@ public class FileSystemStorageService implements StorageService {
 			if (file.isEmpty()) {
 				throw new StorageException("Failed to store empty file.");
 			}
-		
+			
 			String originalFilename = file.getOriginalFilename();
 			String extension = "";
 		

@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.client.service_client.config.ClientConfigProperties;
 import com.client.service_client.model.User;
 import com.client.service_client.model.dto.LoginDTO;
-import com.client.service_client.model.dto.TokenDTO;
 import com.client.service_client.model.dto.UserDTO;
 import com.client.service_client.model.record.JwtResponse;
 import com.client.service_client.model.record.UserResponse;
@@ -22,7 +21,6 @@ import com.client.service_client.model.response.ResponseOnlyMessage;
 import com.client.service_client.model.response.ResponseWithData;
 import com.client.service_client.model.response.ResponseWithInfo;
 import com.client.service_client.security.JwtTokenProvider;
-import com.client.service_client.security.JwtTokenValidator;
 import com.client.service_client.service.UserService;
 
 import jakarta.validation.Valid;
@@ -39,7 +37,6 @@ public class AuthController {
     private PasswordEncoder passwordEncoder;
     private JwtTokenProvider jwtTokenProvider;
     private UserService userService;
-    private JwtTokenValidator jwtTokenValidator;
     private ClientConfigProperties clientProperties;
 
     public AuthController(
@@ -47,14 +44,12 @@ public class AuthController {
             PasswordEncoder passwordEncoder, 
             JwtTokenProvider jwtTokenProvider, 
             UserService userService, 
-            JwtTokenValidator jwtTokenValidator,
             ClientConfigProperties clientProperties
         ) {
         this.authenticationManager = authenticationManager;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenProvider = jwtTokenProvider;
         this.userService = userService;
-        this.jwtTokenValidator = jwtTokenValidator;
         this.clientProperties = clientProperties;
     }
 
@@ -101,22 +96,5 @@ public class AuthController {
         catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseWithInfo("Internal server error", e.getMessage()));
         }
-    }
-
-    @PostMapping("/validate")
-    public ResponseEntity<?> validateToken(@Valid @RequestBody TokenDTO entity) {
-        try {
-            String username = jwtTokenValidator.validateToken(entity.getToken());
-
-            if(username == null) {
-                return ResponseEntity.status(401).body(new ResponseOnlyMessage("Unauthorized token"));
-            }
-
-            return ResponseEntity.status(200).body(new ResponseOnlyMessage("Authotized token"));
-        }
-        catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseWithInfo("Internal server error", e.getMessage()));
-        }
-    }
-    
+    }    
 }

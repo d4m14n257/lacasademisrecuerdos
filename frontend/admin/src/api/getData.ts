@@ -2,8 +2,6 @@ import { ResponseWithData, ResponseWithInfo } from "@/model/response";
 import { Data } from "@/model/types";
 
 export async function getData<T>(endpoint: string, hasFiles: boolean, token?: string) : Promise<Data<T>> {
-    console.log(`${process.env.NEXT_PUBLIC_SERVER_HOST}/${endpoint}`)
-
     try {
         const options = {
             method: 'GET',
@@ -25,14 +23,11 @@ export async function getData<T>(endpoint: string, hasFiles: boolean, token?: st
         if (res.status === 200) {
             const response: ResponseWithData<T> = await res.json();
 
-            if (Array.isArray(response.data)) {
-
-                return {
-                    message: response.message,
-                    data: response.data,
-                    status: 200
-                };
-            }
+            return {
+                message: response.message,
+                data: response.data,
+                status: 200
+            };
         }
 
         const err : ResponseWithInfo = await res.json();

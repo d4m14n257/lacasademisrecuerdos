@@ -1,28 +1,26 @@
-import { Box } from "@mui/material";
-import { getServerSession } from "next-auth";
 import { getData } from "@/api/getData";
+import { Box } from "@mui/material";
 import { HandlerError, HandlerMessageError } from "@/components/handler/HandlerError";
 import { ConfirmProvider } from "@/contexts/ConfirmContext";
-import { RoomCard } from "@/model/types";
 import { authOptions } from "@/lib/authOptions";
-import CardRoom from "@/components/rooms/CardRoom";
+import { Room } from "@/model/types";
+import { getServerSession } from "next-auth";
+import CardByIdRoom from "@/components/rooms/CardByIdRoom";
 
-import '../additional.css';
+import '../../additional.css';
 
-export default async function RoomsPage () {
+export default async function RoomId ({ params } : { params: { id : string }}) {
     const session = await getServerSession(authOptions);
-    const res = await getData<RoomCard>('room/admin', false, session?.token);
+    const res = await getData<Room>(`room/admin/${params.id}`, true, session?.token);
 
     return (
         <HandlerError>
             <HandlerError.When hasError={Boolean(res.err)}>
                 <ConfirmProvider>
-                    <Box
-                        className='content-page'
-                    >
-                        <CardRoom 
+                    <Box className="content-page">
+                        <CardByIdRoom 
+                            res={res.data as Room}
                             session={session}
-                            res={res.data as RoomCard[] | []}
                         />
                     </Box>
                 </ConfirmProvider>

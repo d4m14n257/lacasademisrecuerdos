@@ -61,4 +61,16 @@ public interface RoomRepository extends JpaRepository<Room, String>{
         "JOIN File f ON r.id = f.room_id " +
         "WHERE r.id = :id", nativeQuery = true)
     List<String> getAllFilesRoom(String id);
+
+    @Modifying
+    @Query(value = 
+        "UPDATE Room " +
+        "SET name = :name, " +
+        "description = :description, " +
+        "summary = :summary, " +
+        "additional = :additional, " +
+        "single_price = :singlePrice, " +
+        "double_price = :doublePrice " +
+        "WHERE id = :id", nativeQuery = true)
+    void edit(String id, String name, String description, String summary, String additional, Double singlePrice, Double doublePrice);
 }

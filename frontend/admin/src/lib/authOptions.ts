@@ -2,6 +2,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { AuthOptions } from "next-auth";
 import { LoginResponse } from "@/model/loginResponse";
 import { ResponseOnlyMessage, ResponseWithData, ResponseWithInfo } from "@/model/response";
+import { date } from "zod";
 
 export const authOptions : AuthOptions = {
     providers: [
@@ -25,7 +26,6 @@ export const authOptions : AuthOptions = {
                             })                        
                         })
 
-                        
                         if(res.status == 401) {
                             const unauthorized : ResponseOnlyMessage = await res.json();
                             throw new Error(unauthorized.message);
@@ -80,16 +80,28 @@ export const authOptions : AuthOptions = {
                 };
                 token.token = user.token;
                 token.tokenType = user.tokenType;
-                token.maxAge = user.maxAge;
-                token.exp = Math.floor(Date.now() / 1000) + user.maxAge;
+
+                const decodedAccessToken = JSON.parse(Buffer.from(user.token.split(".")[1], "base64").toString());
+
+                if (decodedAccessToken) {
+                    token.accessTokenExpires = decodedAccessToken["exp"] * 1000;
+                }
+
             }
 
-            return token;
+            if (token.accessTokenExpires  && (Date.now() < Number(token.accessTokenExpires ))) {
+                return token
+            }
+            
+            return {
+                ...token,
+                error: "AccessTokenError"
+            }
         },
         async session({ session, token } : {session : any, token : any}) {
             session.user = token.user;
             session.token = token.token;
-            session.expires = new Date(token.exp * 1000).toISOString();
+            session.error = token.error;
 
             return session;
         }

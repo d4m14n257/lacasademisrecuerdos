@@ -1,7 +1,7 @@
 import { ResponseErrorLabel, ResponseOnlyMessage } from "@/model/response";
 import { Data } from "@/model/types";
 
-export async function deleteData<T>(endpoint: string, data: T, token: string) : Promise<Data<T>> {
+export async function deleteData<T>(endpoint: string, data: T, token?: string) : Promise<Data<T>> {
     try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_HOST}/${endpoint}`, {
             method: "DELETE",
