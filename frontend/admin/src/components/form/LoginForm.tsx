@@ -12,10 +12,10 @@ import { z } from "zod";
 import LoadingButton from '@mui/lab/LoadingButton';
 import LoginIcon from '@mui/icons-material/Login';
 
-import './form.css'
 import { signIn } from "next-auth/react";
 import { Advice } from "@/contexts/AdviceProvider";
 import { useRouter } from "next/navigation";
+import './form.css'
 
 const schema = z.object({
     username: z.string().nonempty("Email or Username is required"),
@@ -25,8 +25,8 @@ const schema = z.object({
 type Login = z.infer<typeof schema>
 
 const useLoginForm = () => {
-    const router = useRouter();
     const { handleOpen, handleAdvice } = useContext(Advice);
+    const router = useRouter();
 
     return {
         router,

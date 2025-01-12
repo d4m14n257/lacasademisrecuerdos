@@ -34,6 +34,7 @@ import CardSettings from "./CardSettings";
 import { Advice } from "@/contexts/AdviceProvider";
 
 import '../globals.css'
+import { LoadingProvider } from "@/contexts/LoadingProvider";
 
 const drawerWidth = 240;
 
@@ -94,10 +95,10 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 
 const useLayout = () => {
     const { data: session, status } = useSession();
-    const [open, setOpen] = useState<boolean>(false);
-    const [openSettings, setOpenSettings] = useState<boolean>(false);
+    const [ open, setOpen ] = useState<boolean>(false);
+    const [ openSettings, setOpenSettings ] = useState<boolean>(false);
     const { handleAdvice, handleOpen } = useContext(Advice);
-    const [isMobile, setIsMobile] = useState<boolean>(false);
+    const [ isMobile, setIsMobile ] = useState<boolean>(false);
     const route = useRouter();
     const theme = useTheme();
     
@@ -167,91 +168,92 @@ export default function Layout (
     }
     else if(status == "authenticated") {
         return (
-            <Box sx={{ display: 'flex' }}>
-                <CssBaseline />
-                <AppBar position="fixed" open={!isMobile && open} >
-                    <Toolbar className="header">
-                        <Stack direction='row' alignItems='center' spacing={1}>
-                            <IconButton
-                                color="inherit"
-                                aria-label="open drawer"
-                                onClick={handleChangeDrawn}
-                                edge="start"
-                                sx={{ mr: 2, ...((!isMobile && open) && { display: 'none' }) }}
-                            >
-                                <MenuIcon />
-                            </IconButton>
-                            <Typography variant="h6" noWrap component="div">
-                                La casa de mis recuerdos
-                            </Typography>
-                        </Stack>
-                        <IconButton onClick={handleChangeSetting}>
-                            <Avatar>
-                                {session?.user.username.charAt(0).toUpperCase()}
-                            </Avatar>
-                        </IconButton>
-                    </Toolbar>
-                </AppBar>
-                <Drawer
-                    sx={{
-                        width: drawerWidth,
-                        flexShrink: 0,
-                        '& .MuiDrawer-paper': {
-                            width: drawerWidth,
-                            boxSizing: 'border-box',
-                        },
-                    }}
-                    variant={isMobile ? "temporary" : "persistent"}
-                    anchor="left"
-                    open={open}
-                >
-                    <DrawerHeader>
-                        <IconButton onClick={handleChangeDrawn}>
-                            {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
-                        </IconButton>
-                    </DrawerHeader>
-                    <Divider />
-                    <List>
-                        {routes.map(({id, name, Icon}) => (
-                            <ListItem
-                                key={id}
-                                disablePadding
-                            >
-                                <ListItemButton
-                                    onClick={() => handleChangeRoute(id)}
+            <LoadingProvider>
+                <Box sx={{ display: 'flex' }}>
+                    <CssBaseline />
+                    <AppBar open={!isMobile && open} >
+                        <Toolbar className="header">
+                            <Stack direction='row' alignItems='center' spacing={1}>
+                                <IconButton
+                                    color="inherit"
+                                    aria-label="open drawer"
+                                    onClick={handleChangeDrawn}
+                                    edge="start"
+                                    sx={{ mr: 2, ...((!isMobile && open) && { display: 'none' }) }}
                                 >
-                                    <ListItemIcon>
-                                        <Icon />
-                                    </ListItemIcon>
-                                    <ListItemText primary={name} />
-                                </ListItemButton>
-                            </ListItem>
-                        ))}
-                    </List>
-                </Drawer>
-                <Main open={open} isMobile={isMobile}>
-                    <Container
-                        maxWidth='xl'
-                        sx={{ padding: "0 24px 0 24px" }}
+                                    <MenuIcon />
+                                </IconButton>
+                                <Typography variant="h6" noWrap component="div">
+                                    La casa de mis recuerdos
+                                </Typography>
+                            </Stack>
+                            <IconButton onClick={handleChangeSetting}>
+                                <Avatar>
+                                    {session?.user.username.charAt(0).toUpperCase()}
+                                </Avatar>
+                            </IconButton>
+                        </Toolbar>
+                    </AppBar>
+                    <Drawer
+                        sx={{
+                            width: drawerWidth,
+                            flexShrink: 0,
+                            '& .MuiDrawer-paper': {
+                                width: drawerWidth,
+                                boxSizing: 'border-box',
+                            },
+                        }}
+                        variant={isMobile ? "temporary" : "persistent"}
+                        anchor="left"
+                        open={open}
                     >
-                        <DrawerHeader />
-                        
-                        {children}
-                    </Container>
-                </Main>
-                {openSettings &&
-                    <CardSettings 
-                        handleChangeOpen={handleChangeSetting}
-                        open={openSettings}
-                    />
-                }
-            </Box>
+                        <DrawerHeader>
+                            <IconButton onClick={handleChangeDrawn}>
+                                {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
+                            </IconButton>
+                        </DrawerHeader>
+                        <Divider />
+                        <List>
+                            {routes.map(({id, name, Icon}) => (
+                                <ListItem
+                                    key={id}
+                                    disablePadding
+                                >
+                                    <ListItemButton
+                                        onClick={() => handleChangeRoute(id)}
+                                    >
+                                        <ListItemIcon>
+                                            <Icon />
+                                        </ListItemIcon>
+                                        <ListItemText primary={name} />
+                                    </ListItemButton>
+                                </ListItem>
+                            ))}
+                        </List>
+                    </Drawer>
+                    <Main open={open} isMobile={isMobile}>
+                        <Container
+                            maxWidth='xl'
+                            sx={{ padding: "0 24px 0 24px" }}
+                        >
+                            <DrawerHeader />
+                            {children}
+                        </Container>
+                    </Main>
+                    {openSettings &&
+                        <CardSettings 
+                            handleChangeOpen={handleChangeSetting}
+                            open={openSettings}
+                        />
+                    }
+                </Box>
+            </LoadingProvider>
         );
     }
 
     return (
         <Box className='loading'>
-            <CircularProgress />
+            <CircularProgress disableShrink />
         </Box>
     );
 }

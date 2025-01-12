@@ -10,10 +10,11 @@ type Props = {
     handleReload: () => Promise<void>;
     closeConfirm?: boolean;
     roomId: string;
+    fileId?: string;
 }
 
 export default function EditFilesModal (props : Props) {
-    const { open, handleClose, handleReload, closeConfirm = false, roomId } = props;
+    const { open, handleClose, handleReload, closeConfirm = false, roomId, fileId } = props;
 
     return (
         <ModalBase
@@ -24,12 +25,13 @@ export default function EditFilesModal (props : Props) {
             <Typography
                 variant="h6"
             >
-                Edit files
+                {fileId ? "Change main image" : "Upload image"}
             </Typography>
             <FileForm 
                 roomId={roomId}
                 handleClose={handleClose}
                 reloadAction={handleReload}
+                fileId={fileId}
             />
         </ModalBase>
     );

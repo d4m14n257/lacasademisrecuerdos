@@ -1,8 +1,16 @@
 /** @type {import('next').NextConfig} */
-/* TODO: Check subdomanion when finished all */
 
 const nextConfig = {
+    async redirects() {
+        return [
+            {
+                source: '/',
+                destination: '/en',
+                permanent: true
+            }
 
+        ]
+    }
 };
 
 export default nextConfig;

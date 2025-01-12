@@ -1,11 +1,14 @@
 package com.client.service_client.model;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
+import com.client.service_client.model.enums.UserStatus;
 import com.client.service_client.util.CustomIdGenerator;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
@@ -33,10 +36,21 @@ public class User {
     private String last_name;
     
     @Column(name = "created_at")
-    private LocalDate created_at;
+    private LocalDateTime created_at;
+
+    @Column(name = "status")
+    @Enumerated(EnumType.STRING)
+    private UserStatus status;
 
     public User() {
         this.id = CustomIdGenerator.generate(12);
+        this.status = UserStatus.inactive;
+        this.created_at = LocalDateTime.now();
+    }
+
+    public User(String id) {
+        this.id = id;
+        this.status = UserStatus.inactive;
     }
 
     public String getId() {
@@ -79,11 +93,11 @@ public class User {
         this.last_name = last_name;
     }
 
-    public LocalDate getCreated_at() {
+    public LocalDateTime getCreated_at() {
         return created_at;
     }
 
-    public void setCreated_at(LocalDate created_at) {
+    public void setCreated_at(LocalDateTime created_at) {
         this.created_at = created_at;
     }
 
@@ -95,4 +109,11 @@ public class User {
         this.username = username;
     }
 
+    public UserStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(UserStatus status) {
+        this.status = status;
+    }
 }

@@ -1,5 +1,6 @@
 "use client"
 
+import { Fragment } from "react";
 import PageHeader from "../general/PageHeader";
 import CreateRoomModal from "./modals/CreateRoomModal";
 import { RoomCard } from "@/model/types";
@@ -15,7 +16,7 @@ type Props = {
 
 export default function PageHeaderRoom (props : Props) {
     return (
-        <>
+        <Fragment>
             <PageHeader 
                 {...props}
             />
@@ -23,6 +24,6 @@ export default function PageHeaderRoom (props : Props) {
                 closeConfirm
                 {...props}
             />
-        </>
+        </Fragment>
     );
 }

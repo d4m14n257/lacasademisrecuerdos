@@ -1,7 +1,7 @@
 "use client"
 
-import { Fragment, useCallback, useContext } from "react";
-import { Avatar, Box, Divider, Icon, IconButton, ListItem, ListItemAvatar, ListItemText, Stack, Tooltip } from "@mui/material";
+import { Fragment, useCallback, useContext, useState } from "react";
+import { Avatar, Box, Divider, IconButton, ListItem, ListItemAvatar, ListItemText, Stack, Tooltip } from "@mui/material";
 import DeleteIcon from '@mui/icons-material/Delete';
 import ChangeCircleIcon from '@mui/icons-material/ChangeCircle';
 import UpdateIcon from '@mui/icons-material/Update';
@@ -14,6 +14,7 @@ import { Session } from "next-auth";
 import { Confirm } from "@/contexts/ConfirmContext";
 import { Advice } from "@/contexts/AdviceProvider";
 import { setData } from "@/api/setData";
+import { Loading } from "@/contexts/LoadingProvider";
 
 type Props = {
     roomId: string
@@ -25,6 +26,7 @@ type Props = {
 function useListFileRooms (session : Session | null, handleReload: () => Promise<void>) {
     const { handleMessage, confirm } = useContext(Confirm);
     const { handleAdvice, handleOpen } = useContext(Advice);
+    const { handleOpenLoading, handleCloseLoading } = useContext(Loading);
 
     const handleDeleteFile = useCallback(async (file : Source) => {
         try {
@@ -35,9 +37,11 @@ function useListFileRooms (session : Session | null, handleReload: () => Promise
     
             await confirm()
                 .catch(() => { throw ({canceled: true})})
+
+            handleOpenLoading();
     
             if(session != null) {
-                const res = await deleteData<Source>('file/admin', file, session.token);
+                const res = await deleteData<Source[]>('file/admin', [file], session.token);
 
                 if(res.status >= 200 && res.status <= 299) {
                     await handleReload();
@@ -79,10 +83,12 @@ function useListFileRooms (session : Session | null, handleReload: () => Promise
 
             return;
         }
-
+        finally {
+            handleCloseLoading();
+        }
     }, []);
 
-    const handleChangeMain = useCallback(async (file : FileId) => {
+    const handleBecomeMain = useCallback(async (file : FileId) => {
         try {
             handleMessage({
                 title: 'Are you want to change the main image?',
@@ -92,8 +98,10 @@ function useListFileRooms (session : Session | null, handleReload: () => Promise
             await confirm()
                 .catch(() => { throw ({canceled: true})})
 
+            handleOpenLoading();
+
             if(session != null) {
-                const res = await setData<FileId>("admin/main/room", session.token, file, "PUT");
+                const res = await setData<FileId>("file/admin/main/room", session.token, file, "PUT");
 
                 if(res.status >= 200 && res.status <= 299) {
                     await handleReload();
@@ -135,18 +143,22 @@ function useListFileRooms (session : Session | null, handleReload: () => Promise
 
             return;
         }
-    }, [])
+        finally {
+            handleCloseLoading();
+        }
+    }, [])  
 
     return {
         handleDeleteFile,
-        handleChangeMain
+        handleBecomeMain,
     }
 }
 
 export default function ListFileRooms (props : Props) {
     const { roomId, data, session, handleReload } = props;
     const { open, handleOpen, handleClose } = useModal<unknown>();
-    const { handleDeleteFile, handleChangeMain } = useListFileRooms(session, handleReload);
+    const { open : openChange, handleOpen : handleOpenChange, handleClose : handleCloseChange, data : fileId} = useModal<string>();
+    const { handleDeleteFile, handleBecomeMain } = useListFileRooms(session, handleReload);
 
     return (
         <Fragment>
@@ -160,23 +172,38 @@ export default function ListFileRooms (props : Props) {
                 {data.map(file =>  (
                     <Box
                         key={file.id}
+                        style={{ paddingBottom: 4 }}
                     >
-                        <Divider variant="middle" component="li" />
+                        <Divider variant="middle" component="li"/>
                         <ListItem
                             secondaryAction={
-                                !file.main &&
-                                    <Stack flexDirection="row" alignContent="center" spacing={2}>
-                                        <Tooltip
-                                            title="Change main image"
+                                file.main ?
+                                    <Tooltip
+                                        title="Change main image"
+                                    >
+                                        <IconButton
+                                            onClick={() => handleOpenChange(file.id)}
                                         >
-                                        <IconButton onClick={() => handleChangeMain({ id: roomId, file_id: file.id })}>
+                                            <UpdateIcon />
+                                        </IconButton>
+                                    </Tooltip> :
+                                    <Stack flexDirection="row" spacing={2}>
+                                        <Tooltip
+                                            title="Become main image"
+                                        >
+                                        <IconButton 
+                                            onClick={() => handleBecomeMain({ id: data[0].id, file_id: file.id })}
+                                        >
                                             <ChangeCircleIcon />
                                         </IconButton>
                                         </Tooltip>
                                         <Tooltip
                                             title="Delete file"
                                         >
-                                            <IconButton onClick={() => handleDeleteFile({id: file.id, source: file.source, main: file.main})}>
+                                            <IconButton 
+                                                onClick={() => handleDeleteFile({id: file.id, source: file.source, main: file.main})} 
+                                                style={{ margin: 0 }}
+                                            >
                                                 <DeleteIcon color="error" />
                                             </IconButton>
                                         </Tooltip>
@@ -204,6 +231,16 @@ export default function ListFileRooms (props : Props) {
                     handleClose={handleClose}
                     handleReload={handleReload}
                     roomId={roomId}
+                    closeConfirm
+                />
+            }
+            {openChange &&
+                <EditFilesModal 
+                    open={openChange}
+                    handleClose={handleCloseChange}
+                    handleReload={handleReload}
+                    roomId={roomId}
+                    fileId={fileId as string}
                     closeConfirm
                 />
             }

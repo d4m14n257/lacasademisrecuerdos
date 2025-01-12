@@ -1,0 +1,9 @@
+{
+    "nav": {
+        "home": "Home",
+        "about": "About us",
+        "room": "Rooms",
+        "tour": "Tours",
+        "contact": "Contact"
+    }
+}

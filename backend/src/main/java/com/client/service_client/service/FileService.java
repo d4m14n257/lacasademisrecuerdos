@@ -6,22 +6,13 @@ import org.springframework.stereotype.Service;
 
 import com.client.service_client.model.File;
 import com.client.service_client.repository.FileRepository;
-import com.client.service_client.repository.HotelRepository;
-import com.client.service_client.repository.RoomRepository;
-import com.client.service_client.repository.TourRepository;
 
 @Service
 public class FileService {
     private final FileRepository fileRepository;
-    private final HotelRepository hotelRepository;
-    private final RoomRepository roomRepository;
-    private final TourRepository tourRepository;
 
-    public FileService (RoomRepository roomRepository, HotelRepository hotelRepository, TourRepository tourRepository, FileRepository fileRepository) {
+    public FileService (FileRepository fileRepository) {
         this.fileRepository = fileRepository;
-        this.hotelRepository = hotelRepository;
-        this.roomRepository = roomRepository;
-        this.tourRepository = tourRepository;
     }
 
     public void deleteFileById(String id) {
@@ -47,11 +38,8 @@ public class FileService {
     }
 
     public void changeMain(String name, String id) {
-        if(name.equals("room")) {
-            fileRepository.changeMainRoom(id);
-        }
-        else if(name.equals("tour")) {
-            fileRepository.changeMainTour(id);
+        if(name.equals("room") || name.equals("tour") ) {
+            fileRepository.changeMain(id);
         }
         else
             throw new RuntimeException("Name is not valid or incorrent");
@@ -61,24 +49,23 @@ public class FileService {
         fileRepository.setMain(id);
     }
 
-    public void saveFileHotel(String hotel_id, String file_id) {
-        if(hotelRepository.existsHotel(hotel_id))
-            fileRepository.saveFileHotel(hotel_id, file_id);
-        else
-            throw new RuntimeException("Hotel not found");
-    }
+    public void saveFile(String id, String name, String source, String mime, Long size, Boolean main, String pathId, String pathName) {
+        switch (pathName) {
+            case "room":
+                fileRepository.saveFilesRoom(id, name, source, mime, size, main, pathId);
+                break;
+            case "hotel":
+                fileRepository.saveFileHotel(id, name, source, mime, size, main, pathId);
+                break;    
+            case "tour":
+                fileRepository.saveFilesTour(id, name, source, mime, size, main, pathId);
+                break;
+            default:
+                throw new RuntimeException("Name not found");
+        }
+    }   
 
-    public void saveFileRoom(String room_id, String file_id) {
-        if(roomRepository.existsRoom(room_id))
-            fileRepository.saveFileRoom(room_id, file_id);
-        else
-            throw new RuntimeException("Room not found");
-    }
-
-    public void saveFileTour(String tour_id, String file_id) {
-        if(tourRepository.existsTour(tour_id))
-            fileRepository.saveFileTour(tour_id, file_id);
-        else
-            throw new RuntimeException("Tour not found");
+    public String searchSource (String id) {
+        return fileRepository.searchSource(id);
     }
 }

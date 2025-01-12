@@ -11,7 +11,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.client.service_client.controller.interfaces.IFileController;
 import com.client.service_client.model.File;
-import com.client.service_client.model.dto.FileDTO;
 import com.client.service_client.model.dto.FileIdDTO;
 import com.client.service_client.model.dto.IdDTO;
 import com.client.service_client.model.dto.SourceDTO;
@@ -19,6 +18,7 @@ import com.client.service_client.model.response.ResponseOnlyMessage;
 import com.client.service_client.model.response.ResponseWithInfo;
 import com.client.service_client.service.FileService;
 import com.client.service_client.storage.StorageService;
+import com.client.service_client.util.CustomIdGenerator;
 import com.client.service_client.util.FileValidator;
 
 @RestController
@@ -39,7 +39,7 @@ public class FileController implements IFileController{
     }
 
     @Override
-    public ResponseEntity<?> deleteFile(@RequestBody SourceDTO[] files) {
+    public ResponseEntity<?> deleteFile(@RequestBody List<SourceDTO> files) {
         try {
             boolean main = false;
 
@@ -123,8 +123,12 @@ public class FileController implements IFileController{
     }
 
     @Override
-    public ResponseEntity<?> setFile(String name, FileDTO entity, MultipartFile file) {
+    public ResponseEntity<?> setMainFile(String name, FileIdDTO entity, MultipartFile file) {
         try {
+            if(!name.equals("room") && !name.equals("hotel") && !name.equals("tour")) {
+                throw new IllegalArgumentException("Name is not valid");
+            }
+
             ResponseEntity<?> validationResponse = FileValidator.validateFile(file);
 
             if (validationResponse != null) {
@@ -132,28 +136,17 @@ public class FileController implements IFileController{
             }
 
             source = storageService.store(file, "/" + name);
+            fileService.saveFile(
+                CustomIdGenerator.generate(12), file.getOriginalFilename(), source, file.getContentType(), file.getSize(), true, 
+                entity.getId(), name);
 
-            File fileSave = new File();
-            fileSave.setName(file.getOriginalFilename());
-            fileSave.setMime(file.getContentType());
-            fileSave.setSize(file.getSize());
-            fileSave.setMain(entity.isMain());
-            fileSave.setSource(source);
-
-            fileService.save(fileSave);
-
-            switch (name) {
-                case "hotel":
-                    fileService.saveFileHotel(entity.getId(), fileSave.getId());
-                    break;
-                case "room":
-                    fileService.saveFileRoom(entity.getId(), fileSave.getId());
-                    break;
-                case "tour":
-                    fileService.saveFileTour(entity.getId(), fileSave.getId());
-                    break;
-                default:
-                    throw new IllegalArgumentException("Name is not valid");
+            if(name.equals("room") || name.equals("tour")) {
+                fileService.changeMain(name, entity.getFile_id());
+            }
+            else {
+                String sourceFile = fileService.searchSource(entity.getFile_id());
+                fileService.deleteFileById(entity.getFile_id());
+                storageService.deleteFile(sourceFile);
             }
 
             source = null;

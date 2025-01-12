@@ -41,7 +41,9 @@ export default function ListComponent<T>(props : Props<T>) {
             className="card-content height-collapse"
         >
             <List>
-                <ListItem>
+                <ListItem
+                    className="list-hearder"
+                >
                     <ListItemText 
                         primary={
                             <Typography variant="h5">
@@ -49,7 +51,7 @@ export default function ListComponent<T>(props : Props<T>) {
                             </Typography>
                         }
                     />
-                    <Stack spacing={2} flexDirection="row">
+                    <Stack spacing={2} flexDirection="row" justifyContent="flex-start">
                         {isAction &&
                             <Tooltip
                                 title={titleAction}

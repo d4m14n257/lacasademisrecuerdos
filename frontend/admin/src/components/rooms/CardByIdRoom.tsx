@@ -19,7 +19,6 @@ function useCardByIdRoom ({ res, session } : { res: Room, session: Session | nul
     const { handleOpen, handleAdvice } = useContext(Advice);
 
     const handleReload = useCallback(async () => {
-
         const res = await getData<Room>(`room/admin/${room.id}`, false, session?.token);
 
         if(res.data && !Array.isArray(res.data)) {

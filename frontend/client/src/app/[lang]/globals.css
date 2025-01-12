@@ -1,0 +1,85 @@
+:root {
+	--yellow-color: #f2ac37;
+	--pink-color: #be0760;
+	--green-color: #b8c53c;
+	--brown-color: #774729;
+	--white-color: #fff8f4;
+
+	--primary-fonts: 'Roboto Serif';
+	--secondary-fonts: 'Roboto Mono';
+	--tertiary-fonts: 'Roboto';
+
+	--breakpoint-max: 1440px;
+	--margin-max: 140px;
+}
+
+body {
+	margin: 0;
+	display: flex;
+	flex-direction: column;
+	height: 100vh;
+}
+
+footer {
+	display: flex;
+	background-color: var(--pink-color);
+	min-height: 244px;
+	justify-content: center;
+}
+
+header {
+	position: fixed;
+	display: flex;
+	justify-content: center;
+	width: 100%;
+}
+
+nav {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	max-width: var(--breakpoint-max);
+}
+
+main {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	background-color: rebeccapurple;
+	height: 100vh;
+}
+
+nav > * {
+	margin-left: 24px;
+	font-family: var(--primary-fonts);
+	font-size: 24px;
+	color: white;
+	text-decoration: none;
+}
+
+.container {
+	display: flex;
+	flex-direction: row;
+	background-color: aqua;
+	max-width: 1920px;
+}
+
+.footer-header-container {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	width: var(--breakpoint-max);
+	margin: 0 var(--margin-max);
+}
+
+.footer-header-container > section {
+	font-family: var(--tertiary-fonts);
+	color: white;
+	font-size: 24px;
+}
+
+.footer-icons {
+	display: flex;
+	justify-content: center;
+	gap: 128px
+}

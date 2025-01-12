@@ -17,6 +17,7 @@ import useModal from "@/hooks/useModal";
 import { useRouter } from "next/navigation";
 
 import '../globals.css'
+import { Loading } from "@/contexts/LoadingProvider";
 
 type Props = {
     session: Session | null;
@@ -27,6 +28,7 @@ function useCardRoom ({ res, session } : {res : RoomCard[], session: Session | n
     const [ rooms, setRooms ] = useState<RoomCard[]>(res);
     const { handleOpen, handleAdvice } = useContext(Advice);
     const { handleMessage, confirm } = useContext(Confirm);
+    const { handleOpenLoading, handleCloseLoading } = useContext(Loading);
     const router = useRouter();
 
     const handleReload = useCallback(async () => {
@@ -56,6 +58,8 @@ function useCardRoom ({ res, session } : {res : RoomCard[], session: Session | n
 
             await confirm()
                 .catch(() => { throw ({canceled: true})})
+
+            handleOpenLoading();
 
             if(session != null) {
                 const res = await deleteData<{id: string}[]>('delete/admin/room', [{ id: id }], session.token);
@@ -99,6 +103,9 @@ function useCardRoom ({ res, session } : {res : RoomCard[], session: Session | n
             }
 
             return;
+        }
+        finally {
+            handleCloseLoading();
         }
     }, [])
 

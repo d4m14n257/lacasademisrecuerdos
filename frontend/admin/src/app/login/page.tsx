@@ -3,8 +3,8 @@ import { Paper, Stack, Typography } from "@mui/material";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import LoginForm from "@/components/form/LoginForm";
-import "./login.css"
 import IconMode from "@/components/general/IconMode";
+import "./login.css"
 
 export default async function LoginPage () {
     const session = await getServerSession();

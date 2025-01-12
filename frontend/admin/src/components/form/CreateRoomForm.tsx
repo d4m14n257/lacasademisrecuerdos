@@ -17,6 +17,7 @@ import { Advice } from '@/contexts/AdviceProvider';
 import { Room as RoomType } from "@/model/types";
 
 import "./form.css"
+import { Loading } from "@/contexts/LoadingProvider";
 
 type Props = {
     handleClose: () => void,
@@ -62,6 +63,7 @@ const useCreateRoomForm = () => {
     const { data: session } = useSession();
     const { confirm, handleMessage } = useContext(Confirm);
     const { handleOpen, handleAdvice } = useContext(Advice);
+    const { handleOpenLoading, handleCloseLoading } = useContext(Loading);
     const file = useRef<File | null>();
     const fileTypes = ['png', 'jpg', 'jpeg'];
 
@@ -84,13 +86,15 @@ const useCreateRoomForm = () => {
         handleLoadFile,
         handleMessage,
         handleOpen,
-        handleAdvice
+        handleAdvice,
+        handleOpenLoading,
+        handleCloseLoading
     };
 }
 
 export default function CreateRoomForm (props : Props) {
     const { room, handleClose, reloadAction } = props;
-    const { file, token, confirm, fileTypes, handleLoadFile, handleMessage, handleOpen, handleAdvice } = useCreateRoomForm();
+    const { file, token, confirm, fileTypes, handleLoadFile, handleMessage, handleOpen, handleAdvice, handleOpenLoading, handleCloseLoading } = useCreateRoomForm();
 
     const { control, register, handleSubmit, formState: { errors, isSubmitting }} = useForm<Room>({
         defaultValues: {
@@ -147,9 +151,10 @@ export default function CreateRoomForm (props : Props) {
                     'Once the room is created, it has to be activated so that it can be displayed on the main page'
             })
 
-            
             await confirm()
-            .catch(() => {throw {canceled: true}})
+                .catch(() => {throw {canceled: true}})
+
+            handleOpenLoading();
 
             if(data.file && file.current) {
                 const formData = new FormData();
@@ -244,6 +249,9 @@ export default function CreateRoomForm (props : Props) {
             }
 
             return;
+        }
+        finally {
+            handleCloseLoading();
         }
     }, [])
 

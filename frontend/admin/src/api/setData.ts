@@ -1,12 +1,12 @@
 import { ResponseErrorLabel, ResponseOnlyMessage, ResponseWithInfo } from "@/model/response";
 import { Data } from "@/model/types";
 
-export async function setData<T>(endpoint: string, token: string, data: T, type : "POST" | "PUT") : Promise<Data<T>> {
+export async function setData<T>(endpoint: string, data: T, type : "POST" | "PUT", token?: string) : Promise<Data<T>> {
     try {
         let res;
 
-        if(data instanceof FormData) {
-            res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_HOST}/${endpoint}`, {
+        if(data instanceof FormData && token) {
+            res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_HOST}${endpoint}`, {
                 method: type,
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -14,11 +14,20 @@ export async function setData<T>(endpoint: string, token: string, data: T, type 
                 body: data
             });
         }
-        else {
-            res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_HOST}/${endpoint}`, {
+        else if(token) {
+            res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_HOST}${endpoint}`, {
                 method: type,
                 headers: {
                     "Authorization": `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            });
+        }
+        else {
+            res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_HOST}${endpoint}`, {
+                method: type,
+                headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(data)

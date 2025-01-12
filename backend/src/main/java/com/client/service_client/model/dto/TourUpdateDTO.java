@@ -1,7 +1,7 @@
 package com.client.service_client.model.dto;
 
 import com.client.service_client.model.enums.TourStatus;
-import com.client.service_client.model.validation.interfaces.ValidTourStatus;
+import com.client.service_client.model.validation.interfaces.ValidStatus;
 
 import jakarta.validation.constraints.NotBlank;
 
@@ -9,7 +9,7 @@ public class TourUpdateDTO extends TourDTO {
     @NotBlank(message = "Id is require")
     private String id;
 
-    @ValidTourStatus
+    @ValidStatus
     private TourStatus status;
 
     public String getId() {

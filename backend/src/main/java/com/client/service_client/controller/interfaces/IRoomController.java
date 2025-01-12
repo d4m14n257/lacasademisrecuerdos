@@ -12,8 +12,9 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.client.service_client.model.dto.RoomDTO;
-import com.client.service_client.model.dto.RoomStatusDTO;
 import com.client.service_client.model.dto.RoomUpdateDTO;
+import com.client.service_client.model.dto.StatusDTO;
+import com.client.service_client.model.enums.RoomStatus;
 
 import jakarta.validation.Valid;
 
@@ -41,7 +42,7 @@ public interface IRoomController {
 
     @PutMapping("/admin/status")
     @Transactional
-    public ResponseEntity<?> editStatus(@Valid @RequestBody RoomStatusDTO entity);
+    public ResponseEntity<?> editStatus(@Valid @RequestBody StatusDTO<RoomStatus> entity);
 
     @PutMapping("/admin") 
     @Transactional

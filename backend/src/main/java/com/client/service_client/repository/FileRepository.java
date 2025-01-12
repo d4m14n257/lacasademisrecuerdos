@@ -8,6 +8,12 @@ import com.client.service_client.model.File;
 
 public interface FileRepository extends JpaRepository<File, String>{
     
+    @Query(value = 
+        "SELECT source " +
+        "FROM File f " +
+        "WHERE f.id = :id ", nativeQuery = true)
+    String searchSource(String id);
+
     @Modifying
     @Query(value = 
         "DELETE FROM File " +
@@ -15,46 +21,16 @@ public interface FileRepository extends JpaRepository<File, String>{
     void deleteFileById(String id);
 
     @Modifying
-    @Query(value =
-        "UPDATE File f " +
-        "SET f.hotel_id = :hotel " +
-        "WHERE f.id = :file", nativeQuery = true)
-    void saveFileHotel(String hotel, String file);
-
-    @Modifying
-    @Query(value = 
-        "UPDATE File f " +
-        "SET f.room_id = :room " +
-        "WHERE f.id = :file", nativeQuery = true)
-    void saveFileRoom(String room, String file);
-
-    @Modifying
-    @Query(value = 
-        "UPDATE File f " +
-        "SET f.tour_id = :tour " +
-        "WHERE f.id = :file", nativeQuery = true)
-    void saveFileTour(String tour, String file);
-
-    @Modifying
     @Query(value = 
         "UPDATE File f " +
         "SET f.main = false " +
-        "WHERE f.main = true " +
-        "AND f.room_id = :id", nativeQuery = true)
-    void changeMainRoom(String id);
-
-    @Modifying
-    @Query(value = 
-        "UPDATE File f " +
-        "SET f.main = false " +
-        "WHERE f.main = true " +
-        "AND f.tour_id = :id", nativeQuery = true)
-    void changeMainTour(String id);
+        "WHERE f.id = :id", nativeQuery = true)
+    void changeMain(String id);
 
     @Modifying
     @Query(value =
         "UPDATE File f " +
-        "SET t.main = true " + 
+        "SET f.main = true " + 
         "WHERE f.id = :id", nativeQuery = true)
     void setMain(String id);
 
@@ -71,4 +47,11 @@ public interface FileRepository extends JpaRepository<File, String>{
         "(id, name, source, mime, size, main, tour_id)" +
         "VALUES (:id, :name, :source, :mime, :size, :main, :tour_id)", nativeQuery = true)
     void saveFilesTour(String id, String name, String source, String mime, Long size, Boolean main, String tour_id);
+
+    @Modifying
+    @Query(value = 
+        "INSERT INTO File " + 
+        "(id, name, source, mime, size, main, hotel_id)" +
+        "VALUES (:id, :name, :source, :mime, :size, :main, :hotel_id)", nativeQuery = true)
+    void saveFileHotel(String id, String name, String source, String mime, Long size, Boolean main, String hotel_id);
 }

@@ -1,0 +1,25 @@
+.paper_register {
+    display: grid;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 32px;
+    border-radius: 8px;
+    gap: 18px;
+    width: 400px;
+}
+
+@media only screen and (max-width: 480px) {
+    .paper_register {
+        width: 280px;
+    }
+}
+
+@media only screen and (max-height: 760px){
+    .paper_register {
+        position: relative;
+        transform: translate(-50%);
+        top: 0;
+    }
+}

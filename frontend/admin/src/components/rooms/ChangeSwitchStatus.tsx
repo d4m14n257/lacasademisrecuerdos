@@ -3,6 +3,7 @@
 import { setData } from "@/api/setData";
 import { Advice } from "@/contexts/AdviceProvider";
 import { Confirm } from "@/contexts/ConfirmContext";
+import { Loading } from "@/contexts/LoadingProvider";
 import { RoomStatus } from "@/model/types";
 import { Stack, Switch, Typography } from "@mui/material";
 import { useSession } from "next-auth/react";
@@ -13,6 +14,7 @@ const useChangeSwitchStatus = ({ id, status } : RoomStatus) => {
     const [ isActive, setIsActive ] = useState<boolean>(status == 'active' ? true : false)
     const { confirm, handleMessage } = useContext(Confirm);
     const { handleOpen, handleAdvice } = useContext(Advice);
+    const { handleOpenLoading, handleCloseLoading } = useContext(Loading);
 
     const handleChangeStatus = async () => {
         try {
@@ -27,6 +29,7 @@ const useChangeSwitchStatus = ({ id, status } : RoomStatus) => {
                 await confirm()
                     .catch(() => { throw { canceled: true } });
 
+                handleOpenLoading();
 
                 const res = await setData<RoomStatus>('room/admin/status', session?.token, 
                     { id, status: isActive ? 'active' : 'hidden' }, "PUT"
@@ -76,13 +79,15 @@ const useChangeSwitchStatus = ({ id, status } : RoomStatus) => {
 
             handleOpen();
         }
+        finally {
+            handleCloseLoading();
+        }
     }
 
     return {
         handleChangeStatus,
         isActive
     }
-
 }
 
 export default function ChangeSwitchStatus(props : RoomStatus) {

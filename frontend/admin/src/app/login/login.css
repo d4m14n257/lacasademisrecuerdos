@@ -10,9 +10,9 @@
     width: 400px;
 }
 
-@media only screen and (max-width: 480px) {
+@media (max-width: 480px) {
     .paper_login {
-        width: 240px;
+        width: 280px;
     }
 }
 

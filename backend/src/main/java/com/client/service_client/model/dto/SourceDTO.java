@@ -1,12 +1,13 @@
 package com.client.service_client.model.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 public class SourceDTO extends IdDTO{
     @NotBlank(message = "Source is required")
     private String source;
 
-    @NotBlank(message = "Main is required")
+    @NotNull(message = "Main is required")
     private Boolean main;
 
     public String getSource() {

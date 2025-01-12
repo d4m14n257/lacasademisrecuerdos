@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.client.service_client.config.ClientConfigProperties;
 import com.client.service_client.model.User;
 import com.client.service_client.model.dto.LoginDTO;
-import com.client.service_client.model.dto.UserDTO;
+import com.client.service_client.model.dto.UserCreateDTO;
 import com.client.service_client.model.record.JwtResponse;
 import com.client.service_client.model.record.UserResponse;
 import com.client.service_client.model.response.ResponseOnlyMessage;
@@ -33,11 +33,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    private AuthenticationManager authenticationManager;
-    private PasswordEncoder passwordEncoder;
-    private JwtTokenProvider jwtTokenProvider;
-    private UserService userService;
-    private ClientConfigProperties clientProperties;
+    private final AuthenticationManager authenticationManager;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtTokenProvider jwtTokenProvider;
+    private final UserService userService;
+    private final ClientConfigProperties clientProperties;
 
     public AuthController(
             AuthenticationManager authenticationManager, 
@@ -54,7 +54,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@Valid @RequestBody UserDTO entity) {
+    public ResponseEntity<?> register(@Valid @RequestBody UserCreateDTO entity) {
         try {
             if(userService.existsUser(entity.getUsername(), entity.getEmail())) {
                 return ResponseEntity.badRequest().body(new ResponseOnlyMessage("Username or email exists, retry with other"));

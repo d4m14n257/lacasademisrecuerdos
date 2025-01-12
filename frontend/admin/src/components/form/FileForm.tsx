@@ -1,22 +1,24 @@
 "use client"
 
 import { BaseSyntheticEvent, useCallback, useContext, useRef } from "react";
+import { Controller, ControllerRenderProps, SubmitHandler, useForm } from "react-hook-form";
+import { Divider, FormControl, FormHelperText, Stack } from "@mui/material";
 import { z } from "zod";
 import { Advice } from "@/contexts/AdviceProvider";
 import { Confirm } from "@/contexts/ConfirmContext";
 import { ErrorMessage } from "@hookform/error-message";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Divider, FormControl, FormHelperText, Stack } from "@mui/material";
 import { useSession } from "next-auth/react";
 import { FileUploader } from "react-drag-drop-files";
-import { Controller, ControllerRenderProps, SubmitHandler, useForm } from "react-hook-form";
 import { LoadingButton } from "@mui/lab";
 import SendIcon from '@mui/icons-material/Send';
 
 import "./form.css"
 import { setData } from "@/api/setData";
+import { Loading } from "@/contexts/LoadingProvider";
 
 type Props = {
+    fileId?: string;
     roomId: string;
     handleClose: () => void;
     reloadAction: () => Promise<void>;
@@ -34,7 +36,8 @@ function useFileForm () {
     const { data: session } = useSession();
     const { confirm, handleMessage } = useContext(Confirm);
     const { handleOpen, handleAdvice } = useContext(Advice);
-    const file = useRef<File[] | null>(null);
+    const { handleOpenLoading, handleCloseLoading } = useContext(Loading);
+    const file = useRef<File[] | File | null>(null);
     const fileTypes = ['png', 'jpg', 'jpeg'];
 
     const handleLoadFile : (file : File[], field : ControllerRenderProps<FileSchema>) => void = (fileAdd, field) => {
@@ -56,13 +59,15 @@ function useFileForm () {
         handleLoadFile,
         handleMessage,
         handleOpen,
-        handleAdvice
+        handleAdvice,
+        handleOpenLoading,
+        handleCloseLoading
     }
 }
 
 export default function FileForm (props : Props) {
-    const { roomId, handleClose, reloadAction } = props;
-    const { file, token, confirm, fileTypes, handleLoadFile, handleMessage, handleOpen, handleAdvice } = useFileForm();
+    const { fileId, roomId, handleClose, reloadAction } = props;
+    const { file, token, confirm, fileTypes, handleLoadFile, handleMessage, handleOpen, handleAdvice, handleLoading } = useFileForm();
 
     const { control, handleSubmit, formState: { errors, isSubmitting } } = useForm<FileSchema>({
         defaultValues: {
@@ -86,28 +91,52 @@ export default function FileForm (props : Props) {
             }
 
             handleMessage({
-                title: "Are you sure you want to change the main image?",
-                content: 'Once the main image is changed, the previous one will be saved in the list of images'
+                title: fileId ? "Are you sure you want to change the main image?" : 
+                                "Are you sure you want to upload these images?",
+                content: fileId ? 'Once the main image is changed, the previous one will be saved in the list of images' : 
+                                  "These new images will appear directly on the main page if the room is active"
             })
 
             await confirm()
                 .catch(() => {throw {canceled: true}})
 
+            handleLoading()
+
             if(data.file && file.current) {
+                let res;
                 const formData = new FormData();
-                const jsonData = JSON.stringify({
-                    id: roomId
-                })
 
-                const blob = new Blob([jsonData], { type: 'application/json' });
-                formData.append('data', blob);
+                if(!fileId) {
+                    const jsonData = JSON.stringify({
+                        id: roomId
+                    })
 
-                for (let i = 0; i < file.current.length; i++) {
-                    formData.append('files', file.current[i]);
+                    const blob = new Blob([jsonData], { type: 'application/json' });
+                    formData.append('data', blob);
+                    
+                    const addFile = file.current as File[];
+
+                    for (let i = 0; i < addFile.length; i++) {
+                        formData.append('files', addFile[i]);
+                    }
+
+                    res = await setData<FormData>('file/admin/add/room', formData, "PUT", token);
                 }
+                else {
+                    const jsonData = JSON.stringify({
+                        id: roomId,
+                        file_id: fileId
+                    })
+                    
+                    const blob = new Blob([jsonData], { type: 'application/json' });
+                    const addFile = file.current as File;
 
-                const res = await setData<FormData>('file/admin/add/room', token, formData, "PUT");
+                    formData.append('data', blob);
+                    formData.append('file', addFile);
 
+                    res = await setData<FormData>('file/admin/room', formData, "POST", token);
+                }
+                
                 if(res.status >= 200 && res.status <= 299) {
                     await reloadAction();
 
@@ -164,6 +193,9 @@ export default function FileForm (props : Props) {
 
             handleOpen();
         }
+        finally {
+            handleLoading();
+        }
     }, [])
 
     return (
@@ -178,7 +210,7 @@ export default function FileForm (props : Props) {
                         className='label-field'
                     >
                         <FileUploader 
-                            multiple
+                            multiple={!fileId}
                             types={fileTypes}
                             handleChange={(file : File[]) => 
                                 handleLoadFile(file, field)}

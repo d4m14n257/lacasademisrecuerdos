@@ -2,7 +2,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { AuthOptions } from "next-auth";
 import { LoginResponse } from "@/model/loginResponse";
 import { ResponseOnlyMessage, ResponseWithData, ResponseWithInfo } from "@/model/response";
-import { date } from "zod";
+import { LOGIN } from "@/constants/endpoints";
 
 export const authOptions : AuthOptions = {
     providers: [
@@ -15,7 +15,7 @@ export const authOptions : AuthOptions = {
             async authorize (credentials) {
                 try {
                     if(typeof credentials !== "undefined") {
-                        const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_HOST}/auth/login`, {
+                        const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_HOST}${LOGIN}`, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json'

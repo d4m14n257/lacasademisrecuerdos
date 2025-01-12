@@ -1,8 +1,7 @@
-import Map from "@/components/general/Map";
+import Map from "@/components/hotels/Map";
 import { HandlerError } from "@/components/handler/HandlerError";
 import { ResponseWithData, ResponseWithInfo } from "@/model/response";
 import { Data, HotelWitFiles } from "@/model/types";
-import { Box } from "@mui/material";
 
 const columns = {
 
@@ -55,7 +54,7 @@ async function getHotels() : Promise<Data<HotelWitFiles>> {
     }
 }
 
-export default function Hotels () {
+export default async function Hotels () {
     // const data = await getHotels();
 
     return (

@@ -7,8 +7,8 @@ import com.client.service_client.controller.interfaces.IRoomController;
 import com.client.service_client.model.File;
 import com.client.service_client.model.Room;
 import com.client.service_client.model.dto.RoomDTO;
-import com.client.service_client.model.dto.RoomStatusDTO;
 import com.client.service_client.model.dto.RoomUpdateDTO;
+import com.client.service_client.model.dto.StatusDTO;
 import com.client.service_client.model.enums.RoomStatus;
 import com.client.service_client.model.record.FileAdminBytes;
 import com.client.service_client.model.record.FilesBytes;
@@ -135,7 +135,7 @@ public class RoomController implements IRoomController{
     }
 
     @Override
-    public ResponseEntity<?> createRoom(RoomDTO entity, MultipartFile file) {
+    public ResponseEntity<?> createRoom(@Valid RoomDTO entity, MultipartFile file) {
         try{
             ResponseEntity<?> validationResponse = FileValidator.validateFile(file);
 
@@ -192,7 +192,7 @@ public class RoomController implements IRoomController{
     }
 
     @Override
-    public ResponseEntity<?> editRoom(RoomUpdateDTO entity) {
+    public ResponseEntity<?> editRoom(@Valid RoomUpdateDTO entity) {
         try {
             roomService.edit(entity);
             return ResponseEntity.ok().body(new ResponseOnlyMessage("Room updated"));
@@ -239,7 +239,11 @@ public class RoomController implements IRoomController{
             for(File fileBytes : room.get().getFiles()) {
 
                 byte[] fileContent = WebpConverter.imageByteToWebpByte(ImageResize.resizeImageToBytes(fileBytes.getSource(), Constants.thumbnails), Constants.qualityThumbnails);
-                files.add(new FileAdminBytes(fileBytes.getId(), fileBytes.getName(), fileBytes.getSource(), fileBytes.getMime(), fileBytes.getMain(), fileContent));
+                
+                if(fileBytes.getMain())
+                    files.addFirst(new FileAdminBytes(fileBytes.getId(), fileBytes.getName(), fileBytes.getSource(), fileBytes.getMime(), fileBytes.getMain(), fileContent));
+                else
+                    files.addLast(new FileAdminBytes(fileBytes.getId(), fileBytes.getName(), fileBytes.getSource(), fileBytes.getMime(), fileBytes.getMain(), fileContent));
             }
 
             Room getRoom = room.get();
@@ -261,13 +265,13 @@ public class RoomController implements IRoomController{
     }
 
     @Override
-    public ResponseEntity<?> editStatus(@Valid RoomStatusDTO entity) {
+    public ResponseEntity<?> editStatus(@Valid StatusDTO<RoomStatus> entity) {
         try {
-            if(entity.getStatus() == RoomStatus.hidden) {
-                roomService.updateStatus(entity.getId(), RoomStatus.active);
+            if(entity.getStatus() == RoomStatus.hidden || entity.getStatus() ==  RoomStatus.active) {
+                roomService.updateStatus(entity.getId(), entity.getStatus());
             }
             else {
-                roomService.updateStatus(entity.getId(), RoomStatus.hidden);
+                throw new IllegalArgumentException("Status is not valid");
             }
 
             return ResponseEntity.ok().body(new ResponseOnlyMessage("Request successful"));
@@ -312,7 +316,6 @@ public class RoomController implements IRoomController{
             return ResponseEntity.badRequest().body(new ResponseWithInfo("Invalid request", e.getMessage()));
         } 
         catch (Exception e) {
-            System.out.println(e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseWithInfo("Internal server error", e.getMessage()));
         }
     }

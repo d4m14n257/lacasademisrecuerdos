@@ -12,15 +12,15 @@ public class RoomDTO {
     private String name;
 
     @NotBlank(message = "Description is required")
-    @Size(max = 2048, message = "The name cannot be longer than 2048 characters")
+    @Size(max = 2048, message = "The description cannot be longer than 2048 characters")
     private String description;
 
     @NotBlank(message = "Summary is required")
-    @Size(max = 512, message = "The name cannot be longer than 512 characters")
+    @Size(max = 512, message = "The summary cannot be longer than 512 characters")
     private String summary;
 
     @NotBlank(message = "Additional is required")
-    @Size(max = 128, message = "The name cannot be longer than 128 characters")
+    @Size(max = 128, message = "The additional cannot be longer than 128 characters")
     private String additional;
 
     @NotNull(message = "Single price is required")
