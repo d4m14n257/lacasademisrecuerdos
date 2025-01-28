@@ -31,8 +31,8 @@ public class TourService {
         }
     }
 
-    public List<TourClient> findAll() {
-        List<Object[]> results = tourRepository.findAllTours();
+    public List<TourClient> findAll(String language) {
+        List<Object[]> results = tourRepository.findAllTours(language);
         List<TourClient> tours = results.stream()
             .map(result -> new TourClient(
                 (String) result[0], 
@@ -40,7 +40,8 @@ public class TourService {
                 (String) result[3], 
                 (String) result[4], 
                 (String) result[5], 
-                (String) result[6]))
+                (String) result[6],
+                (String) result[7]))
             .collect(Collectors.toList());
 
         return tours;

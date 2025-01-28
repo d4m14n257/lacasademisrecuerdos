@@ -5,23 +5,41 @@
         "primary_description": "Make your smart glasses an extension of your personal style. Choose from a range of elegant lenses and frames.",
         "secondary_description": "Customize features to suit your preferences."
     },
-    "reviews": {
-        "title": "A most excellent B&B experience",
-        "description": "“Conchita and Moises open their doors to a total Mexican family experience, from the incredible breakfasts each morning sharing conversation and travel tips with the other guests, the comfortable rooms and relaxed seating areas in their beautiful home.”"
-    },
+    "reviews": [
+        {
+            "title": "A most excellent B&B experience",
+            "description": "“Conchita and Moises open their doors to a total Mexican family experience, from the incredible breakfasts each morning sharing conversation and travel tips with the other guests, the comfortable rooms and relaxed seating areas in their beautiful home.”",
+            "url": "https://www.tripadvisor.com.mx/Hotel_Review-g150801-d263173-Reviews-La_Casa_de_Mis_Recuerdos_B_B-Oaxaca_Southern_Mexico.html"
+        }, 
+        {
+            "title": "HBDASHDBSA",
+            "description": "“Conchita and Moises open their doors to a total Mexican family experience, from the incredible breakfasts each morning sharing conversation and travel tips with the other guests, the comfortable rooms and relaxed seating areas in their beautiful home.”",
+            "url": "https://www.tripadvisor.com.mx/Hotel_Review-g150801-d263173-Reviews-La_Casa_de_Mis_Recuerdos_B_B-Oaxaca_Southern_Mexico.html"
+        }
+        ],
     "locations": {
         "title": "Discover our family",
         "subtitle": "Other Locations"
     },
     "contact": {
-        "title": "Discover our family",
+        "title": "Let's get in contact",
         "subtitle": "Contact us",
-        "contact_form": {
-            "name": "Name",
-            "email": "E-mail",
-            "room": "Room",
-            "comments": "Additional comments",
-            "submit": "Contact Us"
+        "form": {
+            "labels": {
+                "name": "Name",
+                "email": "E-mail",
+                "phone": "Phone number",
+                "room": "Room",
+                "comments": "Additional comments",
+                "submit": "Contact Us"
+            },
+            "errors": {
+                "id": "Room is required",
+                "name": "Name is required",
+                "email": "Email is required",
+                "invalidEmail": "Email is invalid"
+            }
+            
         }
     }
 }

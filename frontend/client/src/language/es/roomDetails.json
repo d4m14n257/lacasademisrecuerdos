@@ -1,0 +1,29 @@
+{
+    "price": {
+        "single": "Individual",
+        "double": "Doble"
+    },
+    "form": {
+        "title": "Tu Reserva",
+        "labels": {
+            "name": "Nombre",
+            "email": "Correo electrónico",
+            "check_in": "Fecha de llegada",
+            "check_out": "Fecha de salida",
+            "guests": {
+                "label": "Huéspedes",
+                "select": [
+                    "1 Adulto", "2 Adultos", "3 Adultos", "4 o más Adultos"
+                ]
+            },
+            "comment": "Comentarios",
+            "submit": "Reservar ahora"
+        },
+        "errors": {
+            "name": "El nombre es requerido",
+            "email": "El correo electrónico es requerido",
+            "invalidEmail": "El correo electrónico no es válido"
+        }
+    },
+    "others": "Otras habitaciones"
+}

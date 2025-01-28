@@ -7,25 +7,25 @@ import jakarta.validation.constraints.Size;
 
 public class ContactDTO extends IdDTO{
     
-    @NotBlank(message = "Full name is require")
-    @Size(max = 256, message = "The full name cannot be longer than 256 characters")
+    @NotBlank(message = "{full_name.NotBlank}")
+    @Size(max = 256, message = "{full_name.Size}")
     private String full_name;
     
-    @NotBlank(message = "Email is require")
-    @Email
+    @NotBlank(message = "{email.NotBlank}")
+    @Email(message = "{email.Email}")
     @Pattern(
         regexp = "(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])",
-        message = "The email entered is not valid")
-    @Size(max = 64, message = "The email cannot be longer than 64 characters")
+        message = "{email.Email}")
+    @Size(max = 64, message = "{email.Size}")
     private String email;
     
     @Pattern(
         regexp = "^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\\s\\./0-9]*$",
-        message = "The phone number is not valid")
-    @Size(max = 16, message = "The phone number cannot be longer than 16 characters")
+        message = "{phone.Pattern}")
+    @Size(max = 16, message = "{phone.Size}")
     private String phone_number;
     
-    @Size(max = 2048, message = "The email cannot be longer than 2048 characters")
+    @Size(max = 2048, message = "{comment.Size}")
     private String comment;
 
     public String getFull_name() {

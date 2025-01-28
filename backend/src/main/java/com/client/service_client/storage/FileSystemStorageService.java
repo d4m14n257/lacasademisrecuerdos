@@ -31,7 +31,6 @@ public class FileSystemStorageService implements StorageService {
 		this.rootLocation = Paths.get(properties.getLocation());
 	}
 
-	@SuppressWarnings("null")
 	@Override
 	public String store(MultipartFile file, String destination) {
 		try {

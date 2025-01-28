@@ -1,11 +1,9 @@
 package com.client.service_client.controller;
 
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,31 +14,35 @@ import com.client.service_client.model.File;
 import com.client.service_client.model.Tour;
 import com.client.service_client.model.dto.TourDTO;
 import com.client.service_client.model.dto.TourUpdateDTO;
-import com.client.service_client.model.enums.TourStatus;
-import com.client.service_client.model.record.FilesBytes;
 import com.client.service_client.model.record.TourClient;
 import com.client.service_client.model.record.TourResponse;
-import com.client.service_client.model.record.TourWithFile;
 import com.client.service_client.model.response.ResponseOnlyMessage;
 import com.client.service_client.model.response.ResponseWithData;
 import com.client.service_client.model.response.ResponseWithInfo;
 import com.client.service_client.service.TourService;
 import com.client.service_client.storage.StorageService;
+import com.client.service_client.util.Constants;
 import com.client.service_client.util.FileValidator;
+import com.client.service_client.util.ImageResize;
+import com.client.service_client.util.Language;
 
+import io.github.mojtabaJ.cwebp.WebpConverter;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 @RestController
 public class TourController implements ITourController{
 
-    private TourService tourService;
-    private StorageService storageService;
+    private final TourService tourService;
+    private final StorageService storageService;
+    private final Language language;
     private final String destination = "/tour";
     private String source;
 
-    public TourController(TourService tourService, StorageService storageService) {
+    public TourController(TourService tourService, StorageService storageService, Language language) {
         this.tourService = tourService;
         this.storageService = storageService;
+        this.language = language;
 
         source = null;
     }
@@ -58,8 +60,10 @@ public class TourController implements ITourController{
             File fileSave = new File();
 
             tour.setName(entity.getName());
-            tour.setDescription(entity.getDescription());
-            tour.setSummary(entity.getSummary());
+            tour.setDescription_es(entity.getDescription_es());
+            tour.setDescription_en(entity.getDescription_en());
+            tour.setSummary_es(entity.getSummary_es());
+            tour.setSummary_en(entity.getSummary_en());
             tour.setUrl(entity.getUrl());
 
             fileSave.setName(file.getOriginalFilename());
@@ -97,8 +101,10 @@ public class TourController implements ITourController{
         try {
             Tour tour = new Tour(entity.getId());
             tour.setName(entity.getName());
-            tour.setDescription(entity.getDescription());
-            tour.setSummary(entity.getSummary());
+            tour.setDescription_es(entity.getDescription_es());
+            tour.setDescription_en(entity.getDescription_en());
+            tour.setSummary_es(entity.getSummary_es());
+            tour.setSummary_en(entity.getSummary_en());
             tour.setUrl(entity.getUrl());
             tour.setStatus(entity.getStatus());
 
@@ -114,9 +120,10 @@ public class TourController implements ITourController{
     }
 
     @Override
-    public ResponseEntity<?> getAllTours() {
+    public ResponseEntity<?> getAllTours(HttpServletRequest request) {
         try {
-            List<TourClient> tours = tourService.findAll();
+            String language = this.language.requestLanguage(request);
+            List<TourClient> tours = tourService.findAll(language);
 
             if (tours.isEmpty()) {
                 return ResponseEntity.noContent().build();
@@ -125,9 +132,7 @@ public class TourController implements ITourController{
             List<TourResponse> toursResponse = new ArrayList<>();
 
             for(TourClient tour : tours) {
-                Resource resource = storageService.loadAsResource(tour.source());
-
-                byte[] fileContent = Files.readAllBytes(resource.getFile().toPath());
+                byte[] fileContent = WebpConverter.imageByteToWebpByte(ImageResize.resizeImageToBytes(tour.source(), Constants.thumbnailsGeneral), Constants.quality);
 
                 TourResponse tourResponse = new TourResponse(
                     tour.id(),
@@ -168,46 +173,47 @@ public class TourController implements ITourController{
         }
     }
 
-    @Override
-    public ResponseEntity<?> getTourById(String id) {
-        try {
-            Optional<Tour> tourResult = tourService.findById(id);
+    // @Override
+    // public ResponseEntity<?> getTourById(HttpServletRequest request, String id) {
+    //     try {
+    //         String language = this.language.requestLanguage(request);
+    //         Optional<Tour> tourResult = tourService.findById(id, language);
 
-            if(!tourResult.isPresent()) {
-                return ResponseEntity.noContent().build();
-            }
+    //         if(!tourResult.isPresent()) {
+    //             return ResponseEntity.noContent().build();
+    //         }
 
-            Tour tour = tourResult.get();
+    //         Tour tour = tourResult.get();
 
-            if(tour.getStatus() == TourStatus.used) {
-                return ResponseEntity.noContent().build();
-            }
+    //         if(tour.getStatus() == TourStatus.used) {
+    //             return ResponseEntity.noContent().build();
+    //         }
 
-            List<FilesBytes> files = new ArrayList<>();
+    //         List<FilesBytes> files = new ArrayList<>();
 
-            for(File file : tour.getFiles()) {
-                Resource resource = storageService.loadAsResource(file.getSource());
-                byte[] fileContent = Files.readAllBytes(resource.getFile().toPath());
+    //         for(File file : tour.getFiles()) {
+    //             Resource resource = storageService.loadAsResource(file.getSource());
+    //             byte[] fileContent = Files.readAllBytes(resource.getFile().toPath());
 
-                files.add(new FilesBytes(file.getName(), file.getMain(), fileContent));
-            }
+    //             files.add(new FilesBytes(file.getName(), file.getMain(), fileContent));
+    //         }
 
-            return ResponseEntity.ok().body(new ResponseWithData<TourWithFile>("Request successful", 
-                new TourWithFile(
-                    tour.getId(), 
-                    tour.getName(), 
-                    tour.getDescription(), 
-                    tour.getSummary(), 
-                    tour.getUrl(), 
-                    files)
-            ));
-        }
-        catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new ResponseWithInfo("Invalid request", e.getMessage()));
-        } 
-        catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseWithInfo("Internal server error", e.getMessage()));
-        }
-    }
+    //         return ResponseEntity.ok().body(new ResponseWithData<TourWithFile>("Request successful", 
+    //             new TourWithFile(
+    //                 tour.getId(), 
+    //                 tour.getName(), 
+    //                 tour.getDescription(), 
+    //                 tour.getSummary(), 
+    //                 tour.getUrl(), 
+    //                 files)
+    //         ));
+    //     }
+    //     catch (IllegalArgumentException e) {
+    //         return ResponseEntity.badRequest().body(new ResponseWithInfo("Invalid request", e.getMessage()));
+    //     } 
+    //     catch (Exception e) {
+    //         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseWithInfo("Internal server error", e.getMessage()));
+    //     }
+    // }
     
 }

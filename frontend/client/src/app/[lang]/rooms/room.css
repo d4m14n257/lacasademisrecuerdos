@@ -1,0 +1,65 @@
+.card-room {
+    display: flex;
+    max-width: calc(var(--breakpoint-max));
+    height: 400px;
+    background-color: white;
+    width: 90%;
+    margin-top: 40px
+}
+
+
+#even {
+    flex-direction: row;
+    border-right: 7px solid var(--green-color);
+}
+
+#odd {
+    flex-direction: row-reverse;
+    border-left: 7px solid var(--green-color);
+}
+
+
+.card-room img {
+    min-width: 50%;
+    object-fit: cover;
+}
+
+.card-room > div {
+    position: relative;
+    min-width: 50%;
+    left: 32px;
+}
+
+.card-room h3 {
+    color: #e20470;
+    font-family: var(--font-scheherazade-new);
+    font-weight: 700;
+    font-size: 48px;
+    line-height: 98px;
+    line-height: 1
+}
+
+.card-room p {
+    font-family: var(--font-rasa);
+    font-weight: 600;
+    color: var(--brown-color);
+    font-size: 22px;
+    line-height: 32px;
+    margin-bottom: 64px;
+}
+
+button {
+    width: 225px;
+    height: 40px;
+    border-radius: 3px;
+    border: 1px solid var(--pink-color);
+    background-color: transparent;
+    color: var(--pink-color);
+    font-family: var(--font-rasa);
+    font-size: 24px;
+}
+
+button:hover {
+    background-color: var(--background-color);
+    box-shadow: 0 0 7px rgba(161, 15, 86, 0.5);
+}

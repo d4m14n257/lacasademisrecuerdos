@@ -83,6 +83,13 @@ public class UserService implements UserDetailsService{
             .orElseGet(() -> userRepository.findByEmail(username)
             .orElseThrow(() -> new UsernameNotFoundException("User not found")));
 
+        if(user.getStatus() == UserStatus.inactive) {
+            throw new UsernameNotFoundException("User is not active.");
+        }
+        else if(user.getStatus() == UserStatus.blocked) {
+            throw new UsernameNotFoundException("User is not authorized.");
+        }
+
         return new User(user.getUsername(), user.getPassword(), Collections.emptyList());
     }
 }

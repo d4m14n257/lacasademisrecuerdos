@@ -9,7 +9,6 @@ export async function middleware(req: NextRequest) {
 
     if (!token) {
         const res = NextResponse.redirect(loginUrl);
-
         return res;
     }
 

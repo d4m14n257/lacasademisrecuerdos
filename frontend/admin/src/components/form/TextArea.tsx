@@ -1,9 +1,9 @@
 import * as React from 'react';
+import { ChangeHandler } from 'react-hook-form';
 import { TextareaAutosize as BaseTextareaAutosize } from '@mui/base/TextareaAutosize';
-import { styled, useTheme } from '@mui/system';
+import { styled } from '@mui/system';
 
 import '../globals.css'
-import { ChangeHandler } from 'react-hook-form';
 
 type Props = {
     required?: boolean;
@@ -23,7 +23,7 @@ const TextArea = React.forwardRef(
     ) 
 {   
     const { required, placeholder, minRows, error, name, disabled, onBlur, onChange } = props;
-    const theme = useTheme();
+
     return (
         <TextareaAutosize
             ref={ref}
@@ -32,12 +32,11 @@ const TextArea = React.forwardRef(
             required={required}
             placeholder={placeholder}
             minRows={minRows}
-            {...(error ? { 'data-error': error } : {})}
+            error={error.toString()}
             name={name}
             disabled={disabled}
             onBlur={onBlur}
             onChange={onChange}
-            theme={theme}
         />
     );
 });
@@ -66,7 +65,7 @@ const grey = {
     900: '#1C2025',
 };
 
-const TextareaAutosize = styled(BaseTextareaAutosize)<{ error?: boolean }>(
+const TextareaAutosize = styled(BaseTextareaAutosize)<{ error: string }>(
     ({ theme, error }) => `
         box-sizing: border-box;
         width: 320px;
@@ -78,17 +77,17 @@ const TextareaAutosize = styled(BaseTextareaAutosize)<{ error?: boolean }>(
         border-radius: 8px;
         color: ${theme.palette.mode === 'dark' ? grey[300] : grey[900]};
         background: ${theme.palette.mode === 'dark' ? grey[900] : '#fff'};
-        border: 1px solid ${error ? 
+        border: 1px solid ${error == "true" ? 
             '#f44336' :
             theme.palette.mode === 'dark' ? grey[700] : grey[200]};
         box-shadow: 0px 2px 2px ${theme.palette.mode === 'dark' ? grey[900] : grey[50]};
         &:hover {
-            border-color: ${error ? '#f44336' : blue[400]};
+            border-color: ${error == "true" ? '#f44336' : blue[400]};
         }
         &:focus {
-            border-color: ${error ? '#f44336' : blue[400]};
+            border-color: ${error == "true" ? '#f44336' : blue[400]};
             box-shadow: 0 0 0 3px ${
-            error ? 
+            error == "true" ? 
                 '#f44336' :
                 theme.palette.mode === 'dark' ? blue[600] : blue[200]
             };

@@ -11,7 +11,7 @@
     gap: 6px;
 }
 
-.label-field > label > p{
+.label-field > label > p {
     opacity: 0.8;
     font-size: 15px
 }
@@ -20,4 +20,8 @@
     margin: 0;
     margin-top: 6px;
     font-size: 12px;
+}
+
+.content button {
+    border-radius: 8px;
 }

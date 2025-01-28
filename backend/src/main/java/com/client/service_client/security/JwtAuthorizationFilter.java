@@ -29,7 +29,6 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter{
     }
 
     @Override
-    @SuppressWarnings("null")
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws IOException, ServletException {
 

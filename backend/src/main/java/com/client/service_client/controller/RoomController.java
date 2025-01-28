@@ -27,39 +27,42 @@ import com.client.service_client.storage.StorageService;
 import com.client.service_client.util.Constants;
 import com.client.service_client.util.FileValidator;
 import com.client.service_client.util.ImageResize;
+import com.client.service_client.util.Language;
 
 import io.github.mojtabaJ.cwebp.WebpConverter;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 @RestController
 public class RoomController implements IRoomController{
 
-    private RoomService roomService;
-    private StorageService storageService;
+    private final RoomService roomService;
+    private final StorageService storageService;
     private final String destination = "/room";
+    private final Language language;
     private String source;
     
-    public RoomController(RoomService roomService, StorageService storageService) {
+    public RoomController(RoomService roomService, StorageService storageService, Language language) {
         this.roomService = roomService;
         this.storageService = storageService;
+        this.language = language;
 
         source = null;
     }
 
     @Override
-    public ResponseEntity<?> getRoomById(String id) {
+    public ResponseEntity<?> getRoomById(HttpServletRequest request, String id) {
         try {
-            Optional<RoomWithFiles> room = roomService.findByIdWithFiles(id);
+            String language = this.language.requestLanguage(request);
+            Optional<RoomWithFiles> room = roomService.findByIdWithFiles(id, language);
             
             if(!room.isPresent()) {
                 return ResponseEntity.noContent().build();
@@ -69,10 +72,7 @@ public class RoomController implements IRoomController{
             List<FilesBytes> files = new ArrayList<>();
 
             for(FilesInfo fileWithoutByte : roomResults.files()) {
-                Resource resource = storageService.loadAsResource(fileWithoutByte.source());
-
-                byte[] fileContent = Files.readAllBytes(resource.getFile().toPath());
-
+                byte[] fileContent = WebpConverter.imageByteToWebpByte(ImageResize.resizeImageToBytes(fileWithoutByte.source(), Constants.thumbnailsGeneral), Constants.quality);
                 files.add(new FilesBytes(fileWithoutByte.file_name(), fileWithoutByte.main(), fileContent));
             }
 
@@ -81,7 +81,6 @@ public class RoomController implements IRoomController{
                 roomResults.name(),
                 roomResults.description(),
                 roomResults.summary(),
-                roomResults.additional(),
                 roomResults.single_price(),
                 roomResults.double_price(),
                 files
@@ -98,9 +97,10 @@ public class RoomController implements IRoomController{
     }
 
     @Override
-    public ResponseEntity<?> getAllRoomsAvailable() {
+    public ResponseEntity<?> getAllRoomsAvailable(HttpServletRequest request) {
         try {
-            List<RoomCards> rooms = roomService.findAllAvailable();
+            String language = this.language.requestLanguage(request);
+            List<RoomCards> rooms = roomService.findAllAvailable(language);
 
             if (rooms.isEmpty()) {
                 return ResponseEntity.noContent().build();
@@ -109,15 +109,11 @@ public class RoomController implements IRoomController{
             List<RoomResponse> roomsResponse = new ArrayList<>();
 
             for(RoomCards room : rooms) {
-                Resource resource = storageService.loadAsResource(room.source());
-
-                byte[] fileContent = Files.readAllBytes(resource.getFile().toPath());
-
+                byte[] fileContent = WebpConverter.imageByteToWebpByte(ImageResize.resizeImageToBytes(room.source(), Constants.thumbnailsGeneral), Constants.quality);
                 RoomResponse roomResponse = new RoomResponse(
                     room.id(),
                     room.name(),
                     room.summary(),
-                    room.additional(),
                     room.status(),
                     room.file_name(),
                     fileContent);
@@ -147,9 +143,10 @@ public class RoomController implements IRoomController{
             File fileSave = new File();
 
             room.setName(entity.getName());
-            room.setDescription(entity.getDescription());
-            room.setSummary(entity.getSummary());
-            room.setAdditional(entity.getAdditional());
+            room.setDescription_es(entity.getDescription_es());
+            room.setDescription_en(entity.getDescription_en());
+            room.setSummary_es(entity.getSummary_es());
+            room.setSummary_en(entity.getSummary_en());
             room.setSingle_price(entity.getSingle_price());
             room.setDouble_price(entity.getDouble_price());
             room.setFiles(new HashSet<File>());
@@ -179,8 +176,6 @@ public class RoomController implements IRoomController{
             return ResponseEntity.badRequest().body(new ResponseWithInfo("Invalid request", e.getMessage()));
         } 
         catch (Exception e) {
-            System.out.println(source);
-
             if(source != null) {
                 storageService.deleteFile(source);
 
@@ -201,7 +196,6 @@ public class RoomController implements IRoomController{
             return ResponseEntity.badRequest().body(new ResponseWithInfo("Invalid request", e.getMessage()));
         } 
         catch (Exception e) {
-            System.out.println(e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseWithInfo("Internal server error", e.getMessage()));
         }     
     }
@@ -251,8 +245,8 @@ public class RoomController implements IRoomController{
             return ResponseEntity.ok().body(new ResponseWithData<RoomWithFilesAdmin>(
                 "Request successful", 
                 new RoomWithFilesAdmin(
-                    getRoom.getId(), getRoom.getName(), getRoom.getDescription(), getRoom.getSummary(),
-                    getRoom.getAdditional(), getRoom.getSingle_price(), getRoom.getDouble_price(),
+                    getRoom.getId(), getRoom.getName(), getRoom.getDescription_es(), getRoom.getDescription_en(),
+                    getRoom.getSummary_es(), getRoom.getSummary_en(), getRoom.getSingle_price(), getRoom.getDouble_price(),
                     getRoom.getCreated_at(), getRoom.getStatus(), files)
             ));
         }
@@ -268,7 +262,13 @@ public class RoomController implements IRoomController{
     public ResponseEntity<?> editStatus(@Valid StatusDTO<RoomStatus> entity) {
         try {
             if(entity.getStatus() == RoomStatus.hidden || entity.getStatus() ==  RoomStatus.active) {
-                roomService.updateStatus(entity.getId(), entity.getStatus());
+                if(entity.getStatus() == RoomStatus.hidden) {
+                    roomService.updateStatus(entity.getId(), RoomStatus.active);
+                }
+                else {
+                    roomService.updateStatus(entity.getId(), RoomStatus.hidden);
+                }
+
             }
             else {
                 throw new IllegalArgumentException("Status is not valid");
@@ -296,14 +296,12 @@ public class RoomController implements IRoomController{
             List<RoomResponse> roomsResponse = new ArrayList<>();
 
             for(RoomCards room : rooms) {
-
                 byte[] fileContent = WebpConverter.imageByteToWebpByte(ImageResize.resizeImageToBytes(room.source(), Constants.thumbnailsGeneral), Constants.quality);
 
                 RoomResponse roomResponse = new RoomResponse(
                     room.id(),
                     room.name(),
                     room.summary(),
-                    room.additional(),
                     room.status(),
                     room.file_name(),
                     fileContent);

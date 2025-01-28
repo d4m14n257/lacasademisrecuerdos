@@ -42,7 +42,20 @@ export type Room = {
     name: string;
     description: string;
     summary: string;
-    additional: string;
+    single_price: number;
+    double_price: number| null;
+    created_at: Date;
+    status: 'hidden' | 'active';
+    files: FilesAdminBytes[]
+}
+
+export type RoomLanguage = {
+    id: string;
+    name: string;
+    description_es: string;
+    description_en: string;
+    summary_es: string;
+    summary_en: string;
     single_price: number;
     double_price: number| null;
     created_at: Date;

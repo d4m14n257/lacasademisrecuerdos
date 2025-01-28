@@ -8,9 +8,9 @@ import com.client.service_client.model.validation.interfaces.ValidStatus;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
-public class StatusValidator implements ConstraintValidator<ValidStatus, Enum<?>>{
+public class StatusValidator implements ConstraintValidator<ValidStatus, Object>{
     @Override
-    public boolean isValid(Enum<?> status, ConstraintValidatorContext context) {
+    public boolean isValid(Object status, ConstraintValidatorContext context) {
         if (status instanceof RoomStatus) {
             return status == RoomStatus.active || status == RoomStatus.hidden;
         }

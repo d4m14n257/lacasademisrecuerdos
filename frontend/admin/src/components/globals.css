@@ -87,6 +87,7 @@
 .card-img-room {
     object-fit: cover;
     width: 100%;
+    height: 300px;
 }
 
 .card-body {

@@ -5,7 +5,7 @@ import { Collapse, IconButton, List, ListItem, ListItemText, Paper, Stack, Toolt
 
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
-import EditIcon from '@mui/icons-material/Edit';
+import UploadIcon from '@mui/icons-material/Upload';
 
 import '../globals.css'
 
@@ -58,7 +58,7 @@ export default function ListComponent<T>(props : Props<T>) {
                                 sx={{margin: 0}}
                             >
                                 <IconButton size="large" edge="end" onClick={handleAction}>
-                                    <EditIcon />
+                                    <UploadIcon />
                                 </IconButton>
                             </Tooltip>
                         }

@@ -1,0 +1,33 @@
+.nav-site > * {
+    color: var(--brown-color);
+}
+
+.logo {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    color: var(--yellow-color);
+    height: var(--header-height);
+    gap: 30px;
+}
+
+.logo h1 {
+    margin: 0;
+    font-size: 54px;
+    font-family: var(--font-scheherazade-new);
+    font-weight: 700;
+    line-height: 1;
+}
+
+.logo > div { 
+    width: 295px;
+}
+
+.logo hr {
+    margin-right: 0;
+    margin-left: 100px;
+    width: 180px;
+    background-color: var(--green-color);
+    height: 3px;
+    border: none;
+}

@@ -1,8 +1,8 @@
 "use client"
 
-import { BaseSyntheticEvent, useCallback, useContext, useRef } from "react";
+import { BaseSyntheticEvent, useCallback, useContext, useRef, useState } from "react";
 import { Controller, ControllerRenderProps, SubmitHandler, useForm } from "react-hook-form";
-import { Divider, FormControl, FormHelperText, Stack } from "@mui/material";
+import { Box, Divider, FormControl, FormHelperText, List, ListItem, ListItemText, Stack } from "@mui/material";
 import { z } from "zod";
 import { Advice } from "@/contexts/AdviceProvider";
 import { Confirm } from "@/contexts/ConfirmContext";
@@ -16,6 +16,7 @@ import SendIcon from '@mui/icons-material/Send';
 import "./form.css"
 import { setData } from "@/api/setData";
 import { Loading } from "@/contexts/LoadingProvider";
+import { ROOM_FILE, ROOM_FILE_ADD } from "@/constants/endpoints";
 
 type Props = {
     fileId?: string;
@@ -29,6 +30,10 @@ const schema = z.object({
         required_error: "File is required"
     })
 })
+
+/* 
+    TODO: Agregar una lista para ver que archivos se van a subir
+*/
 
 type FileSchema = z.infer<typeof schema>
 
@@ -67,7 +72,7 @@ function useFileForm () {
 
 export default function FileForm (props : Props) {
     const { fileId, roomId, handleClose, reloadAction } = props;
-    const { file, token, confirm, fileTypes, handleLoadFile, handleMessage, handleOpen, handleAdvice, handleLoading } = useFileForm();
+    const { file, token, confirm, fileTypes, handleLoadFile, handleMessage, handleOpen, handleAdvice } = useFileForm();
 
     const { control, handleSubmit, formState: { errors, isSubmitting } } = useForm<FileSchema>({
         defaultValues: {
@@ -100,8 +105,6 @@ export default function FileForm (props : Props) {
             await confirm()
                 .catch(() => {throw {canceled: true}})
 
-            handleLoading()
-
             if(data.file && file.current) {
                 let res;
                 const formData = new FormData();
@@ -120,7 +123,7 @@ export default function FileForm (props : Props) {
                         formData.append('files', addFile[i]);
                     }
 
-                    res = await setData<FormData>('file/admin/add/room', formData, "PUT", token);
+                    res = await setData<FormData>(`${ROOM_FILE_ADD}`, formData, "PUT", token);
                 }
                 else {
                     const jsonData = JSON.stringify({
@@ -134,7 +137,7 @@ export default function FileForm (props : Props) {
                     formData.append('data', blob);
                     formData.append('file', addFile);
 
-                    res = await setData<FormData>('file/admin/room', formData, "POST", token);
+                    res = await setData<FormData>(`${ROOM_FILE}`, formData, "POST", token);
                 }
                 
                 if(res.status >= 200 && res.status <= 299) {
@@ -192,9 +195,6 @@ export default function FileForm (props : Props) {
             }
 
             handleOpen();
-        }
-        finally {
-            handleLoading();
         }
     }, [])
 

@@ -1,0 +1,29 @@
+{
+    "price": {
+        "single": "Single",
+        "double": "Double"
+    },
+    "form": {
+        "title": "Your Reservation",
+        "labels": {
+            "name": "Name",
+            "email": "E-mail",
+            "check_in": "Check - In",
+            "check_out": "Check - Out",
+            "guests": {
+                "label": "Guests",
+                "select": [
+                    "1 Adult", "2 Adults", "3 Adults", "4 or more Adults"
+                ]
+            },
+            "comment": "Comments",
+            "submit": "Book Now"
+        },
+        "errors": {
+            "name": "Name is required",
+            "email": "Email is required",
+            "invalidEmail": "Email is invalid"
+        }
+    },
+    "others": "Other rooms"
+}

@@ -16,8 +16,9 @@ import { deleteData } from "@/api/deleteData";
 import useModal from "@/hooks/useModal";
 import { useRouter } from "next/navigation";
 
-import '../globals.css'
 import { Loading } from "@/contexts/LoadingProvider";
+import '../globals.css'
+import { ROOMS_DELETE, ROOMS_GENERAL } from "@/constants/endpoints";
 
 type Props = {
     session: Session | null;
@@ -32,7 +33,7 @@ function useCardRoom ({ res, session } : {res : RoomCard[], session: Session | n
     const router = useRouter();
 
     const handleReload = useCallback(async () => {
-        const res = await getData<RoomCard>('room/admin', true, session?.token); 
+        const res = await getData<RoomCard>(`${ROOMS_GENERAL}`, true, session?.token); 
 
         if(res.data) {
             setRooms(res.data as RoomCard[]);
@@ -62,7 +63,7 @@ function useCardRoom ({ res, session } : {res : RoomCard[], session: Session | n
             handleOpenLoading();
 
             if(session != null) {
-                const res = await deleteData<{id: string}[]>('delete/admin/room', [{ id: id }], session.token);
+                const res = await deleteData<{id: string}[]>(`${ROOMS_DELETE}`, [{ id: id }], session.token);
 
                 if(res.status >= 200 && res.status <= 299) {
                     await handleReload();
@@ -199,6 +200,7 @@ export default function CardRoom (props : Props) {
                                         <ChangeSwitchStatus 
                                             id={room.id}
                                             status={room.status}
+                                            handleReload={handleReload}
                                         />
                                     </CardActions>
                                 </Card>

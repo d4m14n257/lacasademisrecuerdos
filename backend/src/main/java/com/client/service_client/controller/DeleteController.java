@@ -22,7 +22,7 @@ import com.client.service_client.storage.StorageService;
 import jakarta.validation.constraints.NotEmpty;
 
 @RestController
-@RequestMapping("/api/delete/admin")
+@RequestMapping("/admin/delete")
 public class DeleteController {
     
     private String source;

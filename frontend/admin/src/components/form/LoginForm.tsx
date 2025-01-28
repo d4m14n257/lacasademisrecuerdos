@@ -2,7 +2,7 @@
 
 import { BaseSyntheticEvent, useCallback, useContext, useEffect } from "react";
 
-import { FormControl, FormControlLabel, FormHelperText, Stack, TextField, Typography } from "@mui/material";
+import { Divider, FormControl, FormControlLabel, FormHelperText, Stack, TextField, Typography } from "@mui/material";
 
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,6 +11,7 @@ import { z } from "zod";
 
 import LoadingButton from '@mui/lab/LoadingButton';
 import LoginIcon from '@mui/icons-material/Login';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
 
 import { signIn } from "next-auth/react";
 import { Advice } from "@/contexts/AdviceProvider";
@@ -141,9 +142,25 @@ export default function LoginForm () {
                     type='submit' 
                     onClick={(event) => handleSubmit(onSubmit)(event)}
                     endIcon={<LoginIcon />}
-                    sx={{ width: "100%" }}
+                    sx={{ 
+                        width: "100%"
+                    }}
                 >
                     Login
+                </LoadingButton>
+            </Stack>
+            <Divider> OR </Divider>
+            <Stack direction="row" justifyContent="end">
+                <LoadingButton
+                    loading={isSubmitting}
+                    variant='outlined'
+                    onClick={() => router.push('/register')}
+                    endIcon={<PersonAddIcon />}
+                    sx={{ 
+                        width: "100%"
+                    }}
+                >
+                    Register a new user
                 </LoadingButton>
             </Stack>
         </form>

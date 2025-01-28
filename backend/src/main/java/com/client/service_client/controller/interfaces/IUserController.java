@@ -17,7 +17,7 @@ import com.client.service_client.model.enums.UserStatus;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 
-@RequestMapping("/api/user")
+@RequestMapping("/admin/user")
 public interface IUserController {
 
     @GetMapping

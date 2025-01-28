@@ -28,11 +28,17 @@ public class Tour {
     @Column(name = "name", length = 64)
     private String name;
 
-    @Column(name = "description", length = 2048)
-    private String description;
+    @Column(name = "description_es", length = 2048)
+    private String description_es;
 
-    @Column(name = "summary", length = 512)
-    private String summary;
+    @Column(name = "summary_es", length = 512)
+    private String summary_es;
+
+    @Column(name = "description_en", length = 2048)
+    private String description_en;
+
+    @Column(name = "summary_en", length = 512)
+    private String summary_en;
 
     @Column(name = "url", length = 128)
     private String url;
@@ -72,20 +78,36 @@ public class Tour {
         this.name = name;
     }
 
-    public String getDescription() {
-        return description;
+    public String getDescription_es() {
+        return description_es;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setDescription_es(String description_es) {
+        this.description_es = description_es;
     }
 
-    public String getSummary() {
-        return summary;
+    public String getSummary_es() {
+        return summary_es;
     }
 
-    public void setSummary(String summary) {
-        this.summary = summary;
+    public void setSummary_es(String summary_es) {
+        this.summary_es = summary_es;
+    }
+
+    public String getDescription_en() {
+        return description_en;
+    }
+
+    public void setDescription_en(String description_en) {
+        this.description_en = description_en;
+    }
+
+    public String getSummary_en() {
+        return summary_en;
+    }
+
+    public void setSummary_en(String summary_en) {
+        this.summary_en = summary_en;
     }
 
     public String getUrl() {

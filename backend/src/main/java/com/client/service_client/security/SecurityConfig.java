@@ -35,33 +35,34 @@ public class SecurityConfig {
     private JwtTokenValidator jwtTokenValidator;
     private final List<Endpoints> endpointsPermited = new ArrayList<Endpoints>(
         Arrays.asList(
-            new Endpoints(HttpMethod.GET, "/api/room"), 
-            new Endpoints(HttpMethod.GET, "/api/room/list"),
-            new Endpoints(HttpMethod.GET, "/api/room/client/{id}"),
-            new Endpoints(HttpMethod.GET, "/api/hotel"),
-            new Endpoints(HttpMethod.GET, "/api/tour"),
-            new Endpoints(HttpMethod.GET, "/api/tour/{id}"),
-            new Endpoints(HttpMethod.POST, "/api/contact"))
+            new Endpoints(HttpMethod.GET, "/client/room"), 
+            new Endpoints(HttpMethod.GET, "/client/room/{id}"), 
+            new Endpoints(HttpMethod.GET, "/client/room/list"),
+            new Endpoints(HttpMethod.GET, "/client/room/client/{id}"),
+            new Endpoints(HttpMethod.GET, "/client/hotel"),
+            new Endpoints(HttpMethod.GET, "/client/tour"),
+            new Endpoints(HttpMethod.GET, "/client/tour/{id}"),
+            new Endpoints(HttpMethod.POST, "/client/contact"))
     );
     private final List<Endpoints> endpointsAuthenticated = new ArrayList<Endpoints>(
         Arrays.asList(
-            new Endpoints(HttpMethod.GET, "/api/room/admin"), 
-            new Endpoints(HttpMethod.GET, "/api/room/admin/{id}"), 
-            new Endpoints(HttpMethod.GET, "/api/contact/admin"),
-            new Endpoints(HttpMethod.GET, "/api/tour/admin{id}"),
-            new Endpoints(HttpMethod.POST, "/api/room/admin"),
-            new Endpoints(HttpMethod.POST, "/api/tour/admin"),
-            new Endpoints(HttpMethod.POST, "/api/hotel/admin"),
-            new Endpoints(HttpMethod.POST, "/api/file/admin/{name}"),
-            new Endpoints(HttpMethod.PUT, "/api/room/admin"),
-            new Endpoints(HttpMethod.PUT, "/api/room/admin/status"),
-            new Endpoints(HttpMethod.PUT, "/api/file/admin/add/{name}"),
-            new Endpoints(HttpMethod.PUT, "/api/file/admin/main/{name}"),
-            new Endpoints(HttpMethod.PUT, "/api/contact/admin"),
-            new Endpoints(HttpMethod.PUT, "/api/hotel/admin"),
-            new Endpoints(HttpMethod.PUT, "/api/tour/admin"),
-            new Endpoints(HttpMethod.DELETE, "/api/delete/admin/{name}"),
-            new Endpoints(HttpMethod.DELETE, "/api/file/admin")
+            new Endpoints(HttpMethod.GET, "/admin/room"), 
+            new Endpoints(HttpMethod.GET, "/admin/room/{id}"), 
+            new Endpoints(HttpMethod.GET, "/admin/contact"),
+            new Endpoints(HttpMethod.GET, "/admin/tour{id}"),
+            new Endpoints(HttpMethod.POST, "/admin/room"),
+            new Endpoints(HttpMethod.POST, "/admin/tour"),
+            new Endpoints(HttpMethod.POST, "/admin/hotel"),
+            new Endpoints(HttpMethod.POST, "/admin/file/{name}"),
+            new Endpoints(HttpMethod.PUT, "/admin/room"),
+            new Endpoints(HttpMethod.PUT, "/admin/room/status"),
+            new Endpoints(HttpMethod.PUT, "/admin/file/add/{name}"),
+            new Endpoints(HttpMethod.PUT, "/admin/file/main/{name}"),
+            new Endpoints(HttpMethod.PUT, "/admin/contact"),
+            new Endpoints(HttpMethod.PUT, "/admin/hotel"),
+            new Endpoints(HttpMethod.PUT, "/admin/tour"),
+            new Endpoints(HttpMethod.DELETE, "/admin/delete/{name}"),
+            new Endpoints(HttpMethod.DELETE, "/admin/file")
         ));
 
     public SecurityConfig(JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint, UserService userService, JwtTokenValidator jwtTokenValidator, HostOriginsConfigProperties hostOriginsConfigProperties) {
@@ -85,9 +86,9 @@ public class SecurityConfig {
     JwtAuthorizationFilter jwtAuthenticationFilter() {
         return new JwtAuthorizationFilter(userService, jwtTokenValidator);
     }
-
+    
     @Bean
-    @Order(0)
+    @Order(2)
     SecurityFilterChain adminFilterChain(HttpSecurity http) throws Exception {
         return http
             .cors(cors -> cors.configurationSource(adminCorsFilter()))
@@ -95,8 +96,8 @@ public class SecurityConfig {
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .exceptionHandling(handling -> 
                 handling.authenticationEntryPoint(jwtAuthenticationEntryPoint))
+            .securityMatcher("/admin/**")
             .authorizeHttpRequests(req -> {
-                req.requestMatchers("/api/auth/**").permitAll();
                 for (Endpoints authenticated : endpointsAuthenticated) { req.requestMatchers(authenticated.method(), authenticated.url()).authenticated(); }
                 req.anyRequest().authenticated();
             })
@@ -106,18 +107,28 @@ public class SecurityConfig {
 
     @Bean
     @Order(1)
+    SecurityFilterChain loginFilterChain(HttpSecurity http) throws Exception {
+        return http
+            .cors(cors -> cors.configurationSource(adminCorsFilter()))
+            .csrf(csrf -> csrf.disable())
+            .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .securityMatcher("/auth/**")
+            .authorizeHttpRequests(req -> {
+                req.requestMatchers("/auth/**").permitAll();
+            })
+            .build();
+    }
+
+    @Bean
     SecurityFilterChain clientFilterChain(HttpSecurity http) throws Exception {
         return http
             .cors(cors -> cors.configurationSource(clientCorsFilter()))
             .csrf(csrf -> csrf.disable())
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .exceptionHandling(handling -> 
-                handling.authenticationEntryPoint(jwtAuthenticationEntryPoint))
+            .securityMatcher("/client/**")
             .authorizeHttpRequests(req -> {
                 for (Endpoints permited : endpointsPermited) { req.requestMatchers(permited.method(), permited.url()).permitAll(); }
-                req.anyRequest().authenticated();
             })
-            .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
             .build(); 
     }   
 
@@ -148,6 +159,4 @@ public class SecurityConfig {
         
         return source;
     }
-
-
 }

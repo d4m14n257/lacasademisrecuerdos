@@ -8,7 +8,6 @@ public record RoomWithFiles(
     String name, 
     String description, 
     String summary, 
-    String additional, 
     BigDecimal single_price, 
     BigDecimal double_price,
     List<FilesInfo> files) { }

@@ -1,0 +1,44 @@
+{
+    "about": {
+        "title": "Un poco sobre nosotros",
+        "subtitle": "Tu hogar en Oaxaca",
+        "primary_description": "Haz de tus gafas inteligentes una extensión de tu estilo personal. Elige entre una variedad de lentes y marcos elegantes.",
+        "secondary_description": "Personaliza las funciones según tus preferencias."
+    },
+    "reviews": [
+        {
+            "title": "Una experiencia excelente en un B&B",
+            "description": "“Conchita y Moisés abren sus puertas a una experiencia familiar mexicana total, desde los increíbles desayunos cada mañana compartiendo conversación y consejos de viaje con los otros huéspedes, las cómodas habitaciones y las relajadas áreas de descanso en su hermoso hogar.”",
+            "url": "https://www.tripadvisor.com.mx/Hotel_Review-g150801-d263173-Reviews-La_Casa_de_Mis_Recuerdos_B_B-Oaxaca_Southern_Mexico.html"
+        }, 
+        {
+            "title": "HBDASHDBSA",
+            "description": "“Conchita y Moisés abren sus puertas a una experiencia familiar mexicana total, desde los increíbles desayunos cada mañana compartiendo conversación y consejos de viaje con los otros huéspedes, las cómodas habitaciones y las relajadas áreas de descanso en su hermoso hogar.”",
+            "url": "https://www.tripadvisor.com.mx/Hotel_Review-g150801-d263173-Reviews-La_Casa_de_Mis_Recuerdos_B_B-Oaxaca_Southern_Mexico.html"
+        }
+    ],
+    "locations": {
+        "title": "Descubre nuestra familia",
+        "subtitle": "Otras ubicaciones"
+    },
+    "contact": {
+        "title": "Pongámonos en contacto",
+        "subtitle": "Contáctanos",
+        "form": {
+            "labels": {
+                "name": "Nombre",
+                "email": "Correo electrónico",
+                "phone": "Número de teléfono",
+                "room": "Habitación",
+                "comments": "Comentarios adicionales",
+                "submit": "Contáctanos"
+            },
+            "errors": {
+                "id": "La habitación es requerida",
+                "name": "El nombre es requerido",
+                "email": "El correo electrónico es requerido",
+                "invalidEmail": "El correo electrónico no es válido"
+            }
+        }
+    }
+}

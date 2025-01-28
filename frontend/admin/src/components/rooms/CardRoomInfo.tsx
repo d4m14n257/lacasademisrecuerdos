@@ -1,7 +1,7 @@
 "use client"
 
 import { Fragment } from "react";
-import { Room } from "@/model/types";
+import { Room, RoomLanguage } from "@/model/types";
 import { Box, Card, CardActions, CardContent, CardHeader, Divider, IconButton, Stack, Tooltip, Typography } from "@mui/material";
 import ChangeSwitchStatus from "./ChangeSwitchStatus";
 
@@ -12,15 +12,15 @@ import { getDate } from "@/lib/getDate";
 
 import '../globals.css'
 
-type RoomWithoutFiles = Omit<Room, 'files'>;
+type RoomWithoutFiles = Omit<RoomLanguage, 'files'>;
 
 interface Props extends RoomWithoutFiles {
     handleReload: () => Promise<void>
 }
 
 export default function CardRoomInfo (props : Props) {
-    const { id, name, description, summary, additional, single_price, double_price, created_at, status, handleReload} = props;
-    const { open, handleOpen, handleClose, data } = useModal<Omit<Room, 'files' | 'created_at' | 'status'>>();
+    const { id, name, description_es, description_en, summary_es, summary_en, single_price, double_price, created_at, status, handleReload} = props;
+    const { open, handleOpen, handleClose, data } = useModal<Omit<RoomLanguage, 'files' | 'created_at' | 'status'>>();
 
     return (
         <Fragment>
@@ -33,7 +33,7 @@ export default function CardRoomInfo (props : Props) {
                             title="Edit room"
                         >
                             <IconButton onClick={() => handleOpen({
-                                id, name, description, summary, additional, single_price, double_price
+                                id, name, description_es, description_en, summary_es, summary_en, single_price, double_price
                             })}>
                                 <EditIcon />
                             </IconButton>
@@ -46,26 +46,34 @@ export default function CardRoomInfo (props : Props) {
                 >
                     <Box>
                         <Typography variant="h6">
-                            Description:
+                            Description in English:
                         </Typography>
                         <Typography variant="body2">
-                            {description}
+                            {description_en}
                         </Typography>
                     </Box>
                     <Box>
                         <Typography variant="h6">
-                            Summary:
+                            Summary in English:
                         </Typography>
                         <Typography variant="body2">
-                            {summary}
+                            {summary_en}
                         </Typography>
                     </Box>
                     <Box>
                         <Typography variant="h6">
-                            Additional:
+                            Description in Spanish:
                         </Typography>
                         <Typography variant="body2">
-                            {additional}
+                            {description_es}
+                        </Typography>
+                    </Box>
+                    <Box>
+                        <Typography variant="h6">
+                            Summary in Spanish:
+                        </Typography>
+                        <Typography variant="body2">
+                            {summary_es}
                         </Typography>
                     </Box>
                 </CardContent>
@@ -82,6 +90,7 @@ export default function CardRoomInfo (props : Props) {
                     <ChangeSwitchStatus 
                         id={id}
                         status={status}
+                        handleReload={handleReload}
                     />
                 </CardActions>
             </Card>
@@ -90,7 +99,7 @@ export default function CardRoomInfo (props : Props) {
                     open={open}
                     handleClose={handleClose}
                     reloadAction={handleReload}
-                    room={data as Omit<Room, 'files' | 'created_at' | 'status'>}
+                    room={data as Omit<RoomLanguage, 'files' | 'created_at' | 'status'>}
                     closeConfirm
                 />
             }

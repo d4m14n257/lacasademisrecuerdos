@@ -3,14 +3,14 @@ import ModalBase from "../../general/ModalBase";
 import CreateRoomForm from "../../form/CreateRoomForm";
 
 import '../../globals.css';
-import { Room } from "@/model/types";
+import { RoomLanguage } from "@/model/types";
 
 type Props = {
     open: boolean,
     handleClose: () => void,
     closeConfirm: boolean
     reloadAction: () => Promise<void>
-    room?: Omit<Room, 'files' | 'created_at' | 'status'> | null
+    room?: Omit<RoomLanguage, 'files' | 'created_at' | 'status'> | null
 }
 
 export default function CreateRoomModal (props : Props) {

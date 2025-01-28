@@ -15,6 +15,7 @@ import { Confirm } from "@/contexts/ConfirmContext";
 import { Advice } from "@/contexts/AdviceProvider";
 import { setData } from "@/api/setData";
 import { Loading } from "@/contexts/LoadingProvider";
+import { DELETE_FILE, ROOMS_MAIN_FILE } from "@/constants/endpoints";
 
 type Props = {
     roomId: string
@@ -41,7 +42,7 @@ function useListFileRooms (session : Session | null, handleReload: () => Promise
             handleOpenLoading();
     
             if(session != null) {
-                const res = await deleteData<Source[]>('file/admin', [file], session.token);
+                const res = await deleteData<Source[]>(`${DELETE_FILE}`, [file], session.token);
 
                 if(res.status >= 200 && res.status <= 299) {
                     await handleReload();
@@ -101,7 +102,7 @@ function useListFileRooms (session : Session | null, handleReload: () => Promise
             handleOpenLoading();
 
             if(session != null) {
-                const res = await setData<FileId>("file/admin/main/room", session.token, file, "PUT");
+                const res = await setData<FileId>(`${ROOMS_MAIN_FILE}`, file, "PUT", session.token);
 
                 if(res.status >= 200 && res.status <= 299) {
                     await handleReload();

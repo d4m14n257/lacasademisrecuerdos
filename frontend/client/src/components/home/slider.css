@@ -1,0 +1,33 @@
+.swiper-home {
+    padding: 40px 0;
+    color: white;
+    font-weight: 700;
+    font-family: var(--font-scheherazade-new);
+    line-height: 40px;
+    height: 100%;
+    background-color: var(--yellow-color);
+}
+
+.swiper-home h1 {
+    font-size: 54px;
+    max-width: 540px;
+}
+
+.swiper-home p {
+    font-size: 32px;
+    max-width: 920px;
+    text-align: center;
+}
+
+.swiper-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 45px
+}
+
+.swiper-button-next, .swiper-button-prev{
+    color: white;
+    width: 40px;
+    height: 40px;
+}

@@ -1,0 +1,9 @@
+{
+    "nav": {
+        "home": "Inicio",
+        "about": "Acerca de",
+        "room": "Habitaciones",
+        "tour": "Tours",
+        "contact": "Contacto"
+    }
+}

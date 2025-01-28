@@ -8,9 +8,10 @@ import com.client.service_client.model.enums.RoomStatus;
 public record RoomWithFilesAdmin(
     String id,
     String name,
-    String description,
-    String summary,
-    String additional,
+    String description_es,
+    String description_en,
+    String summary_es,
+    String summary_en,
     Double single_price,
     Double double_price,
     LocalDateTime created_at,

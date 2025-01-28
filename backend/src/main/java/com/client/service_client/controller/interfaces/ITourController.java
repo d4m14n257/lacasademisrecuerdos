@@ -7,32 +7,31 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.client.service_client.model.dto.TourDTO;
 import com.client.service_client.model.dto.TourUpdateDTO;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
-@RequestMapping("/api/tour")
 public interface ITourController {
 
-    @GetMapping
-    public ResponseEntity<?> getAllTours();
+    @GetMapping("/client/tour")
+    public ResponseEntity<?> getAllTours(HttpServletRequest request);
 
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getTourById(@PathVariable String id);
+    // @GetMapping("/client/tour/{id}")
+    // public ResponseEntity<?> getTourById(HttpServletRequest request, @PathVariable String id);
 
-    @GetMapping("/admin/{id}")
+    @GetMapping("/admin/tour/{id}")
     public ResponseEntity<?> getTourByAdmin(@PathVariable String id);
 
-    @PostMapping("/admin")
+    @PostMapping("/admin/tour")
     @Transactional
     public ResponseEntity<?> createTour(@Valid @RequestParam("data") TourDTO entity, @RequestParam("file") MultipartFile file);
 
-    @PutMapping("/admin")
+    @PutMapping("/admin/tour")
     @Transactional
     public ResponseEntity<?> editTour(@Valid @RequestBody TourUpdateDTO entity); 
 }

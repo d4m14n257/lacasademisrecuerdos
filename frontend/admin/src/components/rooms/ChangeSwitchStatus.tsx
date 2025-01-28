@@ -1,6 +1,7 @@
 "use client"
 
 import { setData } from "@/api/setData";
+import { ROOMS_STATUS } from "@/constants/endpoints";
 import { Advice } from "@/contexts/AdviceProvider";
 import { Confirm } from "@/contexts/ConfirmContext";
 import { Loading } from "@/contexts/LoadingProvider";
@@ -9,9 +10,8 @@ import { Stack, Switch, Typography } from "@mui/material";
 import { useSession } from "next-auth/react";
 import { useContext, useState } from "react";
 
-const useChangeSwitchStatus = ({ id, status } : RoomStatus) => {
+const useChangeSwitchStatus = ({ id, status, handleReload } : RoomStatus & { handleReload : () => Promise<void> }) => {
     const { data : session } = useSession();
-    const [ isActive, setIsActive ] = useState<boolean>(status == 'active' ? true : false)
     const { confirm, handleMessage } = useContext(Confirm);
     const { handleOpen, handleAdvice } = useContext(Advice);
     const { handleOpenLoading, handleCloseLoading } = useContext(Loading);
@@ -31,9 +31,7 @@ const useChangeSwitchStatus = ({ id, status } : RoomStatus) => {
 
                 handleOpenLoading();
 
-                const res = await setData<RoomStatus>('room/admin/status', session?.token, 
-                    { id, status: isActive ? 'active' : 'hidden' }, "PUT"
-                );
+                const res = await setData<RoomStatus>(`${ROOMS_STATUS}`, { id, status }, "PUT", session?.token);
 
                 if(res.status >= 200 && res.status <= 299) {
                     handleAdvice({
@@ -42,7 +40,7 @@ const useChangeSwitchStatus = ({ id, status } : RoomStatus) => {
                     })
     
                     handleOpen();
-                    setIsActive(!isActive);
+                    handleReload();
                 }
                 else {
                     handleAdvice({
@@ -86,18 +84,17 @@ const useChangeSwitchStatus = ({ id, status } : RoomStatus) => {
 
     return {
         handleChangeStatus,
-        isActive
     }
 }
 
-export default function ChangeSwitchStatus(props : RoomStatus) {
-    const { handleChangeStatus, isActive } = useChangeSwitchStatus(props);
+export default function ChangeSwitchStatus(props : RoomStatus & { handleReload: () => Promise<void> }) {
+    const { handleChangeStatus } = useChangeSwitchStatus(props);
 
     return (
         <Stack direction='row' spacing={1} sx={{ alignItems: 'center' }}>
             <Typography variant="caption">Hidden</Typography>
             <Switch 
-                checked={isActive}
+                checked={props.status == 'active' ? true : false}
                 size='small'
                 onChange={handleChangeStatus}
                 value='off'

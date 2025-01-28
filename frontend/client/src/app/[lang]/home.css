@@ -1,0 +1,148 @@
+.image {
+    max-width: var(--breakpoint-max);
+    width: 100vw;
+    object-fit: cover;
+    height: 100%;
+}
+
+.title {
+    font-size: 20px;
+    font-weight: 400;
+    font-family: var(--font-scheherazade-new);
+    color: var(--brown-color);
+    text-transform: uppercase;
+    text-align: center;
+}
+
+.subtitle {
+    font-size: 54px;
+    font-weight: 700;
+    font-family: var(--font-scheherazade-new);
+    line-height: 40px;
+    color: var(--pink-color);
+}
+
+.description {
+    font-size: 20px;
+    font-weight: 400;
+    font-family: var(--font-roboto);
+    line-height: 23.44px;
+    color: var(--brown-color);
+}
+
+.about-section {
+    margin: calc(var(--margin-max) / 1.5) var(--margin-max);
+}
+
+.about-contact-section hr {
+    margin-left: 0;
+    border: none;
+    height: 3px;
+    background-color: var(--yellow-color);
+    width: 62px;
+}
+
+.about-contact-section > div {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: flex-start;
+    gap: calc(var(--margin-max) / 2)
+}
+
+.about-contact-section h1 {
+    width: 330px;
+    margin: 0;
+}
+
+.about-contact-section h6 {
+    margin-top: 0;
+    margin-bottom: 74px;
+}
+
+.about-contact-section p {
+    margin-top: 75px;
+    width: 540px;
+}
+
+#reviews {
+    max-width: var(--breakpoint-max);
+	width: 100%;
+}
+
+#location {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+}
+
+#location > div {
+    margin-left: 50px;
+}
+
+#location .subtitle {
+    margin-top: 0;
+    text-align: left;
+}
+
+#location .title {
+    margin-bottom: 20px;
+    text-align: left;
+    margin-top: 20px;
+}
+
+#contact {
+    width: 100%;
+}
+
+#contact > div {
+    justify-content: space-between;
+    margin: 75px
+}
+
+#contact .subtitle, .title {
+    margin-top: 0;
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.list-location {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 500px;
+    height: 450px;
+    border: 1px solid #ccc;
+    overflow: auto;
+}
+
+.list-location > div {
+    display: flex;
+    flex-direction: row;
+    border-bottom: 1px solid var(--brown-color);
+    border-top: 1px solid var(--brown-color);
+}
+
+.list-location h3 {
+    color: var(--pink-color);
+    font-size: 24px;
+    margin: 0;
+}
+
+.list-location p {
+    color: var(--brown-color);
+    font-family: var(--font-rasa);
+    font-weight: 700;
+}
+
+.list-location > div:hover {
+    background-color: #dca5821c;
+    cursor: pointer;
+}
+
+.list-location-text {
+    margin: 15px;
+    display: flex;
+    flex-direction: column;
+}

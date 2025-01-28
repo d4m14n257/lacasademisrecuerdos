@@ -13,11 +13,11 @@ import com.client.service_client.model.enums.UserStatus;
 
 public interface UserRepository extends JpaRepository<User, String>{
     @Query(value = 
-        "SELECT * FROM User u WHERE u.email = :email AND u.status = 'active'", nativeQuery = true)
+        "SELECT * FROM User u WHERE u.email = :email", nativeQuery = true)
     Optional<User> findByEmail(String email);
 
     @Query(value =
-        "SELECT * FROM User u WHERE u.username = :username AND u.status = 'active'", nativeQuery = true)
+        "SELECT * FROM User u WHERE u.username = :username AND u.status", nativeQuery = true)
     Optional<User> findByUsername(String username);
 
     @Query("SELECT CASE WHEN COUNT(*) > 0 THEN TRUE ELSE FALSE END FROM User u " +

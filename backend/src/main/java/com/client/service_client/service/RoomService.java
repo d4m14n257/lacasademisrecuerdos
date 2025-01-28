@@ -19,24 +19,22 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class RoomService {
-
     private final RoomRepository roomRepository;
 
     public RoomService(RoomRepository roomRepository) {
         this.roomRepository = roomRepository;
     }
 
-    public List<RoomCards> findAllAvailable() {
-        List<Object[]> results = roomRepository.findAllRoomsAvailable();
+    public List<RoomCards> findAllAvailable(String language) {
+        List<Object[]> results = roomRepository.findAllRoomsAvailable(language);
         List<RoomCards> rooms = results.stream()
             .map(result -> new RoomCards(
                 (String) result[0],
                 (String) result[1],
                 (String) result[2],
+                null,
                 (String) result[3],
-                RoomStatus.valueOf((String) result[4]),
-                (String) result[5],
-                (String) result[6]))
+                (String) result[4]))
             .collect(Collectors.toList());
         
         return rooms;
@@ -49,17 +47,16 @@ public class RoomService {
                 (String) result[0],
                 (String) result[1],
                 (String) result[2],
-                (String) result[3],
-                RoomStatus.valueOf((String) result[4]),
-                (String) result[5],
-                (String) result[6]))
+                RoomStatus.valueOf((String) result[3]),
+                (String) result[4],
+                (String) result[5]))
             .collect(Collectors.toList());
         
         return rooms;
     }
 
-    public Optional<RoomWithFiles> findByIdWithFiles(String id) {
-        List<Object[]> results = roomRepository.findByIdWithFiles(id);
+    public Optional<RoomWithFiles> findByIdWithFiles(String id, String language) {
+        List<Object[]> results = roomRepository.findByIdWithFiles(id, language);
         
         if (results.isEmpty()) {
             return null;
@@ -72,18 +69,17 @@ public class RoomService {
         String name = (String) firstRow[1];
         String description = (String) firstRow[2];
         String summary = (String) firstRow[3];
-        String additional = (String) firstRow[4];
-        BigDecimal singlePrice = (BigDecimal) firstRow[5];
-        BigDecimal doublePrice = (BigDecimal) firstRow[6];
+        BigDecimal singlePrice = (BigDecimal) firstRow[4];
+        BigDecimal doublePrice = (BigDecimal) firstRow[5];
 
         for (Object[] row : results) {
-            String fileName = (String) row[7];
-            String source = (String) row[8];
-            Boolean main = (Boolean) row[9];
+            String fileName = (String) row[6];
+            String source = (String) row[7];
+            Boolean main = (Boolean) row[8];
             files.add(new FilesInfo(source, fileName, main));
         }
 
-        return Optional.of(new RoomWithFiles(room_id, name, description, summary, additional, singlePrice, doublePrice, files));
+        return Optional.of(new RoomWithFiles(room_id, name, description, summary, singlePrice, doublePrice, files));
     } 
 
     public List<RoomList> findRoomList() {
@@ -111,7 +107,8 @@ public class RoomService {
     }
 
     public void edit(RoomUpdateDTO entity) {
-        roomRepository.edit(entity.getId(), entity.getName(), entity.getDescription(), entity.getSummary(), entity.getAdditional(), entity.getDouble_price(), entity.getSingle_price());
+        roomRepository.edit(entity.getId(), entity.getName(), entity.getDescription_es(), entity.getDescription_en(), entity.getSummary_es(), 
+                            entity.getSummary_en(), entity.getDouble_price(), entity.getSingle_price());
     }
 
     public Optional<Room> room(String id) {
@@ -125,4 +122,8 @@ public class RoomService {
     public List<String> getAllFilesRoom(String id) {
         return roomRepository.getAllFilesRoom(id);
     }
+
+    // public boolean isValidActive (String id) {
+
+    // }
 }

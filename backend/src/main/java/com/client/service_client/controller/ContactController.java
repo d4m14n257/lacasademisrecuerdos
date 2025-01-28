@@ -86,6 +86,8 @@ public class ContactController implements IContactController {
         }
     }
 
+    /* TODO: Revisar si sirve que este mande correo en dos direcciones y si sirve guardarlo, y responder en dos idiomas */
+
     public ResponseEntity<?> sendClientContact(ContactDTO entity) {
         try {            
             Optional<Room> room = roomService.room(entity.getId());

@@ -11,7 +11,7 @@ export async function getData<T>(endpoint: string, hasFiles: boolean, token?: st
             }
         }
 
-        const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_HOST}/${endpoint}`, options);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_HOST}${endpoint}`, options);
 
         if (res.status === 204) {
             return {
@@ -40,7 +40,7 @@ export async function getData<T>(endpoint: string, hasFiles: boolean, token?: st
     } catch (err: unknown) {
         if (err instanceof Error) {
             return {
-                err: err.message.charAt(0).toUpperCase() + err.message.slice(1),
+                err: "Server not available",
                 status: 503
             };
         }

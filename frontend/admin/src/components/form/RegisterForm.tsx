@@ -13,7 +13,6 @@ import { REGISTER } from '@/constants/endpoints';
 import { Confirm } from '@/contexts/ConfirmContext';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import './form.css'
-import { navigation } from '@/lib/navigation';
 
 const schema = z.object({
     email: z.string().nonempty("Email is required."),
@@ -44,7 +43,7 @@ const useRegisterForm = () => {
 
 export default function RegisterForm() {
     const { confirm, handleOpen, handleAdvice, handleMessage } = useRegisterForm();
-    const { register, handleSubmit, setError, formState: { errors, isSubmitting }} = useForm<Register>({
+    const { register, handleSubmit, setError, reset, formState: { errors, isSubmitting }} = useForm<Register>({
         defaultValues: {
             email: '',
             username: '',
@@ -76,6 +75,14 @@ export default function RegisterForm() {
                     status: res.status
                 })
 
+                reset({
+                    email: '',
+                    username: '',
+                    first_name: '',
+                    last_name: '',
+                    password: '',
+                    confirmPassword: ''
+                })
                 handleOpen();
             }
             else {
@@ -91,7 +98,6 @@ export default function RegisterForm() {
                     })
 
                     handleOpen();
-                    await navigation("/login")
                 }
             }
 
@@ -157,7 +163,7 @@ export default function RegisterForm() {
                             fullWidth
                             disabled={isSubmitting}
                             error={Boolean(errors.username)}
-                            placeholder="youruser"
+                            placeholder="YourUsername"
                             {...register("username")}
                             
                         />}

@@ -5,13 +5,14 @@ import { HandlerError, HandlerMessageError } from "@/components/handler/HandlerE
 import { ConfirmProvider } from "@/contexts/ConfirmContext";
 import { RoomCard } from "@/model/types";
 import { authOptions } from "@/lib/authOptions";
+import { ROOMS_GENERAL } from "@/constants/endpoints";
 import CardRoom from "@/components/rooms/CardRoom";
 
 import '../additional.css';
 
 export default async function RoomsPage () {
     const session = await getServerSession(authOptions);
-    const res = await getData<RoomCard>('room/admin', false, session?.token);
+    const res = await getData<RoomCard>(`${ROOMS_GENERAL}`, false, session?.token);
 
     return (
         <HandlerError>

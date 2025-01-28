@@ -3,23 +3,24 @@
 import { Grid } from "@mui/material";
 import ListFileRooms from "./ListFileRooms";
 import CardRoomInfo from "./CardRoomInfo";
-import { Room } from "@/model/types";
+import { RoomLanguage } from "@/model/types";
 import { useCallback, useContext, useState } from "react";
 import { getData } from "@/api/getData";
 import { Session } from "next-auth";
 import { Advice } from "@/contexts/AdviceProvider";
+import { ROOMS_GENERAL } from "@/constants/endpoints";
 
 type Props = {
-    res: Room;
+    res: RoomLanguage;
     session: Session | null
 }
 
-function useCardByIdRoom ({ res, session } : { res: Room, session: Session | null }) {
-    const [ room, setRoom ] = useState<Room>(res);
+function useCardByIdRoom ({ res, session } : { res: RoomLanguage, session: Session | null }) {
+    const [ room, setRoom ] = useState<RoomLanguage>(res);
     const { handleOpen, handleAdvice } = useContext(Advice);
 
     const handleReload = useCallback(async () => {
-        const res = await getData<Room>(`room/admin/${room.id}`, false, session?.token);
+        const res = await getData<RoomLanguage>(`${ROOMS_GENERAL}/${room.id}`, false, session?.token);
 
         if(res.data && !Array.isArray(res.data)) {
             setRoom(res.data);

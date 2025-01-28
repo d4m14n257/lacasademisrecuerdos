@@ -1,0 +1,145 @@
+.swiper-room {
+    width: 100%;
+}
+
+.swiper-room .swiper-slide img {
+    display: block;
+    height: 500px;
+    object-fit: cover;
+}
+
+.swiper-room .swiper-slide {
+    display: flex;
+    background-color: red;
+}
+
+.swiper-room .swiper-button-next {
+    color: white;
+}
+
+.swiper-room .swiper-button-prev {
+    color: white;
+}
+
+.swiper-div {
+    max-width: 100%;
+}
+
+.details {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 85%;
+    margin-top: 50px;
+}
+
+.details h1 {
+    color: var(--pink-color);
+    font-size: 48px;
+    font-family: var(--font-scheherazade-new);
+    font-weight: 700;
+    letter-spacing: 1;
+    margin: 0;
+}
+
+.details > div > p {
+    color: var(--brown-color);
+    font-size: 24px;
+    font-family: var(--font-rasa);
+    width: 625px;
+}
+
+h2 {
+    color: var(--brown-color);
+    font-size: 50px;
+    font-family: var(--font-scheherazade-new);
+    font-weight: 400;
+    margin: 0;
+}
+
+.form-reservation {
+    padding: 40px 50px;
+    background-color: var(--background-color);
+}
+
+.room-price {
+    position: absolute;
+    left: max(calc((100vw - var(--breakpoint-max)) / 2), 0px);
+    font-family: var(--font-roboto);
+    padding: 10px 100px;
+    background-color: var(--yellow-color);
+    line-height: 20px;
+    font-size: 20px;
+}
+
+.room-price p {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 300px;
+}
+
+.room-price span:first-child {
+    font-weight: 700;
+}
+
+.summary {
+    font-weight: 700;
+}
+
+.card-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin: 20px 50px 50px 50px;
+}
+
+.card-room {
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+}
+
+.card-room img {
+    object-fit: cover;
+    height: 300px;
+}
+
+.card-room button {
+    width: 225px;
+    height: 40px;
+    border-radius: 3px;
+    border: 1px solid var(--pink-color);
+    background-color: transparent;
+    color: var(--pink-color);
+    font-family: var(--font-rasa);
+    font-size: 24px;
+}
+
+.card-room h3 {
+    color: #e20470;
+    font-family: var(--font-scheherazade-new);
+    font-weight: 700;
+    font-size: 48px;
+    line-height: 98px;
+    line-height: 1;
+    margin: 0;
+}
+
+.card-room p {
+    font-family: var(--font-rasa);
+    font-weight: 600;
+    color: var(--brown-color);
+    font-size: 22px;
+    line-height: 32px;
+    margin-bottom: 64px;
+}
+
+.card-info {
+    margin: 40px;
+}
+
+.others-rooms {
+    margin-top: 50px;
+}

@@ -14,30 +14,34 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { setData } from '@/api/setData';
 import { useSession } from 'next-auth/react';
 import { Advice } from '@/contexts/AdviceProvider';
-import { Room as RoomType } from "@/model/types";
+import { RoomLanguage } from "@/model/types";
 
 import "./form.css"
 import { Loading } from "@/contexts/LoadingProvider";
+import { ROOMS_GENERAL } from "@/constants/endpoints";
 
 type Props = {
     handleClose: () => void,
     reloadAction: () => Promise<void>
-    room: Omit<RoomType, 'files' | 'created_at' | 'status'> | null | undefined
+    room: Omit<RoomLanguage, 'files' | 'created_at' | 'status'> | null | undefined
 }
 
 const schema = z.object({
     name: z.string()
-    .max(32, { message: "The name cannot be longer than 32 characters"})
-    .min(1, { message: "Name is required"}),
-    description: z.string()
-    .max(2048, {message: "The name cannot be longer than 2048 characters"})
-    .min(1, { message: "Description is required" }),
-    summary: z.string()
-    .max(512, { message: "The name cannot be longer than 512 characters" })
-    .min(1, { message: "Summary is required" }),
-    additional: z.string()
-    .max(128, { message: "The name cannot be longer than 128 characters"})
-    .min(1, { message: "Additional is required"}),
+        .max(32, { message: "The name cannot be longer than 32 characters"})
+        .min(1, { message: "Name is required"}),
+    description_es: z.string()
+        .max(2048, {message: "The name cannot be longer than 2048 characters"})
+        .min(1, { message: "Description in Spanish is required" }),
+    description_en: z.string()
+        .max(2048, {message: "The name cannot be longer than 2048 characters"})
+        .min(1, { message: "Description in English is required" }),
+    summary_es: z.string()
+        .max(512, { message: "The name cannot be longer than 512 characters" })
+        .min(1, { message: "Summary in Spanish is required" }),
+    summary_en: z.string()
+        .max(512, { message: "The name cannot be longer than 512 characters" })
+        .min(1, { message: "Summary in English is required" }),
     single_price: z.number({
         required_error: 'Single prices is required'
     })
@@ -99,9 +103,10 @@ export default function CreateRoomForm (props : Props) {
     const { control, register, handleSubmit, formState: { errors, isSubmitting }} = useForm<Room>({
         defaultValues: {
             name: room?.name || undefined,
-            description: room?.description || undefined,
-            summary: room?.summary || undefined,
-            additional: room?.additional || undefined,
+            description_es: room?.description_es || undefined,
+            description_en: room?.description_en || undefined,
+            summary_es: room?.summary_es || undefined,
+            summary_en: room?.summary_en || undefined,
             single_price: room?.single_price || undefined,
             double_price: room?.double_price || undefined,
             file: room ? true : undefined 
@@ -124,9 +129,10 @@ export default function CreateRoomForm (props : Props) {
 
             if(room) {
                 const areEqual = room.name === data.name &&
-                    room.description === data.description &&
-                    room.summary === data.summary &&
-                    room.additional === data.additional &&
+                    room.description_es === data.description_es &&
+                    room.description_en === data.description_en &&
+                    room.summary_es === data.summary_es &&
+                    room.summary_en === data.summary_en &&
                     room.single_price === data.single_price &&
                     room.double_price === data.double_price;
 
@@ -167,7 +173,7 @@ export default function CreateRoomForm (props : Props) {
                 const blob = new Blob([jsonData], { type: 'application/json' });
                 formData.append('data', blob);
 
-                const res = await setData<FormData>('room/admin', token, formData, "POST");
+                const res = await setData<FormData>(`${ROOMS_GENERAL}`, formData, "POST", token);
 
                 if(res.status >= 200 && res.status <= 299) {
                     await reloadAction();
@@ -197,9 +203,9 @@ export default function CreateRoomForm (props : Props) {
                 return;
             }
             if(data.file && room) {
-                const res = await setData<Omit<RoomType, 'files' | 'created_at' | 'status'>>('room/admin', token, {
+                const res = await setData<Omit<RoomLanguage, 'files' | 'created_at' | 'status'>>(`${ROOMS_GENERAL}`, {
                     id: room.id, ...data
-                }, "PUT");
+                }, "PUT", token);
 
 
                 if(res.status >= 200 && res.status <= 299) {
@@ -289,25 +295,25 @@ export default function CreateRoomForm (props : Props) {
             </FormControl>
             <FormControl
                 fullWidth
-                error={Boolean(errors.description)}
+                error={Boolean(errors.description_es)}
                 className='label-field'
             >
                 <FormControlLabel 
-                    label={<Typography color={Boolean(errors.description) ? "error" : "info"}>Description</Typography>}
+                    label={<Typography color={Boolean(errors.description_es) ? "error" : "info"}>Description in Spanish</Typography>}
                     labelPlacement='top'
                     control={
                         <TextArea 
                             disabled={isSubmitting}
-                            error={Boolean(errors.description)}
+                            error={Boolean(errors.description_es)}
                             placeholder='This beautiful room is located on the second floor of the house...'
                             minRows={4}
-                            {...register('description')}
+                            {...register('description_es')}
                         />
                     }
                 />
-                {errors.description ?
+                {errors.description_es ?
                     <FormHelperText>
-                        <ErrorMessage errors={errors} name="description"/>
+                        <ErrorMessage errors={errors} name="description_es"/>
                     </FormHelperText> :
                     <FormHelperText>
                         You must put a detailed description of the room
@@ -316,52 +322,79 @@ export default function CreateRoomForm (props : Props) {
             </FormControl>
             <FormControl
                 fullWidth
-                error={Boolean(errors.additional)}
+                error={Boolean(errors.description_en)}
                 className='label-field'
             >
                 <FormControlLabel 
-                    label={<Typography color={Boolean(errors.additional) ? "error" : "info"}>Additional</Typography>}
+                    label={<Typography color={Boolean(errors.description_en) ? "error" : "info"}>Description in English</Typography>}
                     labelPlacement='top'
                     control={
                         <TextArea 
                             disabled={isSubmitting}
-                            error={Boolean(errors.additional)}
-                            placeholder='1 king-sized bed or 2 single beds. Private Bath.'
+                            error={Boolean(errors.description_en)}
+                            placeholder='This beautiful room is located on the second floor of the house...'
                             minRows={4}
-                            {...register('additional')}
+                            {...register('description_en')}
                         />
                     }
                 />
-                {errors.additional ?
+                {errors.description_en ?
                     <FormHelperText>
-                        <ErrorMessage errors={errors} name="additional"/>
+                        <ErrorMessage errors={errors} name="description_en"/>
                     </FormHelperText> :
                     <FormHelperText>
-                        You must provide information describing what the room includes
+                        You must put a detailed description of the room
                     </FormHelperText>
                 }
             </FormControl>
             <FormControl
                 fullWidth
-                error={Boolean(errors.summary)}
+                error={Boolean(errors.summary_es)}
                 className='label-field'
             >
                 <FormControlLabel 
-                    label={<Typography color={Boolean(errors.summary) ? "error" : "info"}>Summary</Typography>}
+                    label={<Typography color={Boolean(errors.summary_es) ? "error" : "info"}>Summary in Spanish</Typography>}
                     labelPlacement='top'
                     control={
                         <TextArea 
                             disabled={isSubmitting}
-                            error={Boolean(errors.summary)}
+                            error={Boolean(errors.summary_es)}
                             placeholder='Located on the second floor of the house, this room has...'
                             minRows={4}
-                            {...register('summary')}
+                            {...register('summary_es')}
                         />
                     }
                 />
-                {errors.summary ?
+                {errors.summary_es ?
                     <FormHelperText>
-                        <ErrorMessage errors={errors} name="summary"/>
+                        <ErrorMessage errors={errors} name="summary_es"/>
+                    </FormHelperText> :
+                    <FormHelperText>
+                        You must put a summary of the room to show to the users
+                    </FormHelperText>
+                }
+            </FormControl>
+            <FormControl
+                fullWidth
+                error={Boolean(errors.summary_en)}
+                className='label-field'
+            >
+                <FormControlLabel 
+                    label={<Typography color={Boolean(errors.summary_en) ? "error" : "info"}>Summary in English</Typography>}
+                    labelPlacement='top'
+                    control={
+                        <TextArea 
+                            disabled={isSubmitting}
+                            error={Boolean(errors.summary_en)}
+                            placeholder='Located on the second floor of the house, this room has...'
+                            minRows={4}
+                            {...register('summary_en')}
+                        />
+                    }
+                />
+                {errors.summary_en ?
+                    <FormHelperText>
+                        <ErrorMessage errors={errors} name="summary_en"/>
                     </FormHelperText> :
                     <FormHelperText>
                         You must put a summary of the room to show to the users

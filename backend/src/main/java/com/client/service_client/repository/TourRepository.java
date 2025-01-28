@@ -11,12 +11,17 @@ import com.client.service_client.model.Tour;
 
 public interface TourRepository extends JpaRepository<Tour, String>{
     @Query(value = 
-        "SELECT t.id, t.name, t.summary, t.url, f.source, f.name as file_name " + 
+        "SELECT t.id, t.name, " + 
+        "CASE WHEN :language = 'es' THEN t.description_es WHEN :language = 'en' THEN t.description_en " +
+        "ELSE t.description_en END as description " +
+        "CASE WHEN :language = 'es' THEN t.summary_es WHEN :language = 'en' THEN t.summary_en " +
+        "ELSE t.summary_en END as summary " +
+        "t.url, f.source, f.name as file_name " + 
         "FROM Tour t " + 
         "JOIN File f ON t.id = f.tour_id " +
         "WHERE f.main = true " +
         "AND t.status = 'used'", nativeQuery = true)
-    List<Object[]> findAllTours();
+    List<Object[]> findAllTours(String language);
 
     @Query(
         "SELECT CASE WHEN COUNT(*) > 0 THEN TRUE ELSE FALSE END FROM Tour t " + 

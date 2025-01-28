@@ -4,34 +4,37 @@
 	--green-color: #b8c53c;
 	--brown-color: #774729;
 	--white-color: #fff8f4;
+	--background-color: rgba(220, 165, 130, 0.11);
 
-	--primary-fonts: 'Roboto Serif';
-	--secondary-fonts: 'Roboto Mono';
-	--tertiary-fonts: 'Roboto';
-
-	--breakpoint-max: 1440px;
-	--margin-max: 140px;
+	--breakpoint-max: 1536px;
+	--margin-max: min(140px, (10vw));
+	--header-height: 115px;
 }
 
 body {
 	margin: 0;
 	display: flex;
 	flex-direction: column;
-	height: 100vh;
+	background-color: var(--background-color);
 }
 
 footer {
+	position: relative;
+	bottom: 0;
 	display: flex;
-	background-color: var(--pink-color);
 	min-height: 244px;
 	justify-content: center;
+	background-color: var(--pink-color);
+	width: 100%;
 }
 
 header {
-	position: fixed;
+	position: absolute;
+	top: 0;
 	display: flex;
 	justify-content: center;
 	width: 100%;
+	height: var(--header-height);
 }
 
 nav {
@@ -45,35 +48,36 @@ main {
 	display: flex;
 	flex-direction: row;
 	justify-content: center;
-	background-color: rebeccapurple;
-	height: 100vh;
+	min-height: calc(100vh - 244px - var(--header-height));
 }
 
 nav > * {
 	margin-left: 24px;
-	font-family: var(--primary-fonts);
+	font-family: var(--font-roboto-serif);
 	font-size: 24px;
-	color: white;
 	text-decoration: none;
+	color: white;
 }
 
 .container {
 	display: flex;
-	flex-direction: row;
-	background-color: aqua;
-	max-width: 1920px;
+	flex-direction: column;
+	align-items: center;
+	max-width: var(--breakpoint-max);
+	width: 100%;
+	height: 100%;
 }
 
 .footer-header-container {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	width: var(--breakpoint-max);
+	width: calc(var(--breakpoint-max) - 2 * var(--margin-max));
 	margin: 0 var(--margin-max);
 }
 
 .footer-header-container > section {
-	font-family: var(--tertiary-fonts);
+	font-family: var(--font-roboto);
 	color: white;
 	font-size: 24px;
 }
@@ -82,4 +86,20 @@ nav > * {
 	display: flex;
 	justify-content: center;
 	gap: 128px
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+}
+  
+::-webkit-scrollbar-track {
+    background: #f1f1f1; 
+}
+   
+::-webkit-scrollbar-thumb {
+    background: #888; 
+}
+  
+::-webkit-scrollbar-thumb:hover {
+    background: #555; 
 }
